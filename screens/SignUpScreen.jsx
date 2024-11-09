@@ -2,6 +2,10 @@ import React from "react";
 import { View, Text, TextInput, TouchableOpacity, StyleSheet } from "react-native";
 
 const SignUpScreen = ({ navigation }) => {
+      const handleSignUp = () => {
+        // Logic for signing up can be added here
+        navigation.replace("MainTabs"); // Navigate to MainTabs and clear history
+      };
   return (
     <View style={styles.screenContainer}>
       {/* Header Section */}
@@ -15,46 +19,42 @@ const SignUpScreen = ({ navigation }) => {
       {/* Form Section */}
       <View style={styles.formContainer}>
         <View style={styles.inputContainer}>
-          <Text style={styles.label}>Full Name</Text>
           <TextInput
             style={styles.input}
             placeholder="Enter your full name"
-            placeholderTextColor="rgba(60, 90, 127, 0.5)"
+            placeholderTextColor="#FFFFFF"
           />
         </View>
         <View style={styles.inputContainer}>
-          <Text style={styles.label}>Your Email</Text>
           <TextInput
             style={styles.input}
             placeholder="Enter your email"
-            placeholderTextColor="rgba(60, 90, 127, 0.5)"
+            placeholderTextColor="#FFFFFF"
             keyboardType="email-address"
           />
         </View>
         <View style={styles.inputContainer}>
-          <Text style={styles.label}>Password</Text>
           <TextInput
             style={styles.input}
             placeholder="Enter your password"
-            placeholderTextColor="rgba(60, 90, 127, 0.5)"
+            placeholderTextColor="#FFFFFF"
             secureTextEntry
           />
         </View>
         <View style={styles.inputContainer}>
-          <Text style={styles.label}>Confirm Password</Text>
           <TextInput
             style={styles.input}
             placeholder="Confirm your password"
-            placeholderTextColor="rgba(60, 90, 127, 0.5)"
+            placeholderTextColor="#FFFFFF"
             secureTextEntry
           />
         </View>
       </View>
 
       {/* Button Section */}
-      <TouchableOpacity style={styles.signUpButton}>
-        <Text style={styles.signUpButtonText}>Sign Up</Text>
-      </TouchableOpacity>
+        <TouchableOpacity style={styles.signUpButton} onPress={handleSignUp}>
+          <Text style={styles.signUpButtonText}>Sign Up</Text>
+        </TouchableOpacity>
 
       {/* Footer Section */}
       <View style={styles.footerContainer}>
@@ -113,7 +113,7 @@ const styles = StyleSheet.create({
     minHeight: 60,
     width: "100%",
     paddingHorizontal: 20,
-    backgroundColor: "rgba(255, 255, 255, 0.1)",
+    backgroundColor: "#000000",
     color: "rgba(60, 90, 127, 1)",
   },
   signUpButton: {

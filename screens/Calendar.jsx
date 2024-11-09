@@ -1,10 +1,23 @@
 import React from 'react';
-import { View, Text, StyleSheet } from 'react-native';
+import { View, Text, StyleSheet, ScrollView } from 'react-native';
+import MonthCalendar from '../components/MonthCalendar'; // Updated import
 
-const Insights = () => {
+const CalendarScreen = () => {
+  const months = ['January', 'February', 'March', 'April', 'May', 'June'];
+  const year = 2023;
+
   return (
     <View style={styles.container}>
-      <Text>Calendar Page</Text>
+      {/* Main Content */}
+      <ScrollView contentContainerStyle={styles.content}>
+        <Text style={styles.title}>Journal Entries</Text>
+        {months.map((month, index) => (
+          <MonthCalendar key={index} month={month} year={year} />
+        ))}
+      </ScrollView>
+
+      {/* Footer */}
+      <Footer />
     </View>
   );
 };
@@ -12,9 +25,22 @@ const Insights = () => {
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    justifyContent: 'center',
+    backgroundColor: '#000', // Black background
+    paddingLeft: 14,
+    paddingRight: 14,
+  },
+
+  content: {
     alignItems: 'center',
+  },
+  title: {
+    fontFamily: 'LexendDeca',
+    fontSize: 26,
+    color: 'rgba(220, 134, 154, 1)',
+    fontWeight: '500',
+    textAlign: 'center',
+    marginBottom: 10,
   },
 });
 
-export default Insights;
+export default CalendarScreen;

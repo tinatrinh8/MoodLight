@@ -32,9 +32,6 @@ const styles = StyleSheet.create({
     height: 60,
     justifyContent: "center",
     alignItems: "center",
-    // Remove the following lines if they're causing the line
-    // borderBottomWidth: 1,
-    // borderBottomColor: "#000",
   },
   text: {
     fontFamily: "Belgan Aesthetic",

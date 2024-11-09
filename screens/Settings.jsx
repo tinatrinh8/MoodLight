@@ -7,10 +7,17 @@ import {
   TouchableOpacity,
   Image,
 } from "react-native";
+import { useNavigation } from "@react-navigation/native";
 import Header from "../components/Header";
-import AppNavigation from "../components/AppNavigation";
 
 const Settings = () => {
+  const navigation = useNavigation();
+
+
+  const handleLogout = () => {
+    navigation.replace("Login"); // Navigate to Login and clear history
+  };
+
   return (
     <View style={styles.container}>
       {/* Header */}
@@ -54,13 +61,10 @@ const Settings = () => {
         />
 
         {/* Logout Button */}
-        <TouchableOpacity style={styles.logoutButton}>
+        <TouchableOpacity style={styles.logoutButton} onPress={handleLogout}>
           <Text style={styles.logoutButtonText}>Log out</Text>
         </TouchableOpacity>
       </ScrollView>
-
-      {/* Bottom Navigation */}
-      <AppNavigation />
     </View>
   );
 };
@@ -78,11 +82,10 @@ const styles = StyleSheet.create({
   settingsTitle: {
     fontSize: 24,
     fontWeight: "bold",
-    color: "#DC869A", // Adjusted to the requested color
+    color: "#DC869A",
     textAlign: "center",
     marginVertical: 15,
   },
-  // Profile Info Styles
   profileContainer: {
     alignItems: "center",
     marginTop: 10,
@@ -91,9 +94,11 @@ const styles = StyleSheet.create({
     width: 90,
     height: 90,
     borderRadius: 45,
-    backgroundColor: "rgba(220, 134, 154, 0.5)", // 50% opacity
+    backgroundColor: "rgba(220, 134, 154, 0.5)",
     justifyContent: "center",
     alignItems: "center",
+    borderWidth: 2,
+    borderColor: "#FFFFFF",
   },
   avatarText: {
     fontSize: 36,
@@ -111,7 +116,6 @@ const styles = StyleSheet.create({
     fontSize: 14,
     marginTop: 5,
   },
-  // Settings Options Styles
   settingOption: {
     flexDirection: "row",
     justifyContent: "space-between",
@@ -140,24 +144,21 @@ const styles = StyleSheet.create({
     color: "rgba(0, 0, 0, 0.5)",
     fontSize: 22,
   },
-  // Plant Image
   plantImage: {
     width: 100,
     height: 100,
     marginTop: 20,
   },
-  // Logout Button
-logoutButton: {
-  marginTop: 20,
-  width: 223,
-  borderRadius: 20,
-  backgroundColor: "#FFFFFF", // Added white background
-  borderColor: "#000",
-  borderWidth: 1,
-  paddingVertical: 10,
-  alignItems: "center",
-},
-
+  logoutButton: {
+    marginTop: 20,
+    width: 223,
+    borderRadius: 20,
+    backgroundColor: "#FFFFFF",
+    borderColor: "#000",
+    borderWidth: 1,
+    paddingVertical: 10,
+    alignItems: "center",
+  },
   logoutButtonText: {
     fontSize: 16,
     color: "#000",
