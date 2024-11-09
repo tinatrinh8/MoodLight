@@ -31,7 +31,6 @@ const HomePage = () => {
 
   return (
     <View style={styles.container}>
-
       <Header />
       <SearchBar />
       <Title />

@@ -8,20 +8,21 @@ import {
   Image,
 } from "react-native";
 import { useNavigation } from "@react-navigation/native";
-import Header from "../components/Header";
+import Header from "../components/Header"; // Import the reusable Header component
 
 const Settings = () => {
   const navigation = useNavigation();
 
-
   const handleLogout = () => {
-    navigation.replace("Login"); // Navigate to Login and clear history
+    navigation.navigate("LoginScreen"); // Navigate to LoginScreen
   };
 
   return (
     <View style={styles.container}>
       {/* Header */}
-      <Header />
+      <View style={styles.headerContainer}>
+        <Header />
+      </View>
 
       {/* Scrollable Content */}
       <ScrollView contentContainerStyle={styles.scrollView}>
@@ -72,17 +73,22 @@ const Settings = () => {
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    backgroundColor: "#F5F0E8",
+    backgroundColor: "#F5F0E8", // Light background color
+  },
+  headerContainer: {
+    backgroundColor: "#F5F0E8", // Match header background to the screen
+    paddingTop: 20, // Ensure consistent padding for the header
+    zIndex: 1, // Keep the header on top
   },
   scrollView: {
     paddingHorizontal: 20,
     paddingBottom: 20,
-    alignItems: "center",
+    alignItems: "center", // Center content horizontally
   },
   settingsTitle: {
     fontSize: 24,
     fontWeight: "bold",
-    color: "#DC869A",
+    color: "#DC869A", // Match accent color
     textAlign: "center",
     marginVertical: 15,
   },
@@ -94,15 +100,15 @@ const styles = StyleSheet.create({
     width: 90,
     height: 90,
     borderRadius: 45,
-    backgroundColor: "rgba(220, 134, 154, 0.5)",
+    backgroundColor: "rgba(220, 134, 154, 0.5)", // Light pink background
     justifyContent: "center",
     alignItems: "center",
     borderWidth: 2,
-    borderColor: "#FFFFFF",
+    borderColor: "#FFFFFF", // White border
   },
   avatarText: {
     fontSize: 36,
-    color: "#FFF",
+    color: "#FFF", // White text
     fontWeight: "bold",
   },
   fullName: {
@@ -112,7 +118,7 @@ const styles = StyleSheet.create({
     fontWeight: "600",
   },
   email: {
-    color: "rgba(0, 0, 0, 0.5)",
+    color: "rgba(0, 0, 0, 0.5)", // Grey text for email
     fontSize: 14,
     marginTop: 5,
   },
@@ -120,7 +126,7 @@ const styles = StyleSheet.create({
     flexDirection: "row",
     justifyContent: "space-between",
     alignItems: "center",
-    backgroundColor: "#FFF",
+    backgroundColor: "#FFF", // White background for options
     width: "100%",
     padding: 15,
     marginVertical: 10,
@@ -133,15 +139,15 @@ const styles = StyleSheet.create({
   },
   settingLabel: {
     fontSize: 16,
-    color: "#000",
+    color: "#000", // Black label
     fontWeight: "500",
   },
   settingValue: {
     fontSize: 14,
-    color: "rgba(0, 0, 0, 0.5)",
+    color: "rgba(0, 0, 0, 0.5)", // Grey text for values
   },
   arrow: {
-    color: "rgba(0, 0, 0, 0.5)",
+    color: "rgba(0, 0, 0, 0.5)", // Grey arrow
     fontSize: 22,
   },
   plantImage: {
@@ -153,15 +159,15 @@ const styles = StyleSheet.create({
     marginTop: 20,
     width: 223,
     borderRadius: 20,
-    backgroundColor: "#FFFFFF",
-    borderColor: "#000",
+    backgroundColor: "#FFFFFF", // White button
+    borderColor: "#000", // Black border
     borderWidth: 1,
     paddingVertical: 10,
     alignItems: "center",
   },
   logoutButtonText: {
     fontSize: 16,
-    color: "#000",
+    color: "#000", // Black text for logout
   },
 });
 
