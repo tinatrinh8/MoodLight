@@ -1,16 +1,31 @@
-import React, { useState, useEffect } from "react";
+import React, { useState, useEffect, useRef } from "react";
 import {
   View,
-  StyleSheet,
   Image,
   Text,
   TextInput,
   TouchableOpacity,
   ActivityIndicator,
   FlatList,
+  Modal,
+  KeyboardAvoidingView,
+  Platform,
+  Animated,
 } from "react-native";
 import * as Font from "expo-font";
 import Header from "../components/Header";
+import styles from "../styles/HomePageStyles";
+
+const journalOptions = [
+  {
+    title: "Write Freely",
+    selectDescription: "Let your thoughts flow without any guidance",
+  },
+  {
+    title: "Use Prompts",
+    selectDescription: "Answer helpful questions to explore your feelings",
+  },
+];
 
 const HomePage = () => {
   const [fontsLoaded, setFontsLoaded] = useState(false);
@@ -36,14 +51,14 @@ const HomePage = () => {
       id: "greeting",
       component: (
         <View style={styles.greetingContainer}>
-        <View style={styles.greetingTextContainer}>
-          <Text style={styles.greetingText}>Hello, User</Text>
-          <Text style={styles.greetingSubtitleText}>Welcome Home</Text>
+          <View style={styles.greetingTextContainer}>
+            <Text style={styles.greetingText}>Hello, User</Text>
+            <Text style={styles.greetingSubtitleText}>Welcome Home</Text>
+          </View>
+          <View style={styles.profileContainer}>
+            <Text style={styles.profileText}>N</Text>
+          </View>
         </View>
-        <View style={styles.profileContainer}>
-          <Text style={styles.profileText}>N</Text>
-        </View>
-      </View>
       ),
     },
     { id: "search", component: <SearchBar /> },
@@ -60,6 +75,345 @@ const HomePage = () => {
       contentContainerStyle={styles.container}
       showsVerticalScrollIndicator={false}
     />
+  );
+};
+
+const CreateJournalEntry = () => {
+  const [modalVisible, setModalVisible] = useState(false);
+  const [showSecondModalContent, setShowSecondModalContent] = useState(false);
+  const [selectedOption, setSelectedOption] = useState(null);
+  const [writeFreelyVisible, setWriteFreelyVisible] = useState(false);
+  const [usePromptsVisible, setUsePromptsVisible] = useState(false);
+  const [writeFreelyModalVisible, setWriteFreelyModalVisible] = useState(false);
+  const [usePromptsModalVisible, setUsePromptsModalVisible] = useState(false);
+
+  // Ref for fade animation between modals
+  const fadeAnim = useRef(new Animated.Value(1)).current;
+
+  const openModal = () => {
+    setModalVisible(true);
+    setShowSecondModalContent(false);
+    setSelectedOption(null);
+    fadeAnim.setValue(1); // Reset fade animation when modal opens
+  };
+
+  const slideToNextPage = () => {
+    // Fade out first content
+    Animated.timing(fadeAnim, {
+      toValue: 0,
+      duration: 300,
+      useNativeDriver: true,
+    }).start(() => {
+      setShowSecondModalContent(true); // After fade out, show the second content
+      fadeAnim.setValue(0); // Reset fade animation to start from 0 for second content
+      Animated.timing(fadeAnim, {
+        toValue: 1,
+        duration: 300,
+        useNativeDriver: true,
+      }).start(); // Fade in second content
+    });
+  };
+
+  const closeModal = () => {
+    setModalVisible(false);
+    setShowSecondModalContent(false); // Reset to first content when closing
+    setWriteFreelyVisible(false);
+    setUsePromptsVisible(false);
+    setWriteFreelyModalVisible(false);
+    setUsePromptsModalVisible(false);
+  };
+
+  const handleJournalOption = (option) => {
+    setSelectedOption(option);
+    if (option === "Write Freely") {
+      setWriteFreelyVisible(true);
+      setUsePromptsVisible(false);
+    } else if (option === "Use Prompts") {
+      setUsePromptsVisible(true);
+      setWriteFreelyVisible(false);
+    }
+  };
+
+  const openWriteFreelyModal = () => {
+    Animated.timing(fadeAnim, {
+      toValue: 0,
+      duration: 300,
+      useNativeDriver: true,
+    }).start(() => {
+      Animated.timing(fadeAnim, {
+        toValue: 0,
+        duration: 300,
+        useNativeDriver: true,
+      }).start(() => {
+        setWriteFreelyModalVisible(true);
+        fadeAnim.setValue(0);
+        Animated.timing(fadeAnim, {
+          toValue: 1,
+          duration: 300,
+          useNativeDriver: true,
+        }).start();
+      });
+      fadeAnim.setValue(0);
+      Animated.timing(fadeAnim, {
+        toValue: 1,
+        duration: 300,
+        useNativeDriver: true,
+      }).start();
+    });
+  };
+
+  const openUsePromptsModal = () => {
+    Animated.timing(fadeAnim, {
+      toValue: 0,
+      duration: 300,
+      useNativeDriver: true,
+    }).start(() => {
+      Animated.timing(fadeAnim, {
+        toValue: 0,
+        duration: 300,
+        useNativeDriver: true,
+      }).start(() => {
+        setUsePromptsModalVisible(true);
+        fadeAnim.setValue(0);
+        Animated.timing(fadeAnim, {
+          toValue: 1,
+          duration: 300,
+          useNativeDriver: true,
+        }).start();
+      });
+      fadeAnim.setValue(0);
+      Animated.timing(fadeAnim, {
+        toValue: 1,
+        duration: 300,
+        useNativeDriver: true,
+      }).start();
+    });
+  };
+
+  return (
+    <View style={styles.createEntryContainer}>
+      <Image source={require("../assets/cat.png")} style={styles.cat} />
+      <Text style={styles.createEntryText}>Create New Journal Entry</Text>
+
+      <View style={styles.buttonAndCraneContainer}>
+        <TouchableOpacity style={styles.addButton} onPress={openModal}>
+          <Text style={styles.addButtonText}>Add</Text>
+        </TouchableOpacity>
+        <Image source={require("../assets/crane.png")} style={styles.crane} />
+      </View>
+
+      <Modal
+        animationType="slide"
+        transparent={true}
+        visible={modalVisible}
+        onRequestClose={closeModal}
+      >
+        
+        <KeyboardAvoidingView
+          style={styles.modalOverlay}
+          behavior={Platform.OS === "ios" ? "padding" : "height"}
+        >
+          <View style={styles.modalContent}>
+            <TouchableOpacity onPress={closeModal} style={styles.closeButton}>
+              <Text style={styles.closeButtonText}>×</Text>
+            </TouchableOpacity>
+
+            {showSecondModalContent ? (
+              selectedOption === "Write Freely" && writeFreelyVisible ? (
+                // Modal Content for Write Freely
+                <Animated.View
+                  style={[styles.writeFreelyContainer, { opacity: fadeAnim }]}
+                >
+                  <Text style={styles.modalSelectTitle}>Write Freely</Text>
+                  <TextInput
+                    placeholder="Let your thoughts flow..."
+                    style={styles.writeFreelyInput}
+                    multiline
+                  />
+                  <TouchableOpacity
+                    style={styles.continueButton}
+                    onPress={() => {
+                    Animated.timing(fadeAnim, {
+                      toValue: 0,
+                      duration: 300,
+                      useNativeDriver: true,
+                    }).start(() => {
+                      setWriteFreelyModalVisible(true);
+                      fadeAnim.setValue(0);
+                      Animated.timing(fadeAnim, {
+                        toValue: 1,
+                        duration: 300,
+                        useNativeDriver: true,
+                      }).start();
+                    });
+                  }}
+                  >
+                    <Text style={styles.continueButtonText}>Continue</Text>
+                  </TouchableOpacity>
+                </Animated.View>
+              ) : selectedOption === "Use Prompts" && usePromptsVisible ? (
+                // Modal Content for Use Prompts
+                <Animated.View
+                  style={[styles.usePromptsContainer, { opacity: fadeAnim }]}
+                >
+                  <Text style={styles.modalSelectTitle}>Use Prompts</Text>
+                  <TextInput
+                    placeholder="Describe your emotions..."
+                    style={styles.promptInput}
+                    multiline
+                  />
+                  <TouchableOpacity
+                    style={styles.continueButton}
+                    onPress={() => {
+                    Animated.timing(fadeAnim, {
+                      toValue: 0,
+                      duration: 300,
+                      useNativeDriver: true,
+                    }).start(() => {
+                      setUsePromptsModalVisible(true);
+                      fadeAnim.setValue(0);
+                      Animated.timing(fadeAnim, {
+                        toValue: 1,
+                        duration: 300,
+                        useNativeDriver: true,
+                      }).start();
+                    });
+                  }}
+                  >
+                    <Text style={styles.continueButtonText}>Continue</Text>
+                  </TouchableOpacity>
+                </Animated.View>
+              ) : null
+            ) : (
+              // First Modal Content
+              <Animated.View
+                style={[styles.firstModalContainer, { opacity: fadeAnim }]}
+              >
+                <Text style={styles.modalDateTitle}>Date of journal entry</Text>
+                <View style={styles.modalDateWrapper}>
+                  <Text style={styles.modalDate}> __/__/____ </Text>
+                </View>
+
+                <Text style={styles.modalJournalName}>
+                  Give your journal entry a name!
+                </Text>
+                <TextInput
+                  placeholder="Day in a Life of a Student"
+                  style={styles.journalName}
+                  multiline
+                />
+
+                <TouchableOpacity
+                  style={styles.continueButton}
+                  onPress={slideToNextPage}
+                >
+                  <Text style={styles.continueButtonText}>Continue</Text>
+                </TouchableOpacity>
+              </Animated.View>
+            )}
+
+            {showSecondModalContent && !writeFreelyVisible && !usePromptsVisible && (
+              <View style={styles.journalOptionsContainer}>
+                <Text style={styles.modalSelectTitle}>How would you like to journal today?</Text>
+                <Text style={styles.modalSelectTitleDescription}>
+                  Choose how you would like to write
+                </Text>
+                {journalOptions.map((option, index) => (
+                  <TouchableOpacity
+                    key={index}
+                    style={styles.journalOption}
+                    onPress={() => {
+                    Animated.timing(fadeAnim, {
+                      toValue: 0,
+                      duration: 300,
+                      useNativeDriver: true,
+                    }).start(() => {
+                      handleJournalOption(option.title);
+                      fadeAnim.setValue(0);
+                      Animated.timing(fadeAnim, {
+                        toValue: 1,
+                        duration: 300,
+                        useNativeDriver: true,
+                      }).start();
+                    });
+                  }}
+                  >
+                    <View>
+                      <Text style={styles.optionTitle}>{option.title}</Text>
+                      <Text style={styles.optionDescription}>
+                        {option.selectDescription}
+                      </Text>
+                    </View>
+                  </TouchableOpacity>
+                ))}
+              </View>
+            )}
+          </View>
+        </KeyboardAvoidingView>
+      </Modal>
+
+      {/* Modal for Write Freely */}
+      <Modal
+        animationType="fade"
+        transparent={true}
+        visible={writeFreelyModalVisible}
+        onRequestClose={closeModal}
+      >
+        <KeyboardAvoidingView
+          style={styles.modalOverlay}
+          behavior={Platform.OS === "ios" ? "padding" : "height"}
+        >
+          <View style={styles.modalContent}>
+            <TouchableOpacity onPress={closeModal} style={styles.closeButton}>
+              <Text style={styles.closeButtonText}>×</Text>
+            </TouchableOpacity>
+            <Text style={styles.modalSelectTitle}>Write Freely</Text>
+            <TextInput
+              placeholder="Let your thoughts flow..."
+              style={styles.writeFreelyInput}
+              multiline
+            />
+            <TouchableOpacity
+              style={styles.continueButton}
+              onPress={closeModal}
+            >
+              <Text style={styles.continueButtonText}>Save Entry</Text>
+            </TouchableOpacity>
+          </View>
+        </KeyboardAvoidingView>
+      </Modal>
+
+      {/* Modal for Use Prompts */}
+      <Modal
+        animationType="fade"
+        transparent={true}
+        visible={usePromptsModalVisible}
+        onRequestClose={closeModal}
+      >
+        <KeyboardAvoidingView
+          style={styles.modalOverlay}
+          behavior={Platform.OS === "ios" ? "padding" : "height"}
+        >
+          <View style={styles.modalContent}>
+            <TouchableOpacity onPress={closeModal} style={styles.closeButton}>
+              <Text style={styles.closeButtonText}>×</Text>
+            </TouchableOpacity>
+            <Text style={styles.modalSelectTitle}>Use Prompts</Text>
+            <TextInput
+              placeholder="Describe your emotions..."
+              style={styles.promptInput}
+              multiline
+            />
+            <TouchableOpacity
+              style={styles.continueButton}
+              onPress={closeModal}
+            >
+              <Text style={styles.continueButtonText}>Save Entry</Text>
+            </TouchableOpacity>
+          </View>
+        </KeyboardAvoidingView>
+      </Modal>
+    </View>
   );
 };
 
@@ -116,231 +470,5 @@ function PastEntries() {
     </View>
   );
 }
-
-function CreateJournalEntry() {
-  return (
-    <View style={styles.createEntryContainer}>
-      <Image
-        source={require("../assets/cat.png")} // Replace with your actual image path
-        style={styles.cat}
-      />
-      <Text style={styles.createEntryText}>Create New Journal Entry</Text>
-      
-      {/* Container for Add button and crane image */}
-      <View style={styles.buttonAndCraneContainer}>
-        <TouchableOpacity style={styles.addButton}>
-          <Text style={styles.addButtonText}>Add</Text>
-        </TouchableOpacity>
-        <Image
-          source={require("../assets/crane.png")}
-          style={styles.crane} // Style for the crane image
-        />
-      </View>
-    </View>
-  );
-}
-
-// Styles
-const styles = StyleSheet.create({
-  container: {
-    flexGrow: 1,
-    backgroundColor: "#F5F0E8",
-    padding: 20,
-  },
-  greetingContainer: {
-    flexDirection: "row",
-    justifyContent: "space-between",
-    alignItems: "center",
-    marginVertical: 10,
-  },
-  greetingTextContainer: {
-    flexDirection: "column",
-    justifyContent: "center",
-    marginRight: 10, // Space between text and profile picture
-  },
-  greetingText: {
-    fontSize: 20,
-    color: "#1D3557",
-    fontFamily: "LexendDeca",
-    fontWeight: "bold",
-  },
-  greetingSubtitleText: {
-    fontSize: 15,
-    color: "#1D3557",
-    fontFamily: "LexendDeca",
-    transform: [{ skewX: "-10deg" }],
-    marginTop: 4, // Space between greeting text and subtitle
-  },
-  profileContainer: {
-    width: 40,
-    height: 40,
-    borderRadius: 45,
-    backgroundColor: "rgba(220, 134, 154, 0.5)", // Light pink background
-    justifyContent: "center",
-    alignItems: "center",
-    borderWidth: 2,
-    borderColor: "#000000", // Black border
-  },
-  profileText: {
-    fontSize: 30,
-    color: "#000000", // Black color for the avatar initial
-    fontWeight: "bold",
-  },
-  searchBar: {
-    flexDirection: "row",
-    alignItems: "center",
-    backgroundColor: "#FFF",
-    borderRadius: 20,
-    paddingHorizontal: 10,
-    paddingVertical: 5,
-    borderColor: "#ddd",
-    borderWidth: 1,
-    marginBottom: 20,
-  },
-  searchInput: {
-    flex: 1,
-    fontSize: 16,
-    color: "#000",
-  },
-  closeButton: {
-    fontSize: 18,
-    color: "#999",
-    padding: 10,
-  },
-  titleContainer: {
-    alignItems: "center",
-    marginBottom: 30,
-  },
-  titleText: {
-    fontSize: 24,
-    fontWeight: "bold",
-    color: "#1D3557",
-    textAlign: "center",
-    fontFamily: "LexendDeca",
-  },
-  subtitle: {
-    fontSize: 18,
-    fontWeight: "300",
-    color: "#1D3557",
-    marginBottom: 10,
-  },
-  shelf: {
-    width: 200,
-    height: 150,
-    resizeMode: "contain",
-    marginVertical: 10,
-  },
-  quote: {
-    fontSize: 14,
-    fontStyle: "italic",
-    color: "#A8DADC",
-    textAlign: "center",
-  },
-  pastEntries: {
-    marginTop: 20,
-  },
-  pastEntriesTitle: {
-    fontSize: 20,
-    fontWeight: "bold",
-    color: "#1D3557",
-    marginBottom: 10,
-    fontFamily: "LexendDeca",
-  },
-  entryContainer: {
-    flexDirection: "row",
-    flexWrap: "wrap",
-    justifyContent: "space-between",
-    marginBottom: 60,
-    marginTop:20,
-  },
-
-  entryButton: {
-    width: "48%",
-    paddingVertical: 20,
-    borderRadius: 10,
-    marginBottom: 10,
-    alignItems: "center",
-    backgroundColor: "#FFF",
-    shadowColor: "#000",
-    shadowOffset: { width: 0, height: 4 },
-    shadowOpacity: 0.75,
-    shadowRadius: 6,
-    elevation: 10,
-  },
-
-  entryText: {
-    fontSize: 16,
-    color: "#FFF",
-    fontWeight: "bold",
-    fontFamily: "LexendDeca",
-  },
-
-  cat: {
-    position: "absolute",
-    top: -110,
-    left: 10,
-    width: 200,
-    height: 200,
-    zIndex: 4,
-    resizeMode: "contain",
-  },
-
-  createEntryContainer: {
-    marginTop: 40,
-    width: "100%",
-    backgroundColor: "#FFCA6E",
-    borderRadius: 15,
-    paddingVertical: 10, // Reduced padding to make it shorter
-    marginBottom: 70,
-    shadowColor: "#000",
-    shadowOffset: { width: 0, height: 4 },
-    shadowOpacity: 0.99,
-    shadowRadius: 6,
-    elevation: 10,
-    alignItems: "center",
-    justifyContent: "center",
-  },
-
-createEntryText: {
-  fontSize: 40,
-  fontWeight: "bold",
-  color: "#FFF",
-  textAlign: "Left",
-  fontFamily: "LexendDeca",
-
-},
-  
-// New style for container holding the button and crane image
-buttonAndCraneContainer: {
-  flexDirection: "row",
-  alignItems: "center",
-  justifyContent: "space-between",
-  width: "75%", // Adjust as needed
-  marginTop: 10, // Adjust spacing from text above if necessary
-},
-
-addButton: {
-  backgroundColor: "#F8C100",
-  borderRadius: 10,
-  paddingVertical: 10,
-  paddingHorizontal: 50,
-  marginRight: 10, // Space between the button and crane
-  alignItems: "center",
-},
-
-addButtonText: {
-  fontSize: 18,
-  fontWeight: "bold",
-  color: "#FFF",
-  textAlign: "center",
-  fontFamily: "LexendDeca",
-},
-
-crane: {
-  width: 130, // Adjust size as needed
-  height: 130,
-  resizeMode: "contain",
-},
-});
 
 export default HomePage;
