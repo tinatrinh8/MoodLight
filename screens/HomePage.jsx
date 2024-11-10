@@ -45,8 +45,7 @@ const HomePage = () => {
     return <ActivityIndicator size="large" color="#0000ff" />;
   }
 
-  const contentData = [
-    { id: "header", component: <Header style={{ marginBottom: 0 }} /> },
+const contentData = [
     {
       id: "greeting",
       component: (
@@ -68,16 +67,20 @@ const HomePage = () => {
   ];
 
   return (
-    <FlatList
-      data={contentData}
-      keyExtractor={(item) => item.id}
-      renderItem={({ item }) => item.component}
-      contentContainerStyle={styles.container}
-      showsVerticalScrollIndicator={false}
-    />
+    <View style={styles.container}>
+      {/* Static Header */}
+      <Header />
+      {/* Scrollable Content */}
+      <FlatList
+        data={contentData}
+        keyExtractor={(item) => item.id}
+        renderItem={({ item }) => item.component}
+        contentContainerStyle={{ flexGrow: 1, paddingBottom: 100 }} // Add this line
+        showsVerticalScrollIndicator={false}
+      />
+    </View>
   );
 };
-
 const CreateJournalEntry = () => {
   const [modalVisible, setModalVisible] = useState(false);
   const [showSecondModalContent, setShowSecondModalContent] = useState(false);
@@ -208,7 +211,7 @@ const CreateJournalEntry = () => {
         visible={modalVisible}
         onRequestClose={closeModal}
       >
-        
+
         <KeyboardAvoidingView
           style={styles.modalOverlay}
           behavior={Platform.OS === "ios" ? "padding" : "height"}

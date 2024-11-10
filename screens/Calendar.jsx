@@ -1,17 +1,19 @@
 import React from "react";
-import { View, Text, StyleSheet, FlatList } from "react-native";
-import Header from "../components/Header"; // Import your Header component
+import { View, Text, StyleSheet, FlatList, ScrollView } from "react-native";
+import Header from "../components/Header"; // Import Header component
+import CalendarRow from "../components/CalendarRow"; // Import CalendarRow component
 
 const CalendarScreen = () => {
   const months = [
-    { name: "January", days: 31, startDay: 0 },
-    { name: "February", days: 28, startDay: 3 },
-    { name: "March", days: 31, startDay: 3 },
-    { name: "April", days: 30, startDay: 6 },
+    { name: "September", days: 30, startDay: 0 }, // September starts on Sunday
+    { name: "October", days: 31, startDay: 2 },  // October starts on Tuesday
+    { name: "November", days: 30, startDay: 5 }, // November starts on Friday
+    { name: "December", days: 31, startDay: 0 }, // December starts on Sunday
   ];
 
   const daysOfWeek = ["SUN", "MON", "TUE", "WED", "THU", "FRI", "SAT"];
 
+  // Generate the grid of days for a month
   const generateGrid = (days, startDay) => {
     const totalSlots = Math.ceil((days + startDay) / 7) * 7; // Ensure full weeks
     const grid = [];
@@ -26,33 +28,41 @@ const CalendarScreen = () => {
     return grid;
   };
 
+  // Helper function to chunk an array into rows of a specific size
+  const chunkArray = (array, size) => {
+    const chunks = [];
+    for (let i = 0; i < array.length; i += size) {
+      chunks.push(array.slice(i, i + size));
+    }
+    return chunks;
+  };
+
   return (
     <View style={styles.container}>
       <Header />
       <Text style={styles.title}>Journal Entries</Text>
-      <FlatList
-        data={months}
-        keyExtractor={(item) => item.name}
-        renderItem={({ item }) => (
-          <View style={styles.monthContainer}>
-            <Text style={styles.monthTitle}>{item.name}, 2023</Text>
-            <View style={styles.weekHeader}>
-              {daysOfWeek.map((day, index) => (
-                <Text key={index} style={styles.weekDay}>
-                  {day}
-                </Text>
+      <ScrollView>
+        {months.map((month) => {
+          const grid = generateGrid(month.days, month.startDay);
+          const rows = chunkArray(grid, 7); // Split into weeks (7 days per row)
+
+          return (
+            <View key={month.name} style={styles.monthContainer}>
+              <Text style={styles.monthTitle}>{month.name}, 2024</Text>
+              <View style={styles.weekHeader}>
+                {daysOfWeek.map((day, index) => (
+                  <Text key={index} style={styles.weekDay}>
+                    {day}
+                  </Text>
+                ))}
+              </View>
+              {rows.map((week, index) => (
+                <CalendarRow key={index} days={week} />
               ))}
             </View>
-            <View style={styles.grid}>
-              {generateGrid(item.days, item.startDay).map((day, index) => (
-                <Text key={index} style={[styles.day, day === "" && styles.emptyDay]}>
-                  {day}
-                </Text>
-              ))}
-            </View>
-          </View>
-        )}
-      />
+          );
+        })}
+      </ScrollView>
     </View>
   );
 };
@@ -67,18 +77,18 @@ const styles = StyleSheet.create({
     fontSize: 24,
     color: "#FFC0CB", // Pink color
     textAlign: "center",
-    marginBottom: 15, 
-    marginTop: 30, 
+    marginBottom: 15,
+    marginTop: 30,
     fontFamily: "LexendDeca",
   },
   monthContainer: {
-    marginBottom: 20,
+    marginBottom: 35,
   },
   monthTitle: {
     fontSize: 18,
     color: "#FFF", // White color
     textAlign: "left",
-    marginBottom: 10,
+    marginBottom: 20,
   },
   weekHeader: {
     flexDirection: "row",
@@ -90,22 +100,6 @@ const styles = StyleSheet.create({
     color: "#FFF", // White text
     textAlign: "center",
     width: "13%", // Consistent width
-  },
-  grid: {
-    flexDirection: "row",
-    flexWrap: "wrap",
-    justifyContent: "space-between",
-    marginBottom: 40, // Adjust spacing between rows
-  },
-  day: {
-    fontSize: 16,
-    color: "#FFF", // White text
-    textAlign: "center",
-    width: "13%", // Consistent width for 7 columns
-    marginBottom: 40, // Space between rows
-  },
-  emptyDay: {
-    color: "transparent", // Hides empty slots
   },
 });
 
