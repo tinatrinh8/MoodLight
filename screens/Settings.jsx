@@ -96,6 +96,7 @@ const styles = StyleSheet.create({
     alignItems: "center",
     marginTop: 10,
   },
+  
   avatarContainer: {
     width: 90,
     height: 90,
@@ -104,13 +105,15 @@ const styles = StyleSheet.create({
     justifyContent: "center",
     alignItems: "center",
     borderWidth: 2,
-    borderColor: "#FFFFFF", // White border
+    borderColor: "#000000", // White border
   },
+
   avatarText: {
     fontSize: 36,
-    color: "#FFF", // White text
+    color: "#000000", // Black color for the avatar initial
     fontWeight: "bold",
   },
+  
   fullName: {
     color: "#000000",
     fontSize: 16,
@@ -151,10 +154,10 @@ const styles = StyleSheet.create({
     fontSize: 22,
   },
   plantImage: {
-    width: 100,
-    height: 100,
-    marginTop: 20,
+    width: 180,
+    height: 180,
   },
+
   logoutButton: {
     marginTop: 20,
     width: 223,

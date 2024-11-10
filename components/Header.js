@@ -20,22 +20,29 @@ const Header = () => {
   }
 
   return (
-    <View style={styles.container}>
+    <View style={styles.containerWithHalo}>
       <Text style={styles.text}>MoodLight</Text>
     </View>
   );
 };
 
 const styles = StyleSheet.create({
-  container: {
-    width: "100%",
-    height: 60,
+  containerWithHalo: {
+    height: 90, // Set to the desired height
     justifyContent: "center",
     alignItems: "center",
+    paddingTop: 20,
+    paddingBottom: 0, // Ensure there's no padding at the bottom
+    overflow: "visible",
+    shadowColor: "rgba(217, 105, 159, 0.9)",
+    shadowOffset: { width: 0, height: 0 },
+    shadowOpacity: 1,
+    shadowRadius: 10,
   },
+
   text: {
     fontFamily: "Belgan Aesthetic",
-    fontSize: 24,
+    fontSize: 22,
     color: "#FFF",
   },
 });

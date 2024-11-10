@@ -7,6 +7,7 @@ import {
   TextInput,
   TouchableOpacity,
   ActivityIndicator,
+  FlatList,
 } from "react-native";
 import * as Font from "expo-font";
 import Header from "../components/Header";
@@ -29,14 +30,36 @@ const HomePage = () => {
     return <ActivityIndicator size="large" color="#0000ff" />;
   }
 
+  const contentData = [
+    { id: "header", component: <Header style={{ marginBottom: 0 }} /> },
+    {
+      id: "greeting",
+      component: (
+        <View style={styles.greetingContainer}>
+        <View style={styles.greetingTextContainer}>
+          <Text style={styles.greetingText}>Hello, User</Text>
+          <Text style={styles.greetingSubtitleText}>Welcome Home</Text>
+        </View>
+        <View style={styles.profileContainer}>
+          <Text style={styles.profileText}>N</Text>
+        </View>
+      </View>
+      ),
+    },
+    { id: "search", component: <SearchBar /> },
+    { id: "title", component: <Title /> },
+    { id: "pastEntries", component: <PastEntries /> },
+    { id: "createEntry", component: <CreateJournalEntry /> },
+  ];
+
   return (
-    <View style={styles.container}>
-      <Header />
-      <SearchBar />
-      <Title />
-      <PastEntries />
-      <CreateJournalEntry />
-    </View>
+    <FlatList
+      data={contentData}
+      keyExtractor={(item) => item.id}
+      renderItem={({ item }) => item.component}
+      contentContainerStyle={styles.container}
+      showsVerticalScrollIndicator={false}
+    />
   );
 };
 
@@ -62,12 +85,7 @@ function Title() {
     <View style={styles.titleContainer}>
       <Text style={styles.titleText}>Let’s Start Journaling</Text>
       <Text style={styles.subtitle}>Shall we?</Text>
-      <Image
-        source={{
-          uri: "https://cdn.builder.io/api/v1/image/assets/TEMP/53f4d86488d291fae0ac02f2cfe50938636f32544d2382786326135790cb8f9c?placeholderIfAbsent=true&apiKey=9b7049a43e3e43878b092197a2e985ba",
-        }}
-        style={styles.image}
-      />
+      <Image source={require("../assets/shelf.png")} style={styles.shelf} />
       <Text style={styles.quote}>“Quote of the day”</Text>
     </View>
   );
@@ -99,14 +117,25 @@ function PastEntries() {
   );
 }
 
-// Create Journal Entry Component
 function CreateJournalEntry() {
   return (
     <View style={styles.createEntryContainer}>
-      <Text style={styles.createEntryText}>Create a New Journal Entry</Text>
-      <TouchableOpacity style={styles.addButton}>
-        <Text style={styles.addButtonText}>Add</Text>
-      </TouchableOpacity>
+      <Image
+        source={require("../assets/cat.png")} // Replace with your actual image path
+        style={styles.cat}
+      />
+      <Text style={styles.createEntryText}>Create New Journal Entry</Text>
+      
+      {/* Container for Add button and crane image */}
+      <View style={styles.buttonAndCraneContainer}>
+        <TouchableOpacity style={styles.addButton}>
+          <Text style={styles.addButtonText}>Add</Text>
+        </TouchableOpacity>
+        <Image
+          source={require("../assets/crane.png")}
+          style={styles.crane} // Style for the crane image
+        />
+      </View>
     </View>
   );
 }
@@ -114,9 +143,48 @@ function CreateJournalEntry() {
 // Styles
 const styles = StyleSheet.create({
   container: {
-    flex: 1,
+    flexGrow: 1,
     backgroundColor: "#F5F0E8",
     padding: 20,
+  },
+  greetingContainer: {
+    flexDirection: "row",
+    justifyContent: "space-between",
+    alignItems: "center",
+    marginVertical: 10,
+  },
+  greetingTextContainer: {
+    flexDirection: "column",
+    justifyContent: "center",
+    marginRight: 10, // Space between text and profile picture
+  },
+  greetingText: {
+    fontSize: 20,
+    color: "#1D3557",
+    fontFamily: "LexendDeca",
+    fontWeight: "bold",
+  },
+  greetingSubtitleText: {
+    fontSize: 15,
+    color: "#1D3557",
+    fontFamily: "LexendDeca",
+    transform: [{ skewX: "-10deg" }],
+    marginTop: 4, // Space between greeting text and subtitle
+  },
+  profileContainer: {
+    width: 40,
+    height: 40,
+    borderRadius: 45,
+    backgroundColor: "rgba(220, 134, 154, 0.5)", // Light pink background
+    justifyContent: "center",
+    alignItems: "center",
+    borderWidth: 2,
+    borderColor: "#000000", // Black border
+  },
+  profileText: {
+    fontSize: 30,
+    color: "#000000", // Black color for the avatar initial
+    fontWeight: "bold",
   },
   searchBar: {
     flexDirection: "row",
@@ -156,9 +224,9 @@ const styles = StyleSheet.create({
     color: "#1D3557",
     marginBottom: 10,
   },
-  image: {
-    width: 150,
-    height: 100,
+  shelf: {
+    width: 200,
+    height: 150,
     resizeMode: "contain",
     marginVertical: 10,
   },
@@ -182,7 +250,10 @@ const styles = StyleSheet.create({
     flexDirection: "row",
     flexWrap: "wrap",
     justifyContent: "space-between",
+    marginBottom: 60,
+    marginTop:20,
   },
+
   entryButton: {
     width: "48%",
     paddingVertical: 20,
@@ -196,47 +267,80 @@ const styles = StyleSheet.create({
     shadowRadius: 6,
     elevation: 10,
   },
+
   entryText: {
     fontSize: 16,
     color: "#FFF",
     fontWeight: "bold",
     fontFamily: "LexendDeca",
   },
+
+  cat: {
+    position: "absolute",
+    top: -110,
+    left: 10,
+    width: 200,
+    height: 200,
+    zIndex: 4,
+    resizeMode: "contain",
+  },
+
   createEntryContainer: {
+    marginTop: 40,
     width: "100%",
     backgroundColor: "#FFCA6E",
     borderRadius: 15,
-    padding: 20,
-    marginTop: 20,
+    paddingVertical: 10, // Reduced padding to make it shorter
+    marginBottom: 70,
     shadowColor: "#000",
     shadowOffset: { width: 0, height: 4 },
-    shadowOpacity: 0.75,
+    shadowOpacity: 0.99,
     shadowRadius: 6,
     elevation: 10,
     alignItems: "center",
-    justifyContent: "space-between",
+    justifyContent: "center",
   },
-  createEntryText: {
-    fontSize: 20,
-    fontWeight: "bold",
-    color: "#FFF",
-    marginBottom: 20,
-    textAlign: "center",
-    fontFamily: "LexendDeca",
-  },
-  addButton: {
-    backgroundColor: "#F8C100",
-    borderRadius: 10,
-    paddingVertical: 10,
-    paddingHorizontal: 40,
-  },
-  addButtonText: {
-    fontSize: 16,
-    fontWeight: "bold",
-    color: "#FFF",
-    textAlign: "center",
-    fontFamily: "LexendDeca",
-  },
+
+createEntryText: {
+  fontSize: 40,
+  fontWeight: "bold",
+  color: "#FFF",
+  textAlign: "Left",
+  fontFamily: "LexendDeca",
+
+},
+  
+// New style for container holding the button and crane image
+buttonAndCraneContainer: {
+  flexDirection: "row",
+  alignItems: "center",
+  justifyContent: "space-between",
+  width: "75%", // Adjust as needed
+  marginTop: 10, // Adjust spacing from text above if necessary
+},
+
+addButton: {
+  backgroundColor: "#F8C100",
+  borderRadius: 10,
+  paddingVertical: 10,
+  paddingHorizontal: 50,
+  marginRight: 10, // Space between the button and crane
+  alignItems: "center",
+},
+
+addButtonText: {
+  fontSize: 18,
+  fontWeight: "bold",
+  color: "#FFF",
+  textAlign: "center",
+  fontFamily: "LexendDeca",
+},
+
+crane: {
+  width: 130, // Adjust size as needed
+  height: 130,
+  resizeMode: "contain",
+},
 });
 
 export default HomePage;

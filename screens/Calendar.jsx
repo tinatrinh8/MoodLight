@@ -67,7 +67,8 @@ const styles = StyleSheet.create({
     fontSize: 24,
     color: "#FFC0CB", // Pink color
     textAlign: "center",
-    marginVertical: 10,
+    marginBottom: 15, 
+    marginTop: 30, 
     fontFamily: "LexendDeca",
   },
   monthContainer: {
