@@ -394,7 +394,7 @@ const styles = StyleSheet.create({
       fontSize: 18,
       color: "#FFFFFF",
         marginTop: 5,
-        marginBottom: 20,
+        marginBottom: 50,
         alignSelf: "flex-start",
     },
 
@@ -420,6 +420,12 @@ textInputBox: {
 
   scrollContent: {
     paddingBottom: 20, // Adjust padding to prevent content from getting cut off
+  },
+  readOnlyText: {
+    fontSize: 16,
+    color: "#fff", // Match the modal's theme
+    marginVertical: 10,
+    lineHeight: 22,
   },
 });
 

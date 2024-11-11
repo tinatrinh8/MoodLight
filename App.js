@@ -10,18 +10,6 @@ import TabNavigator from "./components/AppNavigation";
 import HomePage from "./screens/HomePage";
 import Analysis from "./screens/Analysis";
 
-
-// Define the Analysis Screen
-const AnalysisScreen = () => {
-  return (
-    <View style={{ flex: 1 }}>
-      <AnalysisHeader />
-      <EmotionsDetected />
-      <SummaryFeedback />
-    </View>
-  );
-};
-
 const Stack = createStackNavigator();
 
 export default function App() {
@@ -31,7 +19,7 @@ export default function App() {
   const loadFonts = async () => {
     try {
       await Font.loadAsync({
-        "LexendDeca": require("./assets/fonts/LexendDeca-VariableFont_wght.ttf"),
+        LexendDeca: require("./assets/fonts/LexendDeca-VariableFont_wght.ttf"),
         "Gentium Basic": require("./assets/fonts/GentiumPlus-Regular.ttf"),
         "Gentium Book Plus": require("./assets/fonts/GentiumPlus-Regular.ttf"),
         "Gentium Bold": require("./assets/fonts/GentiumPlus-Bold.ttf"),
@@ -72,6 +60,7 @@ export default function App() {
         <Stack.Screen name="MainTabs" component={TabNavigator} />
         <Stack.Screen name="HomePage" component={HomePage} />
         <Stack.Screen name="Analysis" component={Analysis} />
+
       </Stack.Navigator>
     </NavigationContainer>
   );
