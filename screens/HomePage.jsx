@@ -11,6 +11,8 @@ import {
   Platform,
   ScrollView
 } from "react-native";
+import { onAuthStateChanged } from "firebase/auth"; // Firebase Auth listener
+import { auth } from "../components/firebase"; // Import Firebase auth instance
 import Header from "../components/Header";
 import styles from "../styles/HomePageStyles";
 import { useNavigation } from "@react-navigation/native";
@@ -34,13 +36,25 @@ const HomePage = () => {
   const [editJournalModalVisible, setEditJournalModalVisible] = useState(false);
   const [selectedEntry, setSelectedEntry] = useState(null);
   const [editedContent, setEditedContent] = useState("");
+  const [user, setUser] = useState(null); // State to track the authenticated user
 
-  useEffect(() => {
-    if (route.params?.entry) {
-      setSelectedEntry(route.params.entry);
-      setViewJournalModalVisible(true); // Open the modal if entry is passed
-    }
-  }, [route.params]);
+    useEffect(() => {
+      // Listen for authentication state changes
+      const unsubscribeAuth = onAuthStateChanged(auth, (currentUser) => {
+        setUser(currentUser); // Set the authenticated user
+      });
+
+      // Check for entry passed via route.params
+      if (route.params?.entry) {
+        setSelectedEntry(route.params.entry);
+        setViewJournalModalVisible(true); // Open the modal if entry is passed
+      }
+
+      // Cleanup the listener on component unmount
+      return () => {
+        unsubscribeAuth(); // Unsubscribe from auth listener
+      };
+    }, [route.params]);
 
   const openViewJournalModal = (entry) => {
     setSelectedEntry(entry);
@@ -73,17 +87,21 @@ const HomePage = () => {
   const contentData = [
     {
       id: "greeting",
-      component: (
-        <View style={styles.greetingContainer}>
-          <View style={styles.greetingTextContainer}>
-            <Text style={styles.greetingText}>Hello, User</Text>
-            <Text style={styles.greetingSubtitleText}>Welcome Home</Text>
+        component: (
+          <View style={styles.greetingContainer}>
+            <View style={styles.greetingTextContainer}>
+              <Text style={styles.greetingText}>
+                Hello, {user ? user.displayName?.split(" ")[0] || "User" : "User"}
+              </Text>
+              <Text style={styles.greetingSubtitleText}>Welcome Home</Text>
+            </View>
+            <View style={styles.profileContainer}>
+              <Text style={styles.profileText}>
+                {user ? user.displayName?.charAt(0).toUpperCase() || "U" : "N"}
+              </Text>
+            </View>
           </View>
-          <View style={styles.profileContainer}>
-            <Text style={styles.profileText}>N</Text>
-          </View>
-        </View>
-      ),
+        ),
     },
     { id: "search", component: <SearchBar /> },
     { id: "title", component: <Title /> },

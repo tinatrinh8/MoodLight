@@ -9,12 +9,14 @@ import SignUpScreen from "./screens/SignUpScreen";
 import TabNavigator from "./components/AppNavigation";
 import HomePage from "./screens/HomePage";
 import Analysis from "./screens/Analysis";
+import { auth } from "./components/firebase"; // Import Firebase auth
 
 const Stack = createStackNavigator();
 
 export default function App() {
   const [fontsLoaded, setFontsLoaded] = useState(false);
   const [showSplash, setShowSplash] = useState(true);
+  const [user, setUser] = useState(null); // State to track authenticated user
 
   const loadFonts = async () => {
     try {
@@ -34,11 +36,18 @@ export default function App() {
     }
   };
 
+  // Monitor authentication state
   useEffect(() => {
+    const unsubscribe = auth.onAuthStateChanged((user) => {
+      setUser(user); // Set user if authenticated, null otherwise
+    });
+
     loadFonts();
-    // Set a timer to hide the splash screen after 2 seconds
     const splashTimer = setTimeout(() => setShowSplash(false), 2000);
-    return () => clearTimeout(splashTimer);
+    return () => {
+      clearTimeout(splashTimer);
+      unsubscribe(); // Clean up auth listener
+    };
   }, []);
 
   if (!fontsLoaded) {
@@ -52,15 +61,21 @@ export default function App() {
   return (
     <NavigationContainer>
       <Stack.Navigator
-        initialRouteName="Login"
+        initialRouteName={user ? "MainTabs" : "Login"} // Conditional rendering based on auth state
         screenOptions={{ headerShown: false }}
       >
-        <Stack.Screen name="Login" component={LoginScreen} />
-        <Stack.Screen name="SignUp" component={SignUpScreen} />
-        <Stack.Screen name="MainTabs" component={TabNavigator} />
-        <Stack.Screen name="HomePage" component={HomePage} />
-        <Stack.Screen name="Analysis" component={Analysis} />
-
+        {!user ? (
+          <>
+            <Stack.Screen name="Login" component={LoginScreen} />
+            <Stack.Screen name="SignUp" component={SignUpScreen} />
+          </>
+        ) : (
+          <>
+            <Stack.Screen name="MainTabs" component={TabNavigator} />
+            <Stack.Screen name="HomePage" component={HomePage} />
+            <Stack.Screen name="Analysis" component={Analysis} />
+          </>
+        )}
       </Stack.Navigator>
     </NavigationContainer>
   );

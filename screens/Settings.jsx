@@ -6,16 +6,26 @@ import {
   Text,
   TouchableOpacity,
   Image,
+  Alert,
 } from "react-native";
 import { useNavigation } from "@react-navigation/native";
+import { signOut } from "firebase/auth"; // Import signOut function
+import { auth } from "../components/firebase"; // Import Firebase auth instance
 import Header from "../components/Header"; // Import the reusable Header component
 
 const Settings = () => {
   const navigation = useNavigation();
 
-    const handleLogout = () => {
-      navigation.navigate("Login");
-    };
+  const handleLogout = async () => {
+    try {
+      await signOut(auth); // Sign out the user
+      Alert.alert("Logged out", "You have been successfully logged out.");
+      navigation.replace("Login"); // Navigate back to the login screen
+    } catch (error) {
+      console.error("Logout Error:", error.message);
+      Alert.alert("Logout Failed", "An error occurred while logging out.");
+    }
+  };
 
   return (
     <View style={styles.container}>

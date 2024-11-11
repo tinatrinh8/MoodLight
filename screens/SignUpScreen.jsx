@@ -1,11 +1,51 @@
-import React from "react";
-import { View, Text, TextInput, TouchableOpacity, StyleSheet } from "react-native";
+import React, { useState } from "react";
+import { View, Text, TextInput, TouchableOpacity, StyleSheet, Alert } from "react-native";
+import { createUserWithEmailAndPassword } from "firebase/auth";
+import { auth, db } from "../components/firebase"; // Import Firebase auth and Firestore
+
 
 const SignUpScreen = ({ navigation }) => {
-      const handleSignUp = () => {
-        // Logic for signing up can be added here
-        navigation.replace("MainTabs"); // Navigate to MainTabs and clear history
-      };
+  const [name, setName] = useState(""); // State for the user's name (optional)
+  const [email, setEmail] = useState(""); // State for email input
+  const [password, setPassword] = useState(""); // State for password input
+  const [confirmPassword, setConfirmPassword] = useState(""); // State for confirming the password
+
+const handleSignUp = async () => {
+  if (!email || !password || !confirmPassword || !name) {
+    Alert.alert("Error", "Please fill in all fields.");
+    return;
+  }
+
+  if (password !== confirmPassword) {
+    Alert.alert("Error", "Passwords do not match.");
+    return;
+  }
+
+  try {
+    // Create user with email and password
+    const userCredential = await createUserWithEmailAndPassword(auth, email, password);
+    const user = userCredential.user;
+
+    // Update the user's displayName in Firebase Authentication
+    await updateProfile(user, {
+      displayName: name,
+    });
+
+    // Optional: Store user details in Firestore
+    await setDoc(doc(db, "users", user.uid), {
+      name,
+      email,
+      createdAt: new Date(),
+    });
+
+    Alert.alert("Success", "Account created successfully!");
+    navigation.replace("MainTabs"); // Navigate to MainTabs
+  } catch (error) {
+    console.error("Sign Up Error:", error.message);
+    Alert.alert("Sign Up Error", error.message); // Show error to the user
+  }
+};
+
   return (
     <View style={styles.screenContainer}>
       {/* Header Section */}
@@ -23,6 +63,8 @@ const SignUpScreen = ({ navigation }) => {
             style={styles.input}
             placeholder="Enter your full name"
             placeholderTextColor="#FFFFFF"
+            value={name}
+            onChangeText={setName} // Update name state
           />
         </View>
         <View style={styles.inputContainer}>
@@ -31,6 +73,9 @@ const SignUpScreen = ({ navigation }) => {
             placeholder="Enter your email"
             placeholderTextColor="#FFFFFF"
             keyboardType="email-address"
+            autoCapitalize="none"
+            value={email}
+            onChangeText={setEmail} // Update email state
           />
         </View>
         <View style={styles.inputContainer}>
@@ -39,6 +84,8 @@ const SignUpScreen = ({ navigation }) => {
             placeholder="Enter your password"
             placeholderTextColor="#FFFFFF"
             secureTextEntry
+            value={password}
+            onChangeText={setPassword} // Update password state
           />
         </View>
         <View style={styles.inputContainer}>
@@ -47,14 +94,16 @@ const SignUpScreen = ({ navigation }) => {
             placeholder="Confirm your password"
             placeholderTextColor="#FFFFFF"
             secureTextEntry
+            value={confirmPassword}
+            onChangeText={setConfirmPassword} // Update confirmPassword state
           />
         </View>
       </View>
 
       {/* Button Section */}
-        <TouchableOpacity style={styles.signUpButton} onPress={handleSignUp}>
-          <Text style={styles.signUpButtonText}>Sign Up</Text>
-        </TouchableOpacity>
+      <TouchableOpacity style={styles.signUpButton} onPress={handleSignUp}>
+        <Text style={styles.signUpButtonText}>Sign Up</Text>
+      </TouchableOpacity>
 
       {/* Footer Section */}
       <View style={styles.footerContainer}>
@@ -101,20 +150,13 @@ const styles = StyleSheet.create({
   inputContainer: {
     marginBottom: 20,
   },
-  label: {
-    fontFamily: "Gentium Basic",
-    fontSize: 16,
-    color: "rgba(60, 90, 127, 1)",
-    fontWeight: "400",
-    marginBottom: 5,
-  },
   input: {
     borderRadius: 20,
     minHeight: 60,
     width: "100%",
     paddingHorizontal: 20,
     backgroundColor: "#000000",
-    color: "rgba(60, 90, 127, 1)",
+    color: "#FFFFFF",
   },
   signUpButton: {
     backgroundColor: "rgba(60, 90, 127, 1)",
