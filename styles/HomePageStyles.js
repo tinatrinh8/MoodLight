@@ -348,7 +348,7 @@ const styles = StyleSheet.create({
     borderRadius: 30, // Increased border radius for a more rounded button
     borderColor: "#000",
     borderWidth: 4,
-    backgroundColor: "rgba(193, 173, 22, 1)", // Gold background for option
+    backgroundColor: "#E8B72F", // Gold background for option
     paddingVertical: 60, // Increased vertical padding for larger button height
     paddingHorizontal: 25, // Increased horizontal padding for larger button width
     marginBottom: 70, // Added extra margin for spacing between buttons
