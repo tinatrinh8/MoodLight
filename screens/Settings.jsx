@@ -13,9 +13,9 @@ import Header from "../components/Header"; // Import the reusable Header compone
 const Settings = () => {
   const navigation = useNavigation();
 
-  const handleLogout = () => {
-    navigation.navigate("LoginScreen"); // Navigate to LoginScreen
-  };
+    const handleLogout = () => {
+      navigation.navigate("Login");
+    };
 
   return (
     <View style={styles.container}>

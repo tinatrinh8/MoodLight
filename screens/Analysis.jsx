@@ -1,19 +1,10 @@
-import React, { useState, useEffect, useRef } from "react";
+import React from "react";
 import {
   View,
   Image,
   Text,
-  TextInput,
   TouchableOpacity,
-  ActivityIndicator,
-  FlatList,
-  Modal,
-  KeyboardAvoidingView,
-  Platform,
-  Animated,
 } from "react-native";
-import * as Font from "expo-font";
-import AnalysisHeader from "../components/AnalysisHeader";
 import styles from "../styles/AnalysisStyles";
 
 // Header Component
@@ -57,7 +48,7 @@ function EmotionCard({ rank, emotion, icon }) {
       <Image
         accessibilityLabel={`${emotion} icon`}
         resizeMode="contain"
-        source={{ uri: icon }}
+        source={icon}
         style={styles.emotionIcon}
       />
       <View style={styles.emotionNameContainer}>
@@ -126,7 +117,7 @@ function SummaryFeedback() {
 }
 
 // Main Component
-export default function App() {
+export default function Analysis() {
   return (
     <View style={{ flex: 1 }}>
       <AnalysisHeader />

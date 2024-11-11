@@ -29,23 +29,6 @@ const journalOptions = [
 ];
 
 const HomePage = () => {
-  const [fontsLoaded, setFontsLoaded] = useState(false);
-
-  const loadFonts = async () => {
-    await Font.loadAsync({
-      LexendDeca: require("../assets/fonts/LexendDeca-VariableFont_wght.ttf"),
-    });
-    setFontsLoaded(true);
-  };
-
-  useEffect(() => {
-    loadFonts();
-  }, []);
-
-  if (!fontsLoaded) {
-    return <ActivityIndicator size="large" color="#0000ff" />;
-  }
-
   const contentData = [
     {
       id: "greeting",
@@ -385,7 +368,6 @@ const CreateJournalEntry = () => {
               style={styles.continueButton}
               onPress={() => {
                 closeModal(); // Close modal
-                console.log("Navigating to Analysis");
                 navigation.navigate("Analysis"); // Navigate to Analysis screen
               }}
             >

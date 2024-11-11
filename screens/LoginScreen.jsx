@@ -24,14 +24,14 @@ const LoginScreen = ({ navigation }) => {
         />
         <TouchableOpacity
           style={styles.loginButton}
-          onPress={() => navigation.replace('MainTabs')} // Navigate to the Tab Navigator
+          onPress={() => navigation.navigate('MainTabs')}
         >
           <Text style={styles.loginButtonText}>Login</Text>
         </TouchableOpacity>
       </View>
       <View style={styles.footerContainer}>
         <Text style={styles.accountText}>Don't have an account?</Text>
-        <TouchableOpacity onPress={() => navigation.navigate('SignUp')}>
+        <TouchableOpacity onPress={() => navigation.navigate("SignUp")}>
           <Text style={styles.signUpText}>Sign Up</Text>
         </TouchableOpacity>
       </View>

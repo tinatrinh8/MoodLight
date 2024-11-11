@@ -3,11 +3,24 @@ import { ActivityIndicator } from "react-native";
 import * as Font from "expo-font";
 import { NavigationContainer } from "@react-navigation/native";
 import { createStackNavigator } from "@react-navigation/stack";
-import Splash from "./screens/Splash"; // Import Splash screen
+import Splash from "./screens/Splash";
 import LoginScreen from "./screens/LoginScreen";
 import SignUpScreen from "./screens/SignUpScreen";
 import TabNavigator from "./components/AppNavigation";
-import HomePage from "./screens/HomePage"; // Your HomePage screen
+import HomePage from "./screens/HomePage";
+import Analysis from "./screens/Analysis";
+
+
+// Define the Analysis Screen
+const AnalysisScreen = () => {
+  return (
+    <View style={{ flex: 1 }}>
+      <AnalysisHeader />
+      <EmotionsDetected />
+      <SummaryFeedback />
+    </View>
+  );
+};
 
 const Stack = createStackNavigator();
 
@@ -18,13 +31,14 @@ export default function App() {
   const loadFonts = async () => {
     try {
       await Font.loadAsync({
+        "LexendDeca": require("./assets/fonts/LexendDeca-VariableFont_wght.ttf"),
+        "Gentium Basic": require("./assets/fonts/GentiumPlus-Regular.ttf"),
         "Gentium Book Plus": require("./assets/fonts/GentiumPlus-Regular.ttf"),
         "Gentium Bold": require("./assets/fonts/GentiumPlus-Bold.ttf"),
         "Gentium Italic": require("./assets/fonts/GentiumPlus-Italic.ttf"),
         "Gentium BoldItalic": require("./assets/fonts/GentiumPlus-BoldItalic.ttf"),
         "Belgan Aesthetic": require("./assets/fonts/Belgan Aesthetic.ttf"),
         "Gilda Display": require("./assets/fonts/GildaDisplay-Regular.ttf"),
-        LexendDeca: require("./assets/fonts/LexendDeca-VariableFont_wght.ttf"),
       });
       setFontsLoaded(true);
     } catch (error) {
@@ -44,19 +58,20 @@ export default function App() {
   }
 
   if (showSplash) {
-    return <Splash />; // Display the Splash screen
+    return <Splash />;
   }
 
   return (
     <NavigationContainer>
       <Stack.Navigator
-        initialRouteName="Login" // Set the initial route here
+        initialRouteName="LoginScreen"
         screenOptions={{ headerShown: false }}
       >
         <Stack.Screen name="Login" component={LoginScreen} />
         <Stack.Screen name="SignUp" component={SignUpScreen} />
         <Stack.Screen name="MainTabs" component={TabNavigator} />
         <Stack.Screen name="HomePage" component={HomePage} />
+        <Stack.Screen name="Analysis" component={Analysis} />
       </Stack.Navigator>
     </NavigationContainer>
   );
