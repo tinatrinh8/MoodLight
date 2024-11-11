@@ -17,6 +17,8 @@ import Header from "../components/Header";
 import styles from "../styles/HomePageStyles";
 import { useNavigation } from "@react-navigation/native";
 import { useRoute } from "@react-navigation/native"; // Import useRoute
+import { addJournalEntry, getJournalEntries } from "../functions/JournalFunctions";
+
 
 const journalOptions = [
   {
@@ -37,30 +39,49 @@ const HomePage = () => {
   const [selectedEntry, setSelectedEntry] = useState(null);
   const [editedContent, setEditedContent] = useState("");
   const [user, setUser] = useState(null); // State to track the authenticated user
+  const [journalEntries, setJournalEntries] = useState([]); // Stores fetched journal entries
+  const [loading, setLoading] = useState(false); // Indicates loading state
+  const [newEntryText, setNewEntryText] = useState(""); // For "Write Freely" modal
 
-    useEffect(() => {
-      // Listen for authentication state changes
-      const unsubscribeAuth = onAuthStateChanged(auth, (currentUser) => {
-        if (currentUser) {
-          // Update the user state
-          setUser(currentUser);
-        } else {
-          setUser(null); // Clear user state if not logged in
-        }
-      });
 
-      // Check for entry passed via route.params
-      if (route.params?.entry) {
-        setSelectedEntry(route.params.entry);
-        setViewJournalModalVisible(true); // Open the modal if entry is passed
-      }
+useEffect(() => {
+  // Function to fetch journal entries
+  const fetchEntries = async () => {
+    try {
+      setLoading(true); // Set loading state
+      const entries = await getJournalEntries(); // Fetch entries from Firestore
+      setJournalEntries(entries); // Update state with fetched entries
+    } catch (error) {
+      console.error("Error fetching journal entries:", error.message);
+    } finally {
+      setLoading(false); // Stop loading
+    }
+  };
 
-      // Cleanup the listener on component unmount
-      return () => {
-        unsubscribeAuth(); // Unsubscribe from auth listener
-      };
-    }, [route.params]);
+  // Listen for authentication state changes
+  const unsubscribeAuth = onAuthStateChanged(auth, (currentUser) => {
+    if (currentUser) {
+      // Update the user state
+      setUser(currentUser);
+    } else {
+      setUser(null); // Clear user state if not logged in
+    }
+  });
 
+  // Check for entry passed via route.params
+  if (route.params?.entry) {
+    setSelectedEntry(route.params.entry);
+    setViewJournalModalVisible(true); // Open the modal if entry is passed
+  }
+
+  // Fetch entries when the component mounts
+  fetchEntries();
+
+  // Cleanup the listener on component unmount
+  return () => {
+    unsubscribeAuth(); // Unsubscribe from auth listener
+  };
+}, [route.params]);
 
   const openViewJournalModal = (entry) => {
     setSelectedEntry(entry);
@@ -125,13 +146,24 @@ const contentData = [
   return (
     <View style={styles.container}>
       <Header />
-      <FlatList
-        data={contentData}
-        keyExtractor={(item) => item.id}
-        renderItem={({ item }) => item.component}
-        contentContainerStyle={{ flexGrow: 1, paddingBottom: 100 }}
-        showsVerticalScrollIndicator={false}
-      />
+        <FlatList
+          data={contentData}
+          keyExtractor={(item) => item.id}
+          renderItem={({ item }) =>
+            item.id === "pastEntries" ? (
+              <PastEntries
+                openViewJournalModal={openViewJournalModal}
+                journalEntries={journalEntries}
+                loading={loading}
+              />
+            ) : (
+              item.component
+            )
+          }
+          contentContainerStyle={{ flexGrow: 1, paddingBottom: 100 }}
+          showsVerticalScrollIndicator={false}
+        />
+
 
     {/* View Journal Modal */}
     <Modal
@@ -324,40 +356,51 @@ const CreateJournalEntry = ({ navigation }) => {
    </KeyboardAvoidingView>
  </Modal>
       {/* Write Freely Modal */}
-      <Modal
-        animationType="fade"
-        transparent={true}
-        visible={writeFreelyModalVisible}
-        onRequestClose={closeModal}
+<Modal
+  animationType="fade"
+  transparent={true}
+  visible={writeFreelyModalVisible}
+  onRequestClose={() => setWriteFreelyModalVisible(false)}
+>
+  <KeyboardAvoidingView
+    style={styles.modalOverlay}
+    behavior={Platform.OS === "ios" ? "padding" : "height"}
+  >
+    <View style={styles.modalContent}>
+      <TouchableOpacity onPress={() => setWriteFreelyModalVisible(false)} style={styles.closeButton}>
+        <Text style={styles.closeButtonText}>×</Text>
+      </TouchableOpacity>
+      <Text style={styles.modalTitle}>Dear diary...</Text>
+      <TextInput
+        style={styles.textInputBox}
+        placeholder="Write your thoughts here..."
+        placeholderTextColor="#A9A9A9"
+        value={newEntryText}
+        onChangeText={setNewEntryText}
+        multiline={true}
+        textAlignVertical="top"
+      />
+      <TouchableOpacity
+        style={styles.continueButton}
+        onPress={async () => {
+          if (newEntryText.trim()) {
+            await addJournalEntry(newEntryText); // Save the entry
+            setNewEntryText(""); // Clear input
+            setWriteFreelyModalVisible(false); // Close modal
+            const updatedEntries = await getJournalEntries(); // Refresh entries
+            setJournalEntries(updatedEntries); // Update entries
+          } else {
+            alert("Please write something before saving.");
+          }
+        }}
       >
-        <KeyboardAvoidingView
-          style={styles.modalOverlay}
-          behavior={Platform.OS === "ios" ? "padding" : "height"}
-        >
-          <View style={styles.modalContent}>
-            <TouchableOpacity onPress={closeModal} style={styles.closeButton}>
-              <Text style={styles.closeButtonText}>×</Text>
-            </TouchableOpacity>
-            <Text style={styles.modalTitle}>Dear diary...</Text>
-            <TextInput
-              style={styles.textInputBox}
-              placeholder="Write your thoughts here..."
-              placeholderTextColor="#A9A9A9"
-              multiline={true}
-              textAlignVertical="top"
-            />
-            <TouchableOpacity
-              style={styles.continueButton}
-              onPress={() => {
-                closeModal();
-                navigation.navigate("Analysis"); // Use navigation prop
-              }}
-            >
-              <Text style={styles.continueButtonText}>Save Entry</Text>
-            </TouchableOpacity>
-          </View>
-        </KeyboardAvoidingView>
-      </Modal>
+        <Text style={styles.continueButtonText}>Save Entry</Text>
+      </TouchableOpacity>
+    </View>
+  </KeyboardAvoidingView>
+</Modal>
+
+
     </View>
   );
 };
@@ -380,29 +423,31 @@ const Title = () => (
   </View>
 );
 
-const PastEntries = ({ openViewJournalModal }) => {
-  const entries = [
-    { id: 1, title: "Yesterday", color: "#C21840", content: "Journal test from yesterday" },
-    { id: 2, title: "2 Days Ago", color: "#6FBCAE", content: "Journal text from 2 days ago" },
-    { id: 3, title: "3 Days Ago", color: "#787392", content: "Journal text from 3 days ago" },
-    { id: 4, title: "View All", color: "#4B4B4B", content: "View All" },
-  ];
+const PastEntries = ({ openViewJournalModal, journalEntries, loading }) => {
+  if (loading) {
+    return <Text style={styles.loadingText}>Loading...</Text>;
+  }
+
   return (
     <View style={styles.pastEntries}>
       <Text style={styles.pastEntriesTitle}>Past Entries</Text>
       <View style={styles.entryContainer}>
-        {entries.map((entry) => (
+        {journalEntries.map((entry) => (
           <TouchableOpacity
             key={entry.id}
-            style={[styles.entryButton, { backgroundColor: entry.color }]}
+            style={[styles.entryButton, { backgroundColor: "#C21840" }]}
             onPress={() => openViewJournalModal(entry)}
           >
-            <Text style={styles.entryText}>{entry.title}</Text>
+            <Text style={styles.entryText}>{entry.entryText}</Text>
+            <Text style={styles.dateText}>
+              {new Date(entry.date.seconds * 1000).toLocaleDateString()}
+            </Text>
           </TouchableOpacity>
         ))}
       </View>
     </View>
   );
 };
+
 
 export default HomePage;
