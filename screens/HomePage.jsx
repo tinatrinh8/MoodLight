@@ -402,7 +402,6 @@ const CreateJournalEntry = () => {
               style={styles.continueButton}
               onPress={() => {
                 closeModal(); // Close modal
-                console.log("Navigating to Analysis");
                 navigation.navigate("Analysis"); // Navigate to Analysis screen
               }}
             >

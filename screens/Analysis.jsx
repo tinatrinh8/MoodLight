@@ -1,5 +1,6 @@
 import React from "react";
-import { View, Image, Text, TouchableOpacity } from "react-native";
+import { ScrollView, View, Image, Text, TouchableOpacity } from "react-native";
+import { useNavigation } from "@react-navigation/native"; // Import navigation hook
 import styles from "../styles/AnalysisStyles";
 import Header from "../components/Header"; // Use existing Header component
 
@@ -46,72 +47,78 @@ function EmotionsDetected() {
 // Summary and Feedback Component
 function SummaryFeedback() {
   return (
-    <View style={styles.container}>
-      <View style={styles.contentContainer}>
-        <View style={styles.summaryContainer}>
-          <Text style={styles.sectionTitle}>Summary</Text>
-          <View style={styles.summaryContent}>
-            <Text style={styles.summaryText}>{"{Emotion Summary}"}</Text>
-          </View>
-          <Text style={styles.sectionTitle}>Feedback</Text>
-          <View style={styles.feedbackBox}>
-            <View style={styles.feedbackContent} />
-          </View>
-        </View>
-        <TouchableOpacity
-          style={styles.viewPromptButton}
-          accessibilityRole="button"
-        >
-          <Text style={styles.viewPromptText}>View Journal</Text>
-        </TouchableOpacity>
+    <View>
+      {/* Summary Section */}
+      <Text style={styles.sectionTitleCentered}>Summary</Text>
+      <View style={styles.summaryContainer}>
+        <Text style={styles.summaryContent}>
+          {"{Emotion Summary Content goes here...}"}
+        </Text>
       </View>
+
+      {/* Suggestions Section */}
+      <Text style={styles.sectionTitleCentered}>Suggestions</Text>
+      <View style={styles.suggestionsContainer}>
+        <Text style={styles.suggestionsContent}>
+          {"{Suggestions Content goes here...}"}
+        </Text>
+      </View>
+
+      {/* View Journal Button */}
+      <TouchableOpacity style={styles.viewPromptButton} accessibilityRole="button">
+        <Text style={styles.viewPromptText}>View Journal</Text>
+      </TouchableOpacity>
     </View>
   );
 }
 
 // Analysis Component
 export default function Analysis() {
+  const navigation = useNavigation(); // Use navigation hook
+
+  const closeModal = () => {
+    navigation.navigate("HomePage"); // Navigate to the Home screen
+  };
+
   return (
-    <View style={styles.container}>
-      {/* Global Header */}
-      <Header />
+    <ScrollView style={styles.scrollContainer} contentContainerStyle={styles.scrollContent}>
+      <View style={styles.container}>
+        <Header />
 
-      {/* Analysis Page Content */}
-      <View style={styles.analysisHeader}>
-        {/* Title Section */}
-        <View style={styles.titleContainer}>
-          <View style={styles.moodLightContainer}>
-            <Text style={styles.moodLightText}>MoodLight</Text>
+        {/* Exit Button */}
+        <TouchableOpacity
+          onPress={() => closeModal()}
+          style={styles.exitButton}
+        >
+          <Text style={styles.exitButtonText}>×</Text>
+        </TouchableOpacity>
+
+        {/* Analysis Page Content */}
+        <View style={styles.analysisHeader}>
+          <View style={styles.titleContainer}></View>
+
+          {/* Results Section */}
+          <View style={styles.resultsContainer}>
+            <Text style={styles.resultsText}>Results</Text>
+            <Image source={require("../assets/sofa.png")} style={styles.sofa} />
           </View>
-          <TouchableOpacity
-            accessibilityLabel="Exit button"
-            style={styles.exitIcon}
-          >
-            <Text style={styles.closeText}>X</Text>
-          </TouchableOpacity>
-        </View>
 
-        {/* Results Section */}
-        <View style={styles.resultsContainer}>
-          <Text style={styles.resultsText}>Results</Text>
-          <Image source={require("../assets/sofa.png")} style={styles.sofa} />
-        </View>
-
-        {/* Journal Entry Section */}
-        <View style={styles.journalEntryContainer}>
-          <View style={styles.journalEntryFrame} />
-          <View style={styles.journalEntryContent}>
-            <Text style={styles.journalEntryDate}>Journal Entry: dd/mm/yyyy</Text>
-            <Text style={styles.journalEntryTitle}>{"{title of journal}"}</Text>
+          {/* Journal Entry Section */}
+          <View style={styles.journalEntryContainer}>
+            <View style={styles.journalEntryFrame} />
+            <View style={styles.journalEntryContent}>
+              <Text style={styles.journalEntryDate}>Journal Entry: dd/mm/yyyy</Text>
+              <Text style={styles.journalEntryTitle}>{"{title of journal}"}</Text>
+            </View>
           </View>
         </View>
+
+        {/* Emotions Detected Section */}
+        <EmotionsDetected />
+
+        {/* Summary and Feedback Section */}
+        <SummaryFeedback />
       </View>
-
-      {/* Emotions Detected Section */}
-      <EmotionsDetected />
-
-      {/* Summary and Feedback Section */}
-      <SummaryFeedback />
-    </View>
+    </ScrollView>
   );
 }

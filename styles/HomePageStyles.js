@@ -287,7 +287,7 @@ const styles = StyleSheet.create({
     width: "100%",
     padding: 15,
     borderRadius: 10,
-    color: "#FFD700",
+    color: '#E8B72F',
     fontSize: 24,
     fontWeight: "bold",
     textAlign: "center",
