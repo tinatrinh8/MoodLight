@@ -1,8 +1,9 @@
 import React, { useState } from "react";
-import { View, Text, TextInput, TouchableOpacity, StyleSheet, Alert } from "react-native";
-import { createUserWithEmailAndPassword } from "firebase/auth";
+import { View, Text, TextInput, TouchableOpacity, Alert } from "react-native";
+import { createUserWithEmailAndPassword, updateProfile } from "firebase/auth";
 import { auth, db } from "../components/firebase"; // Import Firebase auth and Firestore
-
+import { doc, setDoc } from "firebase/firestore"; // For Firestore
+import SignUpScreenStyles from "../styles/SignUpScreenStyles"; // Import styles
 
 const SignUpScreen = ({ navigation }) => {
   const [name, setName] = useState(""); // State for the user's name (optional)
@@ -10,66 +11,66 @@ const SignUpScreen = ({ navigation }) => {
   const [password, setPassword] = useState(""); // State for password input
   const [confirmPassword, setConfirmPassword] = useState(""); // State for confirming the password
 
-const handleSignUp = async () => {
-  if (!email || !password || !confirmPassword || !name) {
-    Alert.alert("Error", "Please fill in all fields.");
-    return;
-  }
+  const handleSignUp = async () => {
+    if (!email || !password || !confirmPassword || !name) {
+      Alert.alert("Error", "Please fill in all fields.");
+      return;
+    }
 
-  if (password !== confirmPassword) {
-    Alert.alert("Error", "Passwords do not match.");
-    return;
-  }
+    if (password !== confirmPassword) {
+      Alert.alert("Error", "Passwords do not match.");
+      return;
+    }
 
-  try {
-    // Create user with email and password
-    const userCredential = await createUserWithEmailAndPassword(auth, email, password);
-    const user = userCredential.user;
+    try {
+      // Create user with email and password
+      const userCredential = await createUserWithEmailAndPassword(auth, email, password);
+      const user = userCredential.user;
 
-    // Update the user's displayName in Firebase Authentication
-    await updateProfile(user, {
-      displayName: name,
-    });
+      // Update the user's displayName
+      await updateProfile(user, {
+        displayName: name,
+      });
 
-    // Optional: Store user details in Firestore
-    await setDoc(doc(db, "users", user.uid), {
-      name,
-      email,
-      createdAt: new Date(),
-    });
+      // Optional: Store user details in Firestore
+      await setDoc(doc(db, "users", user.uid), {
+        name,
+        email,
+        createdAt: new Date(),
+      });
 
-    Alert.alert("Success", "Account created successfully!");
-    navigation.replace("MainTabs"); // Navigate to MainTabs
-  } catch (error) {
-    console.error("Sign Up Error:", error.message);
-    Alert.alert("Sign Up Error", error.message); // Show error to the user
-  }
-};
+      Alert.alert("Success", "Account created successfully!");
+      navigation.replace("MainTabs"); // Navigate to MainTabs
+    } catch (error) {
+      console.error("Sign Up Error:", error.message);
+      Alert.alert("Sign Up Error", error.message); // Show error to the user
+    }
+  };
 
   return (
-    <View style={styles.screenContainer}>
+    <View style={SignUpScreenStyles.screenContainer}>
       {/* Header Section */}
-      <View style={styles.headerContainer}>
-        <Text style={styles.title}>Create Account</Text>
-        <Text style={styles.subtitle}>
+      <View style={SignUpScreenStyles.headerContainer}>
+        <Text style={SignUpScreenStyles.title}>Create Account</Text>
+        <Text style={SignUpScreenStyles.subtitle}>
           Start your journey. Track your mood.
         </Text>
       </View>
 
       {/* Form Section */}
-      <View style={styles.formContainer}>
-        <View style={styles.inputContainer}>
+      <View style={SignUpScreenStyles.formContainer}>
+        <View style={SignUpScreenStyles.inputContainer}>
           <TextInput
-            style={styles.input}
+            style={SignUpScreenStyles.input}
             placeholder="Enter your full name"
             placeholderTextColor="#FFFFFF"
             value={name}
             onChangeText={setName} // Update name state
           />
         </View>
-        <View style={styles.inputContainer}>
+        <View style={SignUpScreenStyles.inputContainer}>
           <TextInput
-            style={styles.input}
+            style={SignUpScreenStyles.input}
             placeholder="Enter your email"
             placeholderTextColor="#FFFFFF"
             keyboardType="email-address"
@@ -78,9 +79,9 @@ const handleSignUp = async () => {
             onChangeText={setEmail} // Update email state
           />
         </View>
-        <View style={styles.inputContainer}>
+        <View style={SignUpScreenStyles.inputContainer}>
           <TextInput
-            style={styles.input}
+            style={SignUpScreenStyles.input}
             placeholder="Enter your password"
             placeholderTextColor="#FFFFFF"
             secureTextEntry
@@ -88,9 +89,9 @@ const handleSignUp = async () => {
             onChangeText={setPassword} // Update password state
           />
         </View>
-        <View style={styles.inputContainer}>
+        <View style={SignUpScreenStyles.inputContainer}>
           <TextInput
-            style={styles.input}
+            style={SignUpScreenStyles.input}
             placeholder="Confirm your password"
             placeholderTextColor="#FFFFFF"
             secureTextEntry
@@ -101,95 +102,19 @@ const handleSignUp = async () => {
       </View>
 
       {/* Button Section */}
-      <TouchableOpacity style={styles.signUpButton} onPress={handleSignUp}>
-        <Text style={styles.signUpButtonText}>Sign Up</Text>
+      <TouchableOpacity style={SignUpScreenStyles.signUpButton} onPress={handleSignUp}>
+        <Text style={SignUpScreenStyles.signUpButtonText}>Sign Up</Text>
       </TouchableOpacity>
 
       {/* Footer Section */}
-      <View style={styles.footerContainer}>
-        <Text style={styles.footerText}>Already have an account?</Text>
+      <View style={SignUpScreenStyles.footerContainer}>
+        <Text style={SignUpScreenStyles.footerText}>Already have an account?</Text>
         <TouchableOpacity onPress={() => navigation.navigate("Login")}>
-          <Text style={styles.loginLink}>Login</Text>
+          <Text style={SignUpScreenStyles.loginLink}>Login</Text>
         </TouchableOpacity>
       </View>
     </View>
   );
 };
-
-// Styles
-const styles = StyleSheet.create({
-  screenContainer: {
-    flex: 1,
-    backgroundColor: "#282e45", // Solid background color
-    alignItems: "center",
-    justifyContent: "center",
-    paddingHorizontal: 20,
-  },
-  headerContainer: {
-    alignItems: "center",
-    marginBottom: 25,
-  },
-  title: {
-    fontFamily: "Gentium BoldItalic",
-    fontSize: 36,
-    color: "rgba(255, 255, 255, 1)",
-    fontWeight: "700",
-  },
-  subtitle: {
-    marginTop: 15,
-    fontFamily: "Gilda Display",
-    fontSize: 12,
-    color: "rgba(243, 192, 24, 1)",
-    fontWeight: "400",
-    textAlign: "center",
-  },
-  formContainer: {
-    width: "100%",
-    marginBottom: 25,
-  },
-  inputContainer: {
-    marginBottom: 20,
-  },
-  input: {
-    borderRadius: 20,
-    minHeight: 60,
-    width: "100%",
-    paddingHorizontal: 20,
-    backgroundColor: "#000000",
-    color: "#FFFFFF",
-  },
-  signUpButton: {
-    backgroundColor: "rgba(60, 90, 127, 1)",
-    borderRadius: 20,
-    paddingVertical: 10,
-    paddingHorizontal: 30,
-    alignItems: "center",
-    marginBottom: 25,
-  },
-  signUpButtonText: {
-    fontFamily: "Gentium Basic",
-    fontSize: 18,
-    color: "#fff",
-    fontWeight: "700",
-  },
-  footerContainer: {
-    flexDirection: "row",
-    alignItems: "center",
-    marginTop: 17,
-  },
-  footerText: {
-    fontFamily: "Gentium Basic",
-    fontSize: 14,
-    color: "rgba(255, 255, 255, 1)",
-    fontWeight: "400",
-    marginRight: 10,
-  },
-  loginLink: {
-    fontFamily: "Gentium Basic",
-    fontSize: 13,
-    color: "rgba(243, 192, 24, 1)",
-    fontWeight: "700",
-  },
-});
 
 export default SignUpScreen;

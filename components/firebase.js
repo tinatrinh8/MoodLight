@@ -14,10 +14,10 @@ const firebaseConfig = {
   apiKey: "AIzaSyAWSlC2nvbrqUj7TJ65jVvDpY1NfNbrZGA",
   authDomain: "moodlight-93c43.firebaseapp.com",
   projectId: "moodlight-93c43",
-  storageBucket: "moodlight-93c43.firebasestorage.app",
+  storageBucket: "moodlight-93c43.appspot.com", // Fixed: ".appspot.com" for storage
   messagingSenderId: "448286038729",
   appId: "1:448286038729:web:5a88650e8f9d28d2f54b18",
-  measurementId: "G-G15L82WYPB"
+  measurementId: "G-G15L82WYPB",
 };
 
 // Initialize Firebase App only if no app has been initialized yet

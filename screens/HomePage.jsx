@@ -41,7 +41,12 @@ const HomePage = () => {
     useEffect(() => {
       // Listen for authentication state changes
       const unsubscribeAuth = onAuthStateChanged(auth, (currentUser) => {
-        setUser(currentUser); // Set the authenticated user
+        if (currentUser) {
+          // Update the user state
+          setUser(currentUser);
+        } else {
+          setUser(null); // Clear user state if not logged in
+        }
       });
 
       // Check for entry passed via route.params
@@ -55,6 +60,7 @@ const HomePage = () => {
         unsubscribeAuth(); // Unsubscribe from auth listener
       };
     }, [route.params]);
+
 
   const openViewJournalModal = (entry) => {
     setSelectedEntry(entry);
@@ -88,19 +94,19 @@ const HomePage = () => {
     {
       id: "greeting",
         component: (
-          <View style={styles.greetingContainer}>
-            <View style={styles.greetingTextContainer}>
-              <Text style={styles.greetingText}>
-                Hello, {user ? user.displayName?.split(" ")[0] || "User" : "User"}
-              </Text>
-              <Text style={styles.greetingSubtitleText}>Welcome Home</Text>
+            <View style={styles.greetingContainer}>
+              <View style={styles.greetingTextContainer}>
+                <Text style={styles.greetingText}>
+                  Hello, {user?.displayName ? user.displayName.split(" ")[0] : "User"}
+                </Text>
+                <Text style={styles.greetingSubtitleText}>Welcome Home</Text>
+              </View>
+              <View style={styles.profileContainer}>
+                <Text style={styles.profileText}>
+                  {user?.displayName ? user.displayName.charAt(0).toUpperCase() : "U"}
+                </Text>
+              </View>
             </View>
-            <View style={styles.profileContainer}>
-              <Text style={styles.profileText}>
-                {user ? user.displayName?.charAt(0).toUpperCase() || "U" : "N"}
-              </Text>
-            </View>
-          </View>
         ),
     },
     { id: "search", component: <SearchBar /> },
