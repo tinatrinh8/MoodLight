@@ -15,6 +15,7 @@ import {
 import * as Font from "expo-font";
 import Header from "../components/Header";
 import styles from "../styles/HomePageStyles";
+import { useNavigation } from "@react-navigation/native"; // Import useNavigation
 
 const journalOptions = [
   {
@@ -45,7 +46,7 @@ const HomePage = () => {
     return <ActivityIndicator size="large" color="#0000ff" />;
   }
 
-const contentData = [
+  const contentData = [
     {
       id: "greeting",
       component: (
@@ -82,6 +83,7 @@ const contentData = [
   );
 };
 const CreateJournalEntry = () => {
+  const navigation = useNavigation(); // Initialize navigation
   const [modalVisible, setModalVisible] = useState(false);
   const [showSecondModalContent, setShowSecondModalContent] = useState(false);
   const [selectedOption, setSelectedOption] = useState(null);
@@ -211,7 +213,6 @@ const CreateJournalEntry = () => {
         visible={modalVisible}
         onRequestClose={closeModal}
       >
-
         <KeyboardAvoidingView
           style={styles.modalOverlay}
           behavior={Platform.OS === "ios" ? "padding" : "height"}
@@ -236,20 +237,20 @@ const CreateJournalEntry = () => {
                   <TouchableOpacity
                     style={styles.continueButton}
                     onPress={() => {
-                    Animated.timing(fadeAnim, {
-                      toValue: 0,
-                      duration: 300,
-                      useNativeDriver: true,
-                    }).start(() => {
-                      setWriteFreelyModalVisible(true);
-                      fadeAnim.setValue(0);
                       Animated.timing(fadeAnim, {
-                        toValue: 1,
+                        toValue: 0,
                         duration: 300,
                         useNativeDriver: true,
-                      }).start();
-                    });
-                  }}
+                      }).start(() => {
+                        setWriteFreelyModalVisible(true);
+                        fadeAnim.setValue(0);
+                        Animated.timing(fadeAnim, {
+                          toValue: 1,
+                          duration: 300,
+                          useNativeDriver: true,
+                        }).start();
+                      });
+                    }}
                   >
                     <Text style={styles.continueButtonText}>Continue</Text>
                   </TouchableOpacity>
@@ -268,20 +269,20 @@ const CreateJournalEntry = () => {
                   <TouchableOpacity
                     style={styles.continueButton}
                     onPress={() => {
-                    Animated.timing(fadeAnim, {
-                      toValue: 0,
-                      duration: 300,
-                      useNativeDriver: true,
-                    }).start(() => {
-                      setUsePromptsModalVisible(true);
-                      fadeAnim.setValue(0);
                       Animated.timing(fadeAnim, {
-                        toValue: 1,
+                        toValue: 0,
                         duration: 300,
                         useNativeDriver: true,
-                      }).start();
-                    });
-                  }}
+                      }).start(() => {
+                        setUsePromptsModalVisible(true);
+                        fadeAnim.setValue(0);
+                        Animated.timing(fadeAnim, {
+                          toValue: 1,
+                          duration: 300,
+                          useNativeDriver: true,
+                        }).start();
+                      });
+                    }}
                   >
                     <Text style={styles.continueButtonText}>Continue</Text>
                   </TouchableOpacity>
@@ -315,42 +316,46 @@ const CreateJournalEntry = () => {
               </Animated.View>
             )}
 
-            {showSecondModalContent && !writeFreelyVisible && !usePromptsVisible && (
-              <View style={styles.journalOptionsContainer}>
-                <Text style={styles.modalSelectTitle}>How would you like to journal today?</Text>
-                <Text style={styles.modalSelectTitleDescription}>
-                  Choose how you would like to write
-                </Text>
-                {journalOptions.map((option, index) => (
-                  <TouchableOpacity
-                    key={index}
-                    style={styles.journalOption}
-                    onPress={() => {
-                    Animated.timing(fadeAnim, {
-                      toValue: 0,
-                      duration: 300,
-                      useNativeDriver: true,
-                    }).start(() => {
-                      handleJournalOption(option.title);
-                      fadeAnim.setValue(0);
-                      Animated.timing(fadeAnim, {
-                        toValue: 1,
-                        duration: 300,
-                        useNativeDriver: true,
-                      }).start();
-                    });
-                  }}
-                  >
-                    <View>
-                      <Text style={styles.optionTitle}>{option.title}</Text>
-                      <Text style={styles.optionDescription}>
-                        {option.selectDescription}
-                      </Text>
-                    </View>
-                  </TouchableOpacity>
-                ))}
-              </View>
-            )}
+            {showSecondModalContent &&
+              !writeFreelyVisible &&
+              !usePromptsVisible && (
+                <View style={styles.journalOptionsContainer}>
+                  <Text style={styles.modalSelectTitle}>
+                    How would you like to journal today?
+                  </Text>
+                  <Text style={styles.modalSelectTitleDescription}>
+                    Choose how you would like to write
+                  </Text>
+                  {journalOptions.map((option, index) => (
+                    <TouchableOpacity
+                      key={index}
+                      style={styles.journalOption}
+                      onPress={() => {
+                        Animated.timing(fadeAnim, {
+                          toValue: 0,
+                          duration: 300,
+                          useNativeDriver: true,
+                        }).start(() => {
+                          handleJournalOption(option.title);
+                          fadeAnim.setValue(0);
+                          Animated.timing(fadeAnim, {
+                            toValue: 1,
+                            duration: 300,
+                            useNativeDriver: true,
+                          }).start();
+                        });
+                      }}
+                    >
+                      <View>
+                        <Text style={styles.optionTitle}>{option.title}</Text>
+                        <Text style={styles.optionDescription}>
+                          {option.selectDescription}
+                        </Text>
+                      </View>
+                    </TouchableOpacity>
+                  ))}
+                </View>
+              )}
           </View>
         </KeyboardAvoidingView>
       </Modal>
@@ -378,7 +383,11 @@ const CreateJournalEntry = () => {
             />
             <TouchableOpacity
               style={styles.continueButton}
-              onPress={closeModal}
+              onPress={() => {
+                closeModal(); // Close modal
+                console.log("Navigating to Analysis");
+                navigation.navigate("Analysis"); // Navigate to Analysis screen
+              }}
             >
               <Text style={styles.continueButtonText}>Save Entry</Text>
             </TouchableOpacity>
@@ -409,7 +418,11 @@ const CreateJournalEntry = () => {
             />
             <TouchableOpacity
               style={styles.continueButton}
-              onPress={closeModal}
+              onPress={() => {
+                closeModal(); // Close modal
+                console.log("Navigating to Analysis");
+                navigation.navigate("Analysis"); // Navigate to Analysis screen
+              }}
             >
               <Text style={styles.continueButtonText}>Save Entry</Text>
             </TouchableOpacity>

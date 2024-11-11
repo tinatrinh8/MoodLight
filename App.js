@@ -6,7 +6,8 @@ import { createStackNavigator } from "@react-navigation/stack";
 import Splash from "./screens/Splash"; // Import Splash screen
 import LoginScreen from "./screens/LoginScreen";
 import SignUpScreen from "./screens/SignUpScreen";
-import TabNavigator from "./components/AppNavigation"; // Correct import for Tab Navigator
+import TabNavigator from "./components/AppNavigation";
+import HomePage from "./screens/HomePage"; // Your HomePage screen
 
 const Stack = createStackNavigator();
 
@@ -18,8 +19,6 @@ export default function App() {
     try {
       await Font.loadAsync({
         "Gentium Book Plus": require("./assets/fonts/GentiumPlus-Regular.ttf"),
-        "Gentium Basic": require("./assets/fonts/GentiumPlus-Regular.ttf"),
-        "Gentium Plus": require("./assets/fonts/GentiumPlus-Regular.ttf"),
         "Gentium Bold": require("./assets/fonts/GentiumPlus-Bold.ttf"),
         "Gentium Italic": require("./assets/fonts/GentiumPlus-Italic.ttf"),
         "Gentium BoldItalic": require("./assets/fonts/GentiumPlus-BoldItalic.ttf"),
@@ -35,8 +34,7 @@ export default function App() {
 
   useEffect(() => {
     loadFonts();
-
-    // Set a timer to hide the splash screen after 1 second
+    // Set a timer to hide the splash screen after 2 seconds
     const splashTimer = setTimeout(() => setShowSplash(false), 2000);
     return () => clearTimeout(splashTimer);
   }, []);
@@ -51,10 +49,14 @@ export default function App() {
 
   return (
     <NavigationContainer>
-      <Stack.Navigator screenOptions={{ headerShown: false }}>
+      <Stack.Navigator
+        initialRouteName="Login" // Set the initial route here
+        screenOptions={{ headerShown: false }}
+      >
         <Stack.Screen name="Login" component={LoginScreen} />
         <Stack.Screen name="SignUp" component={SignUpScreen} />
         <Stack.Screen name="MainTabs" component={TabNavigator} />
+        <Stack.Screen name="HomePage" component={HomePage} />
       </Stack.Navigator>
     </NavigationContainer>
   );

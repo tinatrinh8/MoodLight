@@ -96,7 +96,7 @@ const styles = StyleSheet.create({
     alignItems: "center",
     marginTop: 10,
   },
-  
+
   avatarContainer: {
     width: 90,
     height: 90,
@@ -113,7 +113,7 @@ const styles = StyleSheet.create({
     color: "#000000", // Black color for the avatar initial
     fontWeight: "bold",
   },
-  
+
   fullName: {
     color: "#000000",
     fontSize: 16,
@@ -159,7 +159,7 @@ const styles = StyleSheet.create({
   },
 
   logoutButton: {
-    marginTop: 20,
+    marginTop: 10,
     width: 223,
     borderRadius: 20,
     backgroundColor: "#FFFFFF", // White button
