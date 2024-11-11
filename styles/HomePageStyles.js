@@ -367,6 +367,60 @@ const styles = StyleSheet.create({
     fontWeight: "300",
     marginTop: 5,
   },
+  // Modal Title and Subtitle
+  modalTitle: {
+    fontSize: 22,
+    fontWeight: "bold",
+    color: "#FFFFFF", // White text for title
+    marginTop: 20,
+    marginBottom: 20,
+    alignSelf: "flex-start",
+  },
+  modalSubtitle: {
+    fontSize: 16,
+    color: "#787392", // Light gray subtitle
+    marginTop: 5,
+    marginBottom: 20,
+    alignSelf: "flex-start",
+  },
+  journalSubtitle:{
+    fontSize: 18,
+    color: "#E8B72F",
+    marginTop: 10,
+    marginBottom: 10,
+  },
+
+    textBoxTitle:{
+      fontSize: 18,
+      color: "#FFFFFF",
+        marginTop: 5,
+        marginBottom: 20,
+        alignSelf: "flex-start",
+    },
+
+// Text Input Box
+textInputBox: {
+  width: "100%",
+  height: 150, // Adjust height as needed
+  backgroundColor: "#FFFFFF", // White background
+  borderRadius: 10,
+  borderWidth: 2,
+  borderColor: "#000000", // Black border
+  padding: 10, // Add padding for user input
+  fontSize: 16, // Font size for user text
+  color: "#000000", // Black text
+  marginBottom: 20,
+  textAlignVertical: "top", // Align text to the top-left
+},
+  textBoxPlaceholder: {
+    fontSize: 16,
+    color: "#000000", // Black text
+    textAlign: "center",
+  },
+
+  scrollContent: {
+    paddingBottom: 20, // Adjust padding to prevent content from getting cut off
+  },
 });
 
 export default styles;

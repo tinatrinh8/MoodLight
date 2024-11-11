@@ -77,7 +77,7 @@ export default function Analysis() {
   const navigation = useNavigation(); // Use navigation hook
 
   const closeModal = () => {
-    navigation.navigate("HomePage"); // Navigate to the Home screen
+      navigation.navigate("MainTabs", { screen: "Home" }); // Navigate to MainTabs and ensure Home tab is active
   };
 
   return (
