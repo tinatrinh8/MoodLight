@@ -3,19 +3,13 @@ import { StyleSheet } from "react-native";
 const AnalysisStyles = StyleSheet.create({
   container: {
     flex: 1,
-    backgroundColor: "#F0F0F0", // Light background color for a pleasant visual
-    padding: 20,
+    backgroundColor: "#F0F0F0",
   },
-  contentContainer: {
-    flexGrow: 1,
-    justifyContent: "center",
-    alignItems: "center",
-    paddingVertical: 20,
-  },
+  // Header
   analysisHeader: {
     width: "100%",
     paddingVertical: 20,
-    backgroundColor: "#DC869A", // A soft pink color for consistency with the MoodLight theme
+    backgroundColor: "#DC869A", // Match pink shade
     borderBottomLeftRadius: 25,
     borderBottomRightRadius: 25,
     paddingHorizontal: 20,
@@ -25,60 +19,40 @@ const AnalysisStyles = StyleSheet.create({
     justifyContent: "space-between",
     alignItems: "center",
   },
-  moodLightContainer: {
-    flexDirection: "row",
-    alignItems: "center",
-  },
   moodLightText: {
-    fontSize: 24,
-    fontWeight: "bold",
-    color: "#FFFFFF",
-  },
-  exitIcon: {
-    padding: 10,
-  },
-  closeText: {
-    fontSize: 20,
+    fontSize: 22,
     fontWeight: "bold",
     color: "#FFFFFF",
   },
   resultsContainer: {
-    marginTop: 20,
-    flexDirection: "row",
-    justifyContent: "space-between",
+    marginTop: 15,
     alignItems: "center",
+    justifyContent: "center",
   },
   resultsText: {
     fontSize: 18,
-    fontWeight: "bold",
+    fontWeight: "600",
     color: "#FFFFFF",
   },
   sofa: {
-    width: 50,
-    height: 50,
+    width: 40,
+    height: 40,
     resizeMode: "contain",
+    marginLeft: 5,
   },
   journalEntryContainer: {
     marginTop: 20,
-    paddingVertical: 10,
+    padding: 10,
     backgroundColor: "#FFF",
     borderRadius: 15,
     shadowColor: "#000",
     shadowOffset: { width: 0, height: 2 },
-    shadowOpacity: 0.3,
+    shadowOpacity: 0.2,
     shadowRadius: 3,
     elevation: 5,
-    paddingHorizontal: 15,
-  },
-  journalEntryFrame: {
-    width: "100%",
-    height: 2,
-    backgroundColor: "#DC869A",
-    marginBottom: 10,
   },
   journalEntryContent: {
-    justifyContent: "center",
-    alignItems: "flex-start",
+    padding: 10,
   },
   journalEntryDate: {
     fontSize: 16,
@@ -88,39 +62,91 @@ const AnalysisStyles = StyleSheet.create({
   journalEntryTitle: {
     fontSize: 14,
     color: "#787392",
-    marginTop: 5,
   },
-  analysisContent: {
+  // Emotions Section
+  emotionsContainer: {
     marginTop: 20,
-    padding: 20,
-    width: "90%",
+    flexDirection: "row",
+    justifyContent: "space-between",
+    paddingHorizontal: 10,
+  },
+  emotionCard: {
+    backgroundColor: "#F4E6EB",
+    borderRadius: 15,
+    padding: 10,
+    alignItems: "center",
+    shadowColor: "#000",
+    shadowOffset: { width: 0, height: 2 },
+    shadowOpacity: 0.2,
+    shadowRadius: 3,
+    elevation: 5,
+    width: 90,
+  },
+  rankText: {
+    fontSize: 18,
+    fontWeight: "bold",
+    color: "#4B4B4B",
+  },
+  emotionIcon: {
+    width: 50,
+    height: 50,
+    marginVertical: 8,
+  },
+  emotionName: {
+    fontSize: 14,
+    fontWeight: "bold",
+    color: "#4B4B4B",
+    textAlign: "center",
+  },
+  // Summary and Feedback
+  summaryContainer: {
+    marginVertical: 20,
+    padding: 15,
     backgroundColor: "#FFF",
     borderRadius: 15,
     shadowColor: "#000",
     shadowOffset: { width: 0, height: 2 },
-    shadowOpacity: 0.3,
+    shadowOpacity: 0.2,
     shadowRadius: 3,
     elevation: 5,
-    alignItems: "flex-start",
+    width: "90%",
+    alignSelf: "center",
   },
-  resultTitle: {
-    fontSize: 20,
+  sectionTitle: {
+    fontSize: 18,
     fontWeight: "bold",
     color: "#4B4B4B",
     marginBottom: 10,
   },
-  resultDescription: {
+  summaryText: {
     fontSize: 14,
-    color: "#787392",
-    marginBottom: 15,
-  },
-  analysisResultsContainer: {
-    marginTop: 15,
-  },
-  analysisText: {
-    fontSize: 16,
     color: "#4B4B4B",
-    marginBottom: 10,
+  },
+  viewPromptButton: {
+    backgroundColor: "#000",
+    padding: 15,
+    borderRadius: 10,
+    alignItems: "center",
+    marginTop: 20,
+  },
+  viewPromptText: {
+    fontSize: 16,
+    color: "#FFF",
+    fontWeight: "bold",
+  },
+  // Suggestions Section
+  suggestionsContainer: {
+    padding: 15,
+    backgroundColor: "#FFF",
+    borderRadius: 15,
+    shadowColor: "#000",
+    shadowOffset: { width: 0, height: 2 },
+    shadowOpacity: 0.2,
+    shadowRadius: 3,
+    elevation: 5,
+    width: "90%",
+    alignSelf: "center",
+    marginTop: 20,
   },
 });
 
