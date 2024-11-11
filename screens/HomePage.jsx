@@ -105,34 +105,42 @@ const HomePage = () => {
         showsVerticalScrollIndicator={false}
       />
 
-      {/* View Journal Modal */}
-      <Modal
-        animationType="fade"
-        transparent={true}
-        visible={viewJournalModalVisible}
-        onRequestClose={closeViewJournalModal}
-      >
-        <View style={styles.modalContent}>
-          <TouchableOpacity onPress={closeViewJournalModal} style={styles.closeButton}>
-            <Text style={styles.closeButtonText}>×</Text>
-          </TouchableOpacity>
-          {selectedEntry && (
-            <>
-              <Text style={styles.modalTitle}>{selectedEntry.title}</Text>
-              <Text style={styles.journalSubtitle}>
-                Date: {new Date().toLocaleDateString()}
-              </Text>
-              <TextInput
-                style={styles.textInputBox}
-                value={selectedEntry.content}
-                editable={false}
-                multiline={true}
-                textAlignVertical="top"
-              />
-            </>
-          )}
-        </View>
-      </Modal>
+    {/* View Journal Modal */}
+    <Modal
+      animationType="fade"
+      transparent={true}
+      visible={viewJournalModalVisible}
+      onRequestClose={closeViewJournalModal}
+    >
+      <View style={[styles.modalContent, { flex: 1, justifyContent: 'flex-start', marginTop: 40 }]}>
+        <TouchableOpacity onPress={closeViewJournalModal} style={styles.closeButton}>
+          <Text style={styles.closeButtonText}>×</Text>
+        </TouchableOpacity>
+        {selectedEntry && (
+          <>
+            <Text style={styles.modalTitle}>{selectedEntry.title}</Text>
+            <Text style={styles.journalSubtitle}>
+              Date: {new Date().toLocaleDateString()}
+            </Text>
+            <TextInput
+              style={styles.textInputBox}
+              value={selectedEntry.content}
+              editable={false}
+              multiline={true}
+              textAlignVertical="top"
+            />
+            {/* Edit Button */}
+            <TouchableOpacity
+              onPress={() => {}} // Placeholder for now
+              style={styles.continueButton}
+            >
+              <Text style={styles.continueButtonText}>Edit</Text>
+            </TouchableOpacity>
+          </>
+        )}
+      </View>
+    </Modal>
+
 
         {/* Edit Journal Modal */}
              <Modal
