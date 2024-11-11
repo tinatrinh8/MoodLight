@@ -90,33 +90,37 @@ const HomePage = () => {
     closeEditJournalModal();
   };
 
-  const contentData = [
-    {
-      id: "greeting",
-        component: (
-            <View style={styles.greetingContainer}>
-              <View style={styles.greetingTextContainer}>
-                <Text style={styles.greetingText}>
-                  Hello, {user?.displayName ? user.displayName.split(" ")[0] : "User"}
-                </Text>
-                <Text style={styles.greetingSubtitleText}>Welcome Home</Text>
-              </View>
-              <View style={styles.profileContainer}>
-                <Text style={styles.profileText}>
-                  {user?.displayName ? user.displayName.charAt(0).toUpperCase() : "U"}
-                </Text>
-              </View>
-            </View>
-        ),
-    },
-    { id: "search", component: <SearchBar /> },
-    { id: "title", component: <Title /> },
-    {
-      id: "pastEntries",
-      component: <PastEntries openViewJournalModal={openViewJournalModal} />,
-    },
-    { id: "createEntry", component: <CreateJournalEntry navigation={navigation} /> }, // Pass navigation
-  ];
+const contentData = [
+  {
+    id: "greeting",
+    component: (
+      <View style={styles.greetingContainer}>
+        <View style={styles.greetingTextContainer}>
+          <Text style={styles.greetingText}>
+            Hello, {user?.displayName ? user.displayName.split(" ")[0] : "User"}
+          </Text>
+        </View>
+        {/* Make Profile Circle Clickable */}
+        <TouchableOpacity
+          style={styles.profileContainer}
+          onPress={() => navigation.navigate("Settings")} // Navigate to Settings
+        >
+          <Text style={styles.profileText}>
+            {user?.displayName ? user.displayName.charAt(0).toUpperCase() : "U"}
+          </Text>
+        </TouchableOpacity>
+      </View>
+    ),
+  },
+  { id: "search", component: <SearchBar /> },
+  { id: "title", component: <Title /> },
+  {
+    id: "pastEntries",
+    component: <PastEntries openViewJournalModal={openViewJournalModal} />,
+  },
+  { id: "createEntry", component: <CreateJournalEntry navigation={navigation} /> }, // Pass navigation
+];
+
 
   return (
     <View style={styles.container}>

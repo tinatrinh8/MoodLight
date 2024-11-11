@@ -31,21 +31,25 @@ const styles = StyleSheet.create({
     transform: [{ skewX: "-10deg" }],
     marginTop: 4, // Space between greeting text and subtitle
   },
+
   profileContainer: {
-    width: 40,
-    height: 40,
-    borderRadius: 45,
+    width: 40, // Adjust the circle's width
+    height: 40, // Adjust the circle's height
+    borderRadius: 20, // Keeps it circular
     backgroundColor: "rgba(220, 134, 154, 0.5)", // Light pink background
-    justifyContent: "center",
-    alignItems: "center",
-    borderWidth: 2,
-    borderColor: "#000000", // Black border
+    alignItems: 'center', // Centers text horizontally
+    justifyContent: 'center', // Centers text vertically
+    borderWidth: 2, // Adds a border
+    borderColor: '#000', // Border color
   },
+
   profileText: {
-    fontSize: 30,
-    color: "#000000", // Black color for the avatar initial
-    fontWeight: "bold",
+    fontSize: 20, // Smaller font size
+    fontWeight: 'bold', // Ensures bold text
+    color: '#000', // Text color
+    textAlign: 'center', // Ensures text is centered horizontally
   },
+
   searchBar: {
     flexDirection: "row",
     alignItems: "center",

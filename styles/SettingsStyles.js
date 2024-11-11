@@ -98,6 +98,55 @@ const SettingsStyles = StyleSheet.create({
     fontSize: 16,
     color: "#000", // Black text for logout
   },
+  modalContainer: {
+    flex: 1,
+    justifyContent: "center",
+    alignItems: "center",
+    backgroundColor: "rgba(0,0,0,0.5)",
+  },
+  modalContent: {
+    width: "90%",
+    backgroundColor: "white",
+    borderRadius: 10,
+    padding: 20,
+    alignItems: "center",
+  },
+  modalTitle: {
+    fontSize: 18,
+    fontWeight: "bold",
+    marginBottom: 15,
+  },
+  input: {
+    width: "100%",
+    padding: 10,
+    borderWidth: 1,
+    borderColor: "#ccc",
+    borderRadius: 5,
+    marginBottom: 15,
+  },
+  saveButton: {
+    backgroundColor: "#DC869A",
+    padding: 10,
+    borderRadius: 5,
+    alignItems: "center",
+    marginBottom: 10,
+    width: "100%",
+  },
+  saveButtonText: {
+    color: "white",
+    fontWeight: "bold",
+  },
+  cancelButton: {
+    backgroundColor: "#260101",
+    padding: 10,
+    borderRadius: 5,
+    alignItems: "center",
+    width: "100%",
+  },
+  cancelButtonText: {
+    color: "white",
+    fontWeight: "bold",
+  },
 });
 
 export default SettingsStyles;
