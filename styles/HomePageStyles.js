@@ -408,9 +408,26 @@ const styles = StyleSheet.create({
       fontSize: 18,
       color: "#FFFFFF",
         marginTop: 5,
-        marginBottom: 50,
+        marginBottom: 5,
         alignSelf: "flex-start",
     },
+titleInputBox: {
+  height: 40, // Smaller height for title input
+  borderWidth: 1,
+  borderColor: "#FFFFFF",
+  borderRadius: 5,
+  paddingHorizontal: 10,
+  backgroundColor: "#FFFFFF",
+  color: "#000", // Black text color
+  marginBottom: 20,
+},
+
+inputLabel: {
+  fontSize: 16,
+  fontWeight: "bold",
+  color: "#FFFFFF",
+  marginBottom: 5,
+},
 
 // Text Input Box
 textInputBox: {

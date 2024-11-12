@@ -2,14 +2,17 @@ import { collection, addDoc, query, orderBy, getDocs, serverTimestamp } from "fi
 import { auth, db } from "../components/firebase"; // Use `db` for Firestore instance
 
 // Function to add a journal entry
-export const addJournalEntry = async (entryText) => {
+export const addJournalEntry = async (entryText, entryTitle) => {
   try {
     const userId = auth.currentUser?.uid;
     if (!userId) throw new Error("User not authenticated");
 
+    if (!entryTitle) throw new Error("Entry title is required."); // Add this validation
+
     const journalRef = collection(db, "users", userId, "journalEntries");
     await addDoc(journalRef, {
       entryText,
+      entryTitle,
       date: serverTimestamp(),
     });
 
@@ -19,7 +22,7 @@ export const addJournalEntry = async (entryText) => {
   }
 };
 
-
+// Function to fetch journal entries
 export const getJournalEntries = async () => {
   try {
     const userId = auth.currentUser?.uid;
@@ -36,5 +39,22 @@ export const getJournalEntries = async () => {
   } catch (error) {
     console.error("Error fetching journal entries:", error.message);
     return [];
+  }
+};
+
+// Function to save journal entry from prompts
+export const handleSavePromptEntry = async (promptResponses, entryTitle) => {
+  const nonEmptyResponses = promptResponses.filter((response) => response.trim());
+  if (nonEmptyResponses.length >= 3) {
+    try {
+      const entryText = nonEmptyResponses.join("\n\n"); // Combine responses
+      await addJournalEntry(entryText, entryTitle); // Pass title
+      console.log("Prompt entry saved successfully!");
+    } catch (error) {
+      console.error("Error saving prompt entry:", error.message);
+      throw error;
+    }
+  } else {
+    throw new Error("Please fill out at least 3 prompts.");
   }
 };

@@ -17,8 +17,8 @@ import Header from "../components/Header";
 import styles from "../styles/HomePageStyles";
 import { useNavigation } from "@react-navigation/native";
 import { useRoute } from "@react-navigation/native"; // Import useRoute
-import { addJournalEntry, getJournalEntries } from "../functions/JournalFunctions";
-
+import { addJournalEntry, getJournalEntries, handleSavePromptEntry } from "../functions/JournalFunctions";
+import prompts from "../assets/prompts";
 
 const journalOptions = [
   {
@@ -32,18 +32,17 @@ const journalOptions = [
 ];
 
 const HomePage = () => {
-  const navigation = useNavigation();
+const navigation = useNavigation();
   const route = useRoute();
   const [viewJournalModalVisible, setViewJournalModalVisible] = useState(false);
   const [editJournalModalVisible, setEditJournalModalVisible] = useState(false);
   const [selectedEntry, setSelectedEntry] = useState(null);
   const [editedContent, setEditedContent] = useState("");
   const [user, setUser] = useState(null);
-  const [journalEntries, setJournalEntries] = useState([]);
+  const [journalEntries, setJournalEntries] = useState([]); // Already defined here
   const [loading, setLoading] = useState(false);
   const [newEntryText, setNewEntryText] = useState(""); // For "Write Freely" modal
   const [createEntryModalVisible, setCreateEntryModalVisible] = useState(false); // Manage Add button modal visibility
-
   useEffect(() => {
     const fetchEntries = async () => {
       try {
@@ -117,6 +116,7 @@ const HomePage = () => {
           setNewEntryText={setNewEntryText}
           modalVisible={createEntryModalVisible}
           setModalVisible={setCreateEntryModalVisible}
+          setJournalEntries={setJournalEntries} // Pass the function here
         />
       ),
     },
@@ -142,9 +142,14 @@ const CreateJournalEntry = ({
   setNewEntryText,
   modalVisible,
   setModalVisible,
+  setJournalEntries,
 }) => {
   const [writeFreelyModalVisible, setWriteFreelyModalVisible] = useState(false);
   const [usePromptsModalVisible, setUsePromptsModalVisible] = useState(false);
+  const [promptResponses, setPromptResponses] = useState(Array(5).fill(""));
+  const [newEntryTitle, setNewEntryTitle] = useState("");
+  const [promptEntryTitle, setPromptEntryTitle] = useState("");
+  const [randomPrompts, setRandomPrompts] = useState([]); // State for random prompts
 
   const closeModal = () => {
     setModalVisible(false);
@@ -152,29 +157,57 @@ const CreateJournalEntry = ({
     setUsePromptsModalVisible(false);
   };
 
-  const openWriteFreelyModal = () => {
-    setModalVisible(false);
-    setWriteFreelyModalVisible(true);
-  };
-
-  const openUsePromptsModal = () => {
-    setModalVisible(false);
+  const openPromptsModal = () => {
+    // Generate 5 random prompts
+    const shuffledPrompts = prompts.sort(() => 0.5 - Math.random()).slice(0, 5);
+    setRandomPrompts(shuffledPrompts); // Store the random prompts in state
     setUsePromptsModalVisible(true);
   };
 
+const savePromptEntry = async () => {
+  try {
+    // Ensure there's a title and at least one non-empty response
+    if (promptEntryTitle.trim() && promptResponses.some((response) => response.trim())) {
+      // Save only non-empty responses to Firebase
+      const filteredResponses = promptResponses.filter((response) => response.trim());
+
+      console.log("Saving Responses:", filteredResponses);
+
+      // Save to Firebase (responses + title)
+      await handleSavePromptEntry(filteredResponses, promptEntryTitle);
+
+      // Reset states after saving
+      setPromptResponses(Array(5).fill("")); // Reset responses to empty strings
+      setPromptEntryTitle(""); // Clear the title input
+      closeModal(); // Close the modal
+
+      // Refresh journal entries
+      const updatedEntries = await getJournalEntries();
+      setJournalEntries(updatedEntries); // Update the list of entries
+    } else {
+      console.warn("Validation failed: Please provide a title and at least one response.");
+    }
+  } catch (error) {
+    console.error("Error saving prompt entry:", error.message);
+  }
+};
+
+
   const handleSaveEntry = async () => {
-    if (newEntryText.trim()) {
+    if (newEntryTitle.trim() && newEntryText.trim()) {
       try {
-        await addJournalEntry(newEntryText);
-        setNewEntryText("");
-        setWriteFreelyModalVisible(false);
+        await addJournalEntry(newEntryText, newEntryTitle);
+        setNewEntryTitle(""); // Clear the title input
+        setNewEntryText(""); // Clear the text input
+        closeModal();
+
         const updatedEntries = await getJournalEntries();
-        console.log("Updated Entries:", updatedEntries);
+        setJournalEntries(updatedEntries); // Update entries
       } catch (error) {
         console.error("Error saving journal entry:", error.message);
       }
     } else {
-      alert("Please write something before saving.");
+      alert("Please provide both a title and content before saving.");
     }
   };
 
@@ -207,10 +240,10 @@ const CreateJournalEntry = ({
               <Text style={styles.closeButtonText}>×</Text>
             </TouchableOpacity>
             <Text style={styles.modalTitle}>How would you like to journal today?</Text>
-            <TouchableOpacity style={styles.journalOption} onPress={openWriteFreelyModal}>
+            <TouchableOpacity style={styles.journalOption} onPress={() => setWriteFreelyModalVisible(true)}>
               <Text style={styles.optionTitle}>Write Freely</Text>
             </TouchableOpacity>
-            <TouchableOpacity style={styles.journalOption} onPress={openUsePromptsModal}>
+            <TouchableOpacity style={styles.journalOption} onPress={openPromptsModal}>
               <Text style={styles.optionTitle}>Use Prompts</Text>
             </TouchableOpacity>
           </View>
@@ -234,15 +267,19 @@ const CreateJournalEntry = ({
             </TouchableOpacity>
             <Text style={styles.modalTitle}>Dear diary...</Text>
             <TextInput
+              style={styles.titleInputBox}
+              placeholder="Name your journal entry"
+              value={newEntryTitle}
+              onChangeText={setNewEntryTitle}
+            />
+            <TextInput
               style={styles.textInputBox}
               placeholder="Write your thoughts here..."
+              multiline={true}
               value={newEntryText}
               onChangeText={setNewEntryText}
             />
-            <TouchableOpacity
-              style={styles.continueButton}
-              onPress={handleSaveEntry}
-            >
+            <TouchableOpacity style={styles.continueButton} onPress={handleSaveEntry}>
               <Text style={styles.continueButtonText}>Save Entry</Text>
             </TouchableOpacity>
           </View>
@@ -264,37 +301,43 @@ const CreateJournalEntry = ({
             <TouchableOpacity onPress={closeModal} style={styles.closeButton}>
               <Text style={styles.closeButtonText}>×</Text>
             </TouchableOpacity>
+            <Text style={styles.modalTitle}>Need a little inspiration?</Text>
+            <Text style={styles.textBoxTitle}>Journal Title</Text>
+            <TextInput
+              style={styles.titleInputBox}
+              placeholder="Name your journal entry"
+              value={promptEntryTitle}
+              onChangeText={setPromptEntryTitle}
+            />
             <ScrollView contentContainerStyle={styles.scrollContent}>
-              <Text style={styles.modalTitle}>Need a little inspiration?</Text>
-              <Text style={styles.modalSubtitle}>Please fill out at least 3 prompts.</Text>
-              {[1, 2, 3, 4, 5].map((_, index) => (
+              {randomPrompts.map((prompt, index) => (
                 <View key={index} style={styles.promptContainer}>
-                  <Text style={styles.textBoxTitle}>{`Prompt ${index + 1}`}</Text>
+                  <Text style={styles.textBoxTitle}>{prompt}</Text>
                   <TextInput
                     style={styles.textInputBox}
-                    placeholder={`Answer Prompt ${index + 1} here...`}
-                    placeholderTextColor="#A9A9A9"
+                    placeholder={'Write your answer here...'}
                     multiline={true}
-                    textAlignVertical="top"
+                    value={promptResponses[index]}
+                    onChangeText={(text) => {
+                      const updatedResponses = [...promptResponses];
+                      updatedResponses[index] = text;
+                      setPromptResponses(updatedResponses);
+                    }}
                   />
                 </View>
               ))}
-              <TouchableOpacity
-                style={styles.continueButton}
-                onPress={() => {
-                  closeModal();
-                  navigation.navigate("Analysis");
-                }}
-              >
-                <Text style={styles.continueButtonText}>Save Entry</Text>
-              </TouchableOpacity>
             </ScrollView>
+            <TouchableOpacity style={styles.continueButton} onPress={savePromptEntry}>
+              <Text style={styles.continueButtonText}>Save Entry</Text>
+            </TouchableOpacity>
           </View>
         </KeyboardAvoidingView>
       </Modal>
     </View>
   );
 };
+
+
 const SearchBar = () => (
   <View style={styles.searchBar}>
     <TextInput style={styles.searchInput} placeholder="Search" placeholderTextColor="#555" />
@@ -322,10 +365,9 @@ const PastEntries = ({ openViewJournalModal, journalEntries, loading }) => {
     return <Text style={styles.emptyText}>No journal entries yet.</Text>;
   }
 
-  // Sort by date and take the 4 most recent entries
   const recentEntries = journalEntries
-    .sort((a, b) => b.date.seconds - a.date.seconds) // Sort by most recent date
-    .slice(0, 4); // Limit to 4 most recent entries
+    .sort((a, b) => b.date.seconds - a.date.seconds) // Sort by date
+    .slice(0, 4); // Limit to 4 entries
 
   return (
     <View style={styles.pastEntries}>
@@ -337,7 +379,7 @@ const PastEntries = ({ openViewJournalModal, journalEntries, loading }) => {
             style={styles.entryButton}
             onPress={() => openViewJournalModal(entry)}
           >
-            <Text style={styles.entryText}>{entry.entryText}</Text>
+            <Text style={styles.entryText}>{entry.entryTitle || "Untitled Entry"}</Text>
             <Text style={styles.dateText}>
               {entry.date
                 ? new Date(entry.date.seconds * 1000).toLocaleDateString()
