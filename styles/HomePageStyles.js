@@ -50,6 +50,12 @@ const styles = StyleSheet.create({
     textAlign: 'center', // Ensures text is centered horizontally
   },
 
+  emptyText:{
+    fontSize: 16,
+    marginBottom: 50,
+    fontFamily: "LexendDeca",
+  },
+
   searchBar: {
     flexDirection: "row",
     alignItems: "center",
@@ -110,6 +116,7 @@ const styles = StyleSheet.create({
     marginBottom: 10,
     fontFamily: "LexendDeca",
   },
+
   entryContainer: {
     flexDirection: "row",
     flexWrap: "wrap",
@@ -119,25 +126,25 @@ const styles = StyleSheet.create({
   },
 
   entryButton: {
-    width: "48%",
-    paddingVertical: 20,
-    borderRadius: 10,
+    backgroundColor: "#DC869A", // Pink button color
+    borderRadius: 10, // Rounded corners
+    padding: 15,
     marginBottom: 10,
-    alignItems: "center",
-    backgroundColor: "#FFF",
-    shadowColor: "#000",
-    shadowOffset: { width: 0, height: 4 },
-    shadowOpacity: 0.75,
-    shadowRadius: 6,
-    elevation: 10,
+    width: "48%", // Adjust width for two buttons per row
+    alignItems: "center", // Center align text
   },
-
   entryText: {
     fontSize: 16,
     color: "#FFF",
     fontWeight: "bold",
     fontFamily: "LexendDeca",
   },
+
+  dateText: {
+      color: "#FFFFFF",
+      fontSize: 12,
+      marginTop: 5,
+   },
 
   cat: {
     position: "absolute",
@@ -166,9 +173,10 @@ const styles = StyleSheet.create({
   },
 
   createEntryText: {
-    fontSize: 40,
+    fontSize: 36,
     fontWeight: "bold",
     color: "#FFF",
+    marginTop: '10',
     textAlign: "Left",
     fontFamily: "LexendDeca",
   },
@@ -188,6 +196,8 @@ const styles = StyleSheet.create({
     paddingVertical: 10,
     paddingHorizontal: 50,
     marginRight: 10, // Space between the button and crane
+    borderColor: '000000',
+    borderWidth: 2,
   },
 
   addButtonText: {
@@ -199,8 +209,8 @@ const styles = StyleSheet.create({
   },
 
   crane: {
-    width: 130,
-    height: 130,
+    width: 160,
+    height: 160,
     resizeMode: "contain",
   },
 
