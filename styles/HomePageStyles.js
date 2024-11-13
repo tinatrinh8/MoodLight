@@ -37,20 +37,20 @@ const styles = StyleSheet.create({
     height: 40, // Adjust the circle's height
     borderRadius: 20, // Keeps it circular
     backgroundColor: "rgba(220, 134, 154, 0.5)", // Light pink background
-    alignItems: 'center', // Centers text horizontally
-    justifyContent: 'center', // Centers text vertically
+    alignItems: "center", // Centers text horizontally
+    justifyContent: "center", // Centers text vertically
     borderWidth: 2, // Adds a border
-    borderColor: '#000', // Border color
+    borderColor: "#000", // Border color
   },
 
   profileText: {
     fontSize: 20, // Smaller font size
-    fontWeight: 'bold', // Ensures bold text
-    color: '#000', // Text color
-    textAlign: 'center', // Ensures text is centered horizontally
+    fontWeight: "bold", // Ensures bold text
+    color: "#000", // Text color
+    textAlign: "center", // Ensures text is centered horizontally
   },
 
-  emptyText:{
+  emptyText: {
     fontSize: 16,
     marginBottom: 50,
     fontFamily: "LexendDeca",
@@ -133,6 +133,7 @@ const styles = StyleSheet.create({
     width: "48%", // Adjust width for two buttons per row
     alignItems: "center", // Center align text
   },
+
   entryText: {
     fontSize: 16,
     color: "#FFF",
@@ -141,10 +142,10 @@ const styles = StyleSheet.create({
   },
 
   dateText: {
-      color: "#FFFFFF",
-      fontSize: 12,
-      marginTop: 5,
-   },
+    color: "#FFFFFF",
+    fontSize: 12,
+    marginTop: 5,
+  },
 
   cat: {
     position: "absolute",
@@ -158,25 +159,28 @@ const styles = StyleSheet.create({
 
   createEntryContainer: {
     marginTop: 40,
-    width: "100%",
+    width: "90%",
     backgroundColor: "#FFCA6E",
     borderRadius: 15,
-    paddingVertical: 10, // Reduced padding to make it shorter
+    paddingVertical: 5, // Reduce padding to make it shorter
     marginBottom: 70,
     shadowColor: "#000",
-    shadowOffset: { width: 0, height: 4 },
+    shadowOffset: { width: 4, height: 4 },
     shadowOpacity: 0.99,
     shadowRadius: 6,
     elevation: 10,
     alignItems: "center",
     justifyContent: "center",
+    alignSelf: "center",
+    borderWidth: 2,
+    flexDirection: "column", // Ensure items are stacked vertically
   },
 
   createEntryText: {
-    fontSize: 36,
+    fontSize: 38,
     fontWeight: "bold",
     color: "#FFF",
-    marginTop: '10',
+    marginTop: 20,
     textAlign: "Left",
     fontFamily: "LexendDeca",
   },
@@ -190,13 +194,21 @@ const styles = StyleSheet.create({
     marginTop: 10,
   },
 
+  crane: {
+    width: 50, // Adjusted width to fit within the container
+    height: 100, // Adjusted height to fit within the container
+    resizeMode: "contain",
+    marginLeft: 10, // Adds space between the crane and button
+  },
+
   addButton: {
+    textAlign: "Left",
     backgroundColor: "#F8C100",
     borderRadius: 10,
-    paddingVertical: 10,
+    paddingVertical: 15,
     paddingHorizontal: 50,
-    marginRight: 10, // Space between the button and crane
-    borderColor: '000000',
+    marginRight: 5, // Space between the button and crane
+    borderColor: "000000",
     borderWidth: 2,
   },
 
@@ -209,8 +221,8 @@ const styles = StyleSheet.create({
   },
 
   crane: {
-    width: 160,
-    height: 160,
+    width: 150, // Adjusted width to fit within the container
+    height: 150, // Adjusted height to fit within the container
     resizeMode: "contain",
   },
 
@@ -301,7 +313,7 @@ const styles = StyleSheet.create({
     width: "100%",
     padding: 15,
     borderRadius: 10,
-    color: '#E8B72F',
+    color: "#E8B72F",
     fontSize: 24,
     fontWeight: "bold",
     textAlign: "center",
@@ -397,52 +409,52 @@ const styles = StyleSheet.create({
     marginBottom: 20,
     alignSelf: "flex-start",
   },
-  journalSubtitle:{
+  journalSubtitle: {
     fontSize: 18,
     color: "#E8B72F",
     marginTop: 10,
     marginBottom: 10,
   },
 
-    textBoxTitle:{
-      fontSize: 18,
-      color: "#FFFFFF",
-        marginTop: 5,
-        marginBottom: 5,
-        alignSelf: "flex-start",
-    },
-titleInputBox: {
-  height: 40, // Smaller height for title input
-  borderWidth: 1,
-  borderColor: "#FFFFFF",
-  borderRadius: 5,
-  paddingHorizontal: 10,
-  backgroundColor: "#FFFFFF",
-  color: "#000", // Black text color
-  marginBottom: 20,
-},
+  textBoxTitle: {
+    fontSize: 18,
+    color: "#FFFFFF",
+    marginTop: 5,
+    marginBottom: 5,
+    alignSelf: "flex-start",
+  },
+  titleInputBox: {
+    height: 40, // Smaller height for title input
+    borderWidth: 1,
+    borderColor: "#FFFFFF",
+    borderRadius: 5,
+    paddingHorizontal: 10,
+    backgroundColor: "#FFFFFF",
+    color: "#000", // Black text color
+    marginBottom: 20,
+  },
 
-inputLabel: {
-  fontSize: 16,
-  fontWeight: "bold",
-  color: "#FFFFFF",
-  marginBottom: 5,
-},
+  inputLabel: {
+    fontSize: 16,
+    fontWeight: "bold",
+    color: "#FFFFFF",
+    marginBottom: 5,
+  },
 
-// Text Input Box
-textInputBox: {
-  width: "100%",
-  height: 150, // Adjust height as needed
-  backgroundColor: "#FFFFFF", // White background
-  borderRadius: 10,
-  borderWidth: 2,
-  borderColor: "#000000", // Black border
-  padding: 10, // Add padding for user input
-  fontSize: 16, // Font size for user text
-  color: "#000000", // Black text
-  marginBottom: 20,
-  textAlignVertical: "top", // Align text to the top-left
-},
+  // Text Input Box
+  textInputBox: {
+    width: "100%",
+    height: 150, // Adjust height as needed
+    backgroundColor: "#FFFFFF", // White background
+    borderRadius: 10,
+    borderWidth: 2,
+    borderColor: "#000000", // Black border
+    padding: 10, // Add padding for user input
+    fontSize: 16, // Font size for user text
+    color: "#000000", // Black text
+    marginBottom: 20,
+    textAlignVertical: "top", // Align text to the top-left
+  },
   textBoxPlaceholder: {
     fontSize: 16,
     color: "#000000", // Black text
