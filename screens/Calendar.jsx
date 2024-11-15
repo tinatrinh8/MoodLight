@@ -1,34 +1,35 @@
 import React from "react";
-import { View, Text, StyleSheet, FlatList, ScrollView } from "react-native";
-import Header from "../components/Header"; // Import Header component
-import CalendarRow from "../components/CalendarRow"; // Import CalendarRow component
+import { View, Text, StyleSheet, ScrollView } from "react-native";
+import Header from "../components/Header";
+import CalendarRow from "../components/CalendarRow";
+import { useEntryDates } from "../components/EntryDatesContext";
 
 const CalendarScreen = () => {
+  const { entryDates } = useEntryDates(); // Access global entryDates
+
   const months = [
-    { name: "September", days: 30, startDay: 0 }, // September starts on Sunday
-    { name: "October", days: 31, startDay: 2 },  // October starts on Tuesday
-    { name: "November", days: 30, startDay: 5 }, // November starts on Friday
-    { name: "December", days: 31, startDay: 0 }, // December starts on Sunday
+    { name: "September", days: 30, startDay: 0 },
+    { name: "October", days: 31, startDay: 2 },
+    { name: "November", days: 30, startDay: 5 },
+    { name: "December", days: 31, startDay: 0 },
   ];
 
   const daysOfWeek = ["SUN", "MON", "TUE", "WED", "THU", "FRI", "SAT"];
 
-  // Generate the grid of days for a month
   const generateGrid = (days, startDay) => {
-    const totalSlots = Math.ceil((days + startDay) / 7) * 7; // Ensure full weeks
+    const totalSlots = Math.ceil((days + startDay) / 7) * 7;
     const grid = [];
 
     for (let i = 0; i < totalSlots; i++) {
       if (i < startDay || i >= days + startDay) {
-        grid.push(""); // Empty slots
+        grid.push("");
       } else {
-        grid.push(i - startDay + 1); // Actual days
+        grid.push(i - startDay + 1);
       }
     }
     return grid;
   };
 
-  // Helper function to chunk an array into rows of a specific size
   const chunkArray = (array, size) => {
     const chunks = [];
     for (let i = 0; i < array.length; i += size) {
@@ -44,7 +45,7 @@ const CalendarScreen = () => {
       <ScrollView>
         {months.map((month) => {
           const grid = generateGrid(month.days, month.startDay);
-          const rows = chunkArray(grid, 7); // Split into weeks (7 days per row)
+          const rows = chunkArray(grid, 7);
 
           return (
             <View key={month.name} style={styles.monthContainer}>
@@ -57,7 +58,12 @@ const CalendarScreen = () => {
                 ))}
               </View>
               {rows.map((week, index) => (
-                <CalendarRow key={index} days={week} />
+                <CalendarRow
+                  key={index}
+                  days={week}
+                  entryDates={entryDates}
+                  month={month}
+                />
               ))}
             </View>
           );
@@ -70,12 +76,12 @@ const CalendarScreen = () => {
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    backgroundColor: "#000", // Black background
+    backgroundColor: "#000",
     padding: 10,
   },
   title: {
     fontSize: 24,
-    color: "#FFC0CB", // Pink color
+    color: "#FFC0CB",
     textAlign: "center",
     marginBottom: 15,
     marginTop: 30,
@@ -86,20 +92,20 @@ const styles = StyleSheet.create({
   },
   monthTitle: {
     fontSize: 18,
-    color: "#FFF", // White color
+    color: "#FFF",
     textAlign: "left",
     marginBottom: 20,
   },
   weekHeader: {
     flexDirection: "row",
-    justifyContent: "space-between", // Spread evenly
+    justifyContent: "space-between",
     marginBottom: 10,
   },
   weekDay: {
     fontSize: 14,
-    color: "#FFF", // White text
+    color: "#FFF",
     textAlign: "center",
-    width: "13%", // Consistent width
+    width: "13%",
   },
 });
 

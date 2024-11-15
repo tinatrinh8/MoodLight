@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from "react";
+import React, { useState, useEffect } from "react"; // Add this line
 import { ActivityIndicator } from "react-native";
 import * as Font from "expo-font";
 import { NavigationContainer } from "@react-navigation/native";
@@ -9,14 +9,15 @@ import SignUpScreen from "./screens/SignUpScreen";
 import TabNavigator from "./components/AppNavigation";
 import HomePage from "./screens/HomePage";
 import Analysis from "./screens/Analysis";
-import { auth } from "./components/firebase"; // Import Firebase auth
+import { auth } from "./components/firebase"; // Firebase authentication
+import { EntryDatesProvider } from "./components/EntryDatesContext"; // Import EntryDatesProvider
 
 const Stack = createStackNavigator();
 
 export default function App() {
   const [fontsLoaded, setFontsLoaded] = useState(false);
   const [showSplash, setShowSplash] = useState(true);
-  const [user, setUser] = useState(null); // State to track authenticated user
+  const [user, setUser] = useState(null);
 
   const loadFonts = async () => {
     try {
@@ -25,7 +26,7 @@ export default function App() {
         "Gentium Basic": require("./assets/fonts/GentiumPlus-Regular.ttf"),
         "Gentium Book Plus": require("./assets/fonts/GentiumPlus-Regular.ttf"),
         "Gentium Bold": require("./assets/fonts/GentiumPlus-Bold.ttf"),
-        "Gentium Italic": require("./assets/fonts/GentiumPlus-Italic.ttf"),
+        "GentiumPlus-Italic": require("./assets/fonts/GentiumPlus-Italic.ttf"),
         "Gentium BoldItalic": require("./assets/fonts/GentiumPlus-BoldItalic.ttf"),
         "Belgan Aesthetic": require("./assets/fonts/Belgan Aesthetic.ttf"),
         "Gilda Display": require("./assets/fonts/GildaDisplay-Regular.ttf"),
@@ -36,17 +37,16 @@ export default function App() {
     }
   };
 
-  // Monitor authentication state
   useEffect(() => {
     const unsubscribe = auth.onAuthStateChanged((user) => {
-      setUser(user); // Set user if authenticated, null otherwise
+      setUser(user);
     });
 
     loadFonts();
     const splashTimer = setTimeout(() => setShowSplash(false), 2000);
     return () => {
       clearTimeout(splashTimer);
-      unsubscribe(); // Clean up auth listener
+      unsubscribe();
     };
   }, []);
 
@@ -59,24 +59,26 @@ export default function App() {
   }
 
   return (
-    <NavigationContainer>
-      <Stack.Navigator
-        initialRouteName={user ? "MainTabs" : "Login"} // Conditional rendering based on auth state
-        screenOptions={{ headerShown: false }}
-      >
-        {!user ? (
-          <>
-            <Stack.Screen name="Login" component={LoginScreen} />
-            <Stack.Screen name="SignUp" component={SignUpScreen} />
-          </>
-        ) : (
-          <>
-            <Stack.Screen name="MainTabs" component={TabNavigator} />
-            <Stack.Screen name="HomePage" component={HomePage} />
-            <Stack.Screen name="Analysis" component={Analysis} />
-          </>
-        )}
-      </Stack.Navigator>
-    </NavigationContainer>
+    <EntryDatesProvider>
+      <NavigationContainer>
+        <Stack.Navigator
+          initialRouteName={user ? "MainTabs" : "Login"}
+          screenOptions={{ headerShown: false }}
+        >
+          {!user ? (
+            <>
+              <Stack.Screen name="Login" component={LoginScreen} />
+              <Stack.Screen name="SignUp" component={SignUpScreen} />
+            </>
+          ) : (
+            <>
+              <Stack.Screen name="MainTabs" component={TabNavigator} />
+              <Stack.Screen name="HomePage" component={HomePage} />
+              <Stack.Screen name="Analysis" component={Analysis} />
+            </>
+          )}
+        </Stack.Navigator>
+      </NavigationContainer>
+    </EntryDatesProvider>
   );
 }
