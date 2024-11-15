@@ -25,8 +25,8 @@ import {
 } from "../functions/JournalFunctions";
 import prompts from "../assets/prompts";
 import quotes from "../assets/Quotes";
-import { useEntryDates } from "../components/EntryDatesContext"; // Import EntryDatesContext
-
+import { useJournalContext } from "../components/EntryDatesContext"; // Import the context
+import { useEntryDates } from "../components/EntryDatesContext"; // Import context
 const SearchBar = () => (
   <View style={styles.searchBar}>
     <TextInput
@@ -48,18 +48,17 @@ const getRandomQuote = () => {
 const HomePage = () => {
   const navigation = useNavigation();
   const route = useRoute();
-  const { entryDates, setEntryDates } = useEntryDates(); // Access EntryDatesContext
+  const { entryDates, setEntryDates, journalEntries, setJournalEntries } = useEntryDates(); // Use global state
 
   const [viewJournalModalVisible, setViewJournalModalVisible] = useState(false);
   const [user, setUser] = useState(null);
-  const [journalEntries, setJournalEntries] = useState([]);
   const [loading, setLoading] = useState(false);
   const [quote, setQuote] = useState(getRandomQuote());
   const [newEntryText, setNewEntryText] = useState("");
   const [newEntryTitle, setNewEntryTitle] = useState("");
   const [createEntryModalVisible, setCreateEntryModalVisible] = useState(false);
 
-  const fetchEntries = useCallback(async () => {
+const fetchEntries = useCallback(async () => {
     try {
       setLoading(true);
       const entries = await getJournalEntries();
@@ -67,14 +66,14 @@ const HomePage = () => {
         new Date(entry.date.seconds * 1000).toISOString().split("T")[0]
       );
 
-      setJournalEntries(entries);
-      setEntryDates(dates);
+      setJournalEntries(entries); // Update global journal entries
+      setEntryDates(dates); // Update global entry dates
     } catch (error) {
       console.error("Error fetching journal entries:", error.message);
     } finally {
       setLoading(false);
     }
-  }, [setEntryDates]);
+  }, [setEntryDates, setJournalEntries]);
 
   useEffect(() => {
     const unsubscribeAuth = onAuthStateChanged(auth, (currentUser) => {
@@ -88,36 +87,30 @@ const HomePage = () => {
     };
   }, [fetchEntries]);
 
-  useEffect(() => {
-    if (route.params?.entry) {
-      setViewJournalModalVisible(true);
-    }
-  }, [route.params]);
 
-  const handleSaveEntry = async () => {
-    if (newEntryTitle.trim() && newEntryText.trim()) {
-      const currentDate = new Date().toISOString().split("T")[0];
-      try {
-        await addJournalEntry(newEntryText, newEntryTitle);
-        setNewEntryTitle("");
-        setNewEntryText("");
-        closeModal();
+   const handleSaveEntry = async () => {
+     if (newEntryTitle.trim() && newEntryText.trim()) {
+       const currentDate = new Date().toISOString().split("T")[0];
+       try {
+         await addJournalEntry(newEntryText, newEntryTitle);
+         setNewEntryTitle("");
+         setNewEntryText("");
+         setCreateEntryModalVisible(false);
 
-        // Update entries and dates
-        const updatedEntries = await getJournalEntries();
-        setJournalEntries(updatedEntries);
+         // Update entries and dates in context
+         const updatedEntries = await getJournalEntries();
+         setJournalEntries(updatedEntries);
 
-        // Add the new date to entryDates if not already present
-        setEntryDates((prevDates) =>
-          prevDates.includes(currentDate) ? prevDates : [...prevDates, currentDate]
-        );
-      } catch (error) {
-        console.error("Error saving entry:", error.message);
-      }
-    } else {
-      alert("Please provide both a title and content before saving.");
-    }
-  };
+         if (!entryDates.includes(currentDate)) {
+           setEntryDates([...entryDates, currentDate]);
+         }
+       } catch (error) {
+         console.error("Error saving entry:", error.message);
+       }
+     } else {
+       alert("Please provide both a title and content before saving.");
+     }
+   };
 
   const closeModal = () => {
     setCreateEntryModalVisible(false);
@@ -185,17 +178,12 @@ const HomePage = () => {
 };
 
 
-const CreateJournalEntry = ({
-  navigation,
-  newEntryText,
-  setNewEntryText,
-  modalVisible,
-  setModalVisible,
-  setJournalEntries,
-}) => {
+const CreateJournalEntry = ({ modalVisible, setModalVisible }) => {
+  const { entryDates, setEntryDates, setJournalEntries } = useEntryDates(); // Pull from context
   const [currentModal, setCurrentModal] = useState("main");
-  const [promptResponses, setPromptResponses] = useState(Array(5).fill(""));
+  const [newEntryText, setNewEntryText] = useState("");
   const [newEntryTitle, setNewEntryTitle] = useState("");
+  const [promptResponses, setPromptResponses] = useState(Array(5).fill(""));
   const [promptEntryTitle, setPromptEntryTitle] = useState("");
   const [randomPrompts, setRandomPrompts] = useState([]);
   const fadeAnim = useRef(new Animated.Value(1)).current;
@@ -231,58 +219,59 @@ const CreateJournalEntry = ({
     switchModal("usePrompts");
   };
 
-const savePromptEntry = async () => {
-  if (promptEntryTitle.trim() && promptResponses.some((response) => response.trim())) {
-    const currentDate = new Date().toISOString().split("T")[0];
+  const savePromptEntry = async () => {
+    if (promptEntryTitle.trim() && promptResponses.some((response) => response.trim())) {
+      const currentDate = new Date().toISOString().split("T")[0];
+      try {
+        const filteredResponses = promptResponses.filter((response) => response.trim());
+        const entryText = filteredResponses.join("\n\n");
+        await addJournalEntry(entryText, promptEntryTitle);
 
-    try {
-      const filteredResponses = promptResponses.filter((response) => response.trim());
-      const entryText = filteredResponses.join("\n\n");
-      await addJournalEntry(entryText, promptEntryTitle);
+        // Fetch updated entries and update context
+        const updatedEntries = await getJournalEntries();
+        setJournalEntries(updatedEntries);
 
-      setPromptResponses(Array(5).fill(""));
-      setPromptEntryTitle("");
-      closeModal();
+        // Add the new entry date to entryDates if not already present
+        setEntryDates((prevDates) =>
+          prevDates.includes(currentDate) ? prevDates : [...prevDates, currentDate]
+        );
 
-      // Fetch updated entries and dates
-      const updatedEntries = await getJournalEntries();
-      setJournalEntries(updatedEntries);
-
-      // Add the new entry date to entryDates if not already present
-      setEntryDates((prevDates) =>
-        prevDates.includes(currentDate) ? prevDates : [...prevDates, currentDate]
-      );
-    } catch (error) {
-      console.error("Error saving prompt entry:", error.message);
+        setPromptResponses(Array(5).fill(""));
+        setPromptEntryTitle("");
+        closeModal();
+      } catch (error) {
+        console.error("Error saving prompt entry:", error.message);
+      }
+    } else {
+      alert("Please provide a title and at least one response.");
     }
-  } else {
-    alert("Please provide a title and at least one response.");
-  }
-};
+  };
 
+  const handleSaveEntry = async () => {
+    if (newEntryTitle.trim() && newEntryText.trim()) {
+      const currentDate = new Date().toISOString().split("T")[0];
+      try {
+        await addJournalEntry(newEntryText, newEntryTitle);
 
-const handleSaveEntry = async () => {
-  if (newEntryTitle.trim() && newEntryText.trim()) {
-    const currentDate = new Date().toISOString().split("T")[0]; // Format: YYYY-MM-DD
-    await addJournalEntry(newEntryText, newEntryTitle);
+        // Fetch updated entries and update context
+        const updatedEntries = await getJournalEntries();
+        setJournalEntries(updatedEntries);
 
-    setNewEntryTitle("");
-    setNewEntryText("");
-    closeModal();
+        // Add the new entry date to entryDates if not already present
+        setEntryDates((prevDates) =>
+          prevDates.includes(currentDate) ? prevDates : [...prevDates, currentDate]
+        );
 
-    // Fetch updated entries and dates
-    const updatedEntries = await getJournalEntries();
-    setJournalEntries(updatedEntries);
-
-    // Add the new entry date to entryDates if not already present
-    setEntryDates((prevDates) =>
-      prevDates.includes(currentDate) ? prevDates : [...prevDates, currentDate]
-    );
-  } else {
-    alert("Please provide both a title and content before saving.");
-  }
-};
-
+        setNewEntryTitle("");
+        setNewEntryText("");
+        closeModal();
+      } catch (error) {
+        console.error("Error saving entry:", error.message);
+      }
+    } else {
+      alert("Please provide both a title and content before saving.");
+    }
+  };
   return (
     <View style={styles.createEntryContainer}>
       <Image source={require("../assets/cat.png")} style={styles.cat} />

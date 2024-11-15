@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from "react"; // Add this line
+import React, { useState, useEffect } from "react";
 import { ActivityIndicator } from "react-native";
 import * as Font from "expo-font";
 import { NavigationContainer } from "@react-navigation/native";
@@ -7,10 +7,10 @@ import Splash from "./screens/Splash";
 import LoginScreen from "./screens/LoginScreen";
 import SignUpScreen from "./screens/SignUpScreen";
 import TabNavigator from "./components/AppNavigation";
+import { EntryDatesProvider } from "./components/EntryDatesContext"; // Import EntryDatesProvider
 import HomePage from "./screens/HomePage";
 import Analysis from "./screens/Analysis";
-import { auth } from "./components/firebase"; // Firebase authentication
-import { EntryDatesProvider } from "./components/EntryDatesContext"; // Import EntryDatesProvider
+import { auth } from "./components/firebase";
 
 const Stack = createStackNavigator();
 
