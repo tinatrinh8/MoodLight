@@ -29,15 +29,19 @@ const CalendarRow = ({ days, entryDates, month }) => {
           );
 
         return (
-          <Text
+          <View
             key={index}
-            style={[
-              styles.day,
-              isHighlighted && styles.highlightedDay, // Apply pink style
-            ]}
+            style={[styles.dayContainer, isHighlighted && styles.highlightedContainer]}
           >
-            {day || ""}
-          </Text>
+            <Text
+              style={[
+                styles.day,
+                isHighlighted && styles.highlightedDay, // Apply black text style
+              ]}
+            >
+              {day || ""}
+            </Text>
+          </View>
         );
       })}
     </View>
@@ -47,28 +51,28 @@ const CalendarRow = ({ days, entryDates, month }) => {
 const styles = StyleSheet.create({
   row: {
     flexDirection: "row",
-    justifyContent: "space-between", // Maintain spacing
-    marginBottom: 25,
+    justifyContent: "space-between",
+    marginBottom: 20,
+  },
+  dayContainer: {
+    width: 40, // Fixed width for consistency
+    height: 40, // Fixed height for consistency
+    justifyContent: "center", // Center content vertically
+    alignItems: "center", // Center content horizontally
+  },
+  highlightedContainer: {
+    backgroundColor: "#DC869A", // Circle background color
+    borderRadius: 20, // Ensures circular shape
   },
   day: {
     fontSize: 16,
-    color: "#FFF", // Default white color
+    color: "#FFF", // Default white text color
     textAlign: "center",
-    width: "13%", // Keep consistent width for alignment
-    marginTop: 10,
-    marginBottom: 5,
   },
-   highlightedDay: {
-      backgroundColor: "#DC869A", // Circle background color
-      color: "#000", // Black font color
-      fontWeight: "bold", // Bold font
-      borderRadius: 50, // Ensures a circular shape
-      width: 30, // Fixed width for the circle
-      height: 30, // Fixed height for the circle
-      textAlign: "center", // Center the text horizontally
-      lineHeight: 30, // Center the text vertically
-      alignSelf: "center", // Center the circle within its container
-   },
+  highlightedDay: {
+    color: "#000", // Black font for highlighted days
+    fontWeight: "bold",
+  },
 });
 
 export default CalendarRow;
