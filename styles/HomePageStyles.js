@@ -105,6 +105,7 @@ const styles = StyleSheet.create({
     fontStyle: "italic",
     color: "#A8DADC",
     textAlign: "center",
+    fontFamily: "GentiumPlus-Italic",
   },
   pastEntries: {
     marginTop: 20,

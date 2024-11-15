@@ -24,6 +24,7 @@ import {
   handleSavePromptEntry,
 } from "../functions/JournalFunctions";
 import prompts from "../assets/prompts";
+import quotes from "../assets/Quotes";
 
 const SearchBar = () => (
   <View style={styles.searchBar}>
@@ -38,6 +39,11 @@ const SearchBar = () => (
   </View>
 );
 
+const getRandomQuote = () => {
+  const randomIndex = Math.floor(Math.random() * quotes.length);
+  return quotes[randomIndex];
+};
+
 const HomePage = () => {
   const navigation = useNavigation();
   const route = useRoute();
@@ -50,6 +56,7 @@ const HomePage = () => {
   const [loading, setLoading] = useState(false);
   const [newEntryText, setNewEntryText] = useState("");
   const [createEntryModalVisible, setCreateEntryModalVisible] = useState(false);
+  const [quote, setQuote] = useState(getRandomQuote());
 
   useEffect(() => {
     const fetchEntries = async () => {
@@ -106,7 +113,8 @@ const HomePage = () => {
       ),
     },
     { id: "search", component: <SearchBar /> },
-    { id: "title", component: <Title /> },
+    { id: "title", component: <Title quote={quote} /> },
+
     {
       id: "pastEntries",
       component: (
@@ -344,12 +352,12 @@ const CreateJournalEntry = ({
   );
 };
 
-const Title = () => (
+const Title = ({ quote }) => (
   <View style={styles.titleContainer}>
     <Text style={styles.titleText}>Let’s Start Journaling</Text>
     <Text style={styles.subtitle}>Shall we?</Text>
     <Image source={require("../assets/shelf.png")} style={styles.shelf} />
-    <Text style={styles.quote}>“Quote of the day”</Text>
+    <Text style={styles.quote}>“{quote}”</Text>
   </View>
 );
 
