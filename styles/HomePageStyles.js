@@ -534,6 +534,28 @@ fixedButtonsContainer: {
   alignItems: "center",
   paddingHorizontal: 20,
 },
+
+  promptResponseContainer: {
+    marginBottom: 15, // Add spacing between prompt-response pairs
+    backgroundColor: "#f9f9f9", // Background color for each pair
+    padding: 10, // Add padding inside the container
+    borderRadius: 8, // Rounded corners
+    borderWidth: 1, // Optional: add a border
+    borderColor: "#ddd", // Optional: border color
+  },
+  promptText: {
+    fontSize: 18, // Font size for prompts
+    fontWeight: "bold", // Make prompts bold
+    color: "#333", // Text color
+    marginBottom: 5, // Add spacing below prompt text
+  },
+  responseText: {
+    fontSize: 16, // Font size for responses
+    color: "#555", // Text color for responses
+    lineHeight: 20, // Increase line spacing for better readability
+  },
+
+
 });
 
 export default styles;

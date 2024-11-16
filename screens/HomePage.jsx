@@ -60,11 +60,27 @@ const ViewJournalEntryModal = ({ entry, onClose, setJournalEntries, setEntryDate
             <Text style={styles.closeButtonText}>×</Text>
           </TouchableOpacity>
 
-          <ScrollView style={styles.scrollContentView}>
-            <Text style={styles.modalTitle}>{entry.entryTitle}</Text>
-            <Text style={styles.modalDateText}>{entry.journalDate}</Text>
-            <Text style={styles.modalViewText}>{entry.entryText}</Text>
-          </ScrollView>
+            <ScrollView style={styles.scrollContentView}>
+              <Text style={styles.modalTitle}>{entry.entryTitle}</Text>
+              <Text style={styles.modalDateText}>{entry.journalDate}</Text>
+
+                {entry.type === "free" ? (
+                  <View style={styles.promptResponseContainer}>
+                    <Text style={styles.responseText}>{entry.entryText || "No content available"}</Text>
+                  </View>
+                ) : Array.isArray(entry.entryText) ? (
+                  entry.entryText.map((item, index) => (
+                    <View key={index} style={styles.promptResponseContainer}>
+                      <Text style={styles.promptText}>{item.prompt}</Text>
+                      <Text style={styles.responseText}>{item.response}</Text>
+                    </View>
+                  ))
+                ) : (
+                  <Text style={styles.modalViewText}>No prompts available</Text>
+                )}
+
+
+            </ScrollView>
 
           <View style={styles.fixedButtonsContainer}>
             <TouchableOpacity style={styles.editButton}>
@@ -362,40 +378,61 @@ const CreateJournalEntry = ({
   };
 
 const savePromptEntry = async () => {
-  if (promptEntryTitle.trim() && promptResponses.some((response) => response.trim())) {
-    try {
-      // Check if an entry already exists for the selected date using entryDates
-      if (entryDates.includes(displayedDate)) {
-        alert("A journal entry already exists for this date. You cannot create another one.");
-        return; // Stop the process if the date already has an entry
-      }
-
-      const filteredResponses = promptResponses.filter((response) => response.trim());
-      const entryText = filteredResponses.join("\n\n");
-
-      // Proceed with saving the journal entry
-      await addJournalEntry(entryText, promptEntryTitle, displayedDate);
-
-      // Fetch updated entries and update context
-      const updatedEntries = await getJournalEntries();
-      setJournalEntries(updatedEntries);
-
-      // Add the new entry date to entryDates if not already present
-      setEntryDates((prevDates) =>
-        prevDates.includes(displayedDate) ? prevDates : [...prevDates, displayedDate]
-      );
-
-      // Reset input fields and close the modal
-      setPromptResponses(Array(5).fill(""));
-      setPromptEntryTitle("");
-      closeModal();
-
-      navigation.navigate("Home"); // Navigate back to Home
-    } catch (error) {
-      console.error("Error saving prompt entry:", error.message);
+  try {
+    // Validate title and responses
+    if (!promptEntryTitle.trim()) {
+      alert("Please provide a title for your journal entry.");
+      return;
     }
-  } else {
-    alert("Please provide a title and at least one response.");
+    if (!promptResponses.some((response) => response.trim())) {
+      alert("Please provide at least one response to the prompts.");
+      return;
+    }
+
+    // Check if an entry already exists for the selected date
+    if (entryDates.includes(displayedDate)) {
+      alert("A journal entry already exists for this date. You cannot create another one.");
+      return;
+    }
+
+    // Combine prompts and responses into an array of objects, filtering out empty responses
+    const promptsData = randomPrompts
+      .map((prompt, index) => ({
+        prompt,
+        response: promptResponses[index]?.trim() || "", // Trim whitespace from responses
+      }))
+      .filter((item) => item.response); // Filter out prompts with empty responses
+
+    // Log the data being saved for debugging
+    console.log("Saving prompt-based journal entry with the following data:", {
+      promptsData,
+      promptEntryTitle,
+      displayedDate,
+      type: "prompts",
+    });
+
+    // Save the journal entry with the "prompts" type
+    await addJournalEntry(promptsData, promptEntryTitle, displayedDate, "prompts");
+
+    // Fetch updated entries and update the context
+    const updatedEntries = await getJournalEntries();
+    setJournalEntries(updatedEntries);
+
+    // Add the new entry date to entryDates if not already present
+    setEntryDates((prevDates) =>
+      prevDates.includes(displayedDate) ? prevDates : [...prevDates, displayedDate]
+    );
+
+    // Reset the input fields and close the modal
+    setPromptResponses(Array(5).fill(""));
+    setPromptEntryTitle("");
+    closeModal();
+
+    navigation.navigate("Home"); // Navigate back to Home
+    console.log("Prompt-based journal entry saved successfully.");
+  } catch (error) {
+    console.error("Error saving prompt entry:", error.message);
+    alert("An error occurred while saving the journal entry. Please try again.");
   }
 };
 
@@ -409,8 +446,8 @@ const handleSaveEntry = async () => {
         return; // Stop the process if the date already has an entry
       }
 
-      // Proceed with saving the journal entry
-      await addJournalEntry(newEntryText, newEntryTitle, newEntryDate);
+      // Proceed with saving the journal entry as "free"
+      await addJournalEntry(newEntryText, newEntryTitle, newEntryDate, "free");
 
       // Fetch updated entries and update context
       const updatedEntries = await getJournalEntries();
@@ -426,15 +463,17 @@ const handleSaveEntry = async () => {
       setNewEntryText("");
       closeModal();
 
-      // Navigate back to the home page
-      navigation.navigate("Tabs", { screen: "Home" });
+      navigation.navigate("Home"); // Navigate back to the home page
+      console.log("Free-writing journal entry saved successfully.");
     } catch (error) {
       console.error("Error saving entry:", error.message);
+      alert("An error occurred while saving the journal entry. Please try again.");
     }
   } else {
     alert("Please provide both a title and content before saving.");
   }
 };
+
 
   return (
     <View style={styles.createEntryContainer}>

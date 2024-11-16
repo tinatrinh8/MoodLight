@@ -1,34 +1,35 @@
 import { collection, addDoc, deleteDoc, doc, query, orderBy, getDocs, where } from "firebase/firestore";
 import { auth, db } from "../components/firebase"; // Use `db` for Firestore instance
-
 /**
- * Function to add a journal entry with a journalDate field
- * @param {string} entryText - The content of the journal entry
+ * Function to add a journal entry with support for different types (free or prompts)
+ * @param {string} entryText - The content of the journal entry (string for free, array for prompts)
  * @param {string} entryTitle - The title of the journal entry
  * @param {string} journalDate - The date of the journal entry as a plain string (e.g., 'YYYY-MM-DD')
+ * @param {string} type - The type of the journal entry ("free" or "prompts")
  */
-export const addJournalEntry = async (entryText, entryTitle, journalDate) => {
+export const addJournalEntry = async (entryText, entryTitle, journalDate, type) => {
   try {
     const userId = auth.currentUser?.uid;
     if (!userId) throw new Error("User not authenticated");
 
-    // Check if an entry already exists for this date
-    const existingEntries = await getJournalEntriesByDate(journalDate);
-    if (existingEntries.length > 0) {
-      throw new Error("A journal entry already exists for this date.");
+    if (!type || !["free", "prompts"].includes(type)) {
+      throw new Error(`Invalid entry type: ${type}`);
     }
 
-    console.log("Adding journal entry with the following data:");
-    console.log("User ID:", userId);
-    console.log("Entry Text:", entryText);
-    console.log("Entry Title:", entryTitle);
-    console.log("Journal Date:", journalDate);
+    if (!entryText) {
+      throw new Error("Entry text is required");
+    }
+
+    if (!entryTitle) {
+      throw new Error("Entry title is required");
+    }
 
     const journalRef = collection(db, "users", userId, "journalEntries");
     await addDoc(journalRef, {
       entryText,
       entryTitle,
-      journalDate, // Save journalDate as a plain string
+      journalDate,
+      type, // Ensure type is saved correctly
     });
 
     console.log("Journal entry added successfully!");
@@ -37,6 +38,7 @@ export const addJournalEntry = async (entryText, entryTitle, journalDate) => {
     throw error;
   }
 };
+
 
 /**
  * Function to fetch journal entries
