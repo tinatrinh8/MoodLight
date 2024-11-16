@@ -1,4 +1,4 @@
-import { collection, addDoc, query, orderBy, getDocs } from "firebase/firestore";
+import { collection, addDoc, query, orderBy, getDocs, where } from "firebase/firestore";
 import { auth, db } from "../components/firebase"; // Use `db` for Firestore instance
 
 /**
@@ -11,6 +11,12 @@ export const addJournalEntry = async (entryText, entryTitle, journalDate) => {
   try {
     const userId = auth.currentUser?.uid;
     if (!userId) throw new Error("User not authenticated");
+
+    // Check if an entry already exists for this date
+    const existingEntries = await getJournalEntriesByDate(journalDate);
+    if (existingEntries.length > 0) {
+      throw new Error("A journal entry already exists for this date.");
+    }
 
     console.log("Adding journal entry with the following data:");
     console.log("User ID:", userId);
@@ -51,6 +57,30 @@ export const getJournalEntries = async () => {
     }));
   } catch (error) {
     console.error("Error fetching journal entries:", error.message);
+    return [];
+  }
+};
+
+/**
+ * Function to fetch journal entries by a specific date
+ * @param {string} journalDate - The date of the journal entry to search for
+ * @returns {Array} Array of journal entries for the specific date
+ */
+export const getJournalEntriesByDate = async (journalDate) => {
+  try {
+    const userId = auth.currentUser?.uid;
+    if (!userId) throw new Error("User not authenticated");
+
+    const journalRef = collection(db, "users", userId, "journalEntries");
+    const q = query(journalRef, where("journalDate", "==", journalDate));
+    const querySnapshot = await getDocs(q);
+
+    return querySnapshot.docs.map((doc) => ({
+      id: doc.id,
+      ...doc.data(),
+    }));
+  } catch (error) {
+    console.error(`Error fetching journal entries for date ${journalDate}:`, error.message);
     return [];
   }
 };

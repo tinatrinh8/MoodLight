@@ -1,5 +1,5 @@
 import React from "react";
-import { View, Text, StyleSheet, ScrollView } from "react-native";
+import { View, Text, StyleSheet, ScrollView, Alert } from "react-native";
 import Header from "../components/Header";
 import CalendarRow from "../components/CalendarRow";
 import { useEntryDates } from "../components/EntryDatesContext";
@@ -49,17 +49,16 @@ const CalendarScreen = () => {
     return chunks;
   };
 
-    const handleDayPress = (selectedDate) => {
-      const today = new Date();
-      const selectedDateObj = new Date(selectedDate);
+  const handleDayPress = (selectedDate) => {
+    const today = new Date();
+    const selectedDateObj = new Date(selectedDate);
 
-      if (selectedDateObj > today) {
-        alert("You cannot select a future date.");
-        return; // Prevent navigation
-      }
+    if (entryDates.includes(selectedDate)) {
+      return; // Prevent navigation
+    }
 
-      navigation.navigate("Home", { selectedDate });
-    };
+    navigation.navigate("Home", { selectedDate });
+  };
 
   return (
     <View style={styles.container}>
@@ -72,7 +71,9 @@ const CalendarScreen = () => {
 
           return (
             <View key={month.name} style={styles.monthContainer}>
-              <Text style={styles.monthTitle}>{month.name}, {month.year}</Text>
+              <Text style={styles.monthTitle}>
+                {month.name}, {month.year}
+              </Text>
               <View style={styles.weekHeader}>
                 {daysOfWeek.map((day, index) => (
                   <Text key={index} style={styles.weekDay}>

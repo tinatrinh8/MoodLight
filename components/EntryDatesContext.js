@@ -6,9 +6,19 @@ export const EntryDatesProvider = ({ children }) => {
   const [entryDates, setEntryDates] = useState([]);
   const [journalEntries, setJournalEntries] = useState([]);
 
+  const hasEntryForDate = (date) => {
+    return entryDates.includes(date);
+  };
+
   return (
     <EntryDatesContext.Provider
-      value={{ entryDates, setEntryDates, journalEntries, setJournalEntries }}
+      value={{
+        entryDates,
+        setEntryDates,
+        journalEntries,
+        setJournalEntries,
+        hasEntryForDate,
+      }}
     >
       {children}
     </EntryDatesContext.Provider>

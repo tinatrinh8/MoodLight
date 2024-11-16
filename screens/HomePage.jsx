@@ -29,6 +29,8 @@ import { useJournalContext } from "../components/EntryDatesContext"; // Import t
 import { useEntryDates } from "../components/EntryDatesContext"; // Import context
 import { utcToZonedTime, format } from "date-fns-tz";
 import { formatDateToTimezone } from "../utils/DateUtils";
+
+
 const SearchBar = () => (
   <View style={styles.searchBar}>
     <TextInput
@@ -105,20 +107,17 @@ useEffect(() => {
 }, [fetchEntries, route.params?.selectedDate]);
 
 
-
 const handleSaveEntry = async () => {
-  const today = new Date();
-  const currentDate = today.toISOString().split("T")[0]; // Format as YYYY-MM-DD
-
-  // Prevent saving entries for future dates
-  if (displayedDate > currentDate) {
-    alert("You cannot create journal entries for future dates.");
-    return;
-  }
-
   if (newEntryTitle.trim() && newEntryText.trim()) {
     try {
-      await addJournalEntry(newEntryText, newEntryTitle, displayedDate);
+      // Check if an entry already exists for the selected date using entryDates
+      if (entryDates.includes(newEntryDate)) {
+        alert("A journal entry already exists for this date. You cannot create another one.");
+        return; // Stop the process if the date already has an entry
+      }
+
+      // Proceed with saving the journal entry
+      await addJournalEntry(newEntryText, newEntryTitle, newEntryDate);
 
       // Fetch updated entries and update context
       const updatedEntries = await getJournalEntries();
@@ -126,7 +125,7 @@ const handleSaveEntry = async () => {
 
       // Add the new entry date to entryDates if not already present
       setEntryDates((prevDates) =>
-        prevDates.includes(displayedDate) ? prevDates : [...prevDates, displayedDate]
+        prevDates.includes(newEntryDate) ? prevDates : [...prevDates, newEntryDate]
       );
 
       // Reset the input fields and close the modal
@@ -143,9 +142,6 @@ const handleSaveEntry = async () => {
     alert("Please provide both a title and content before saving.");
   }
 };
-
-
-
 
   const closeModal = () => {
     setCreateEntryModalVisible(false);
@@ -273,9 +269,16 @@ const CreateJournalEntry = ({
 const savePromptEntry = async () => {
   if (promptEntryTitle.trim() && promptResponses.some((response) => response.trim())) {
     try {
+      // Check if an entry already exists for the selected date using entryDates
+      if (entryDates.includes(displayedDate)) {
+        alert("A journal entry already exists for this date. You cannot create another one.");
+        return; // Stop the process if the date already has an entry
+      }
+
       const filteredResponses = promptResponses.filter((response) => response.trim());
       const entryText = filteredResponses.join("\n\n");
 
+      // Proceed with saving the journal entry
       await addJournalEntry(entryText, promptEntryTitle, displayedDate);
 
       // Fetch updated entries and update context
@@ -287,9 +290,11 @@ const savePromptEntry = async () => {
         prevDates.includes(displayedDate) ? prevDates : [...prevDates, displayedDate]
       );
 
+      // Reset input fields and close the modal
       setPromptResponses(Array(5).fill(""));
       setPromptEntryTitle("");
       closeModal();
+
       navigation.navigate("Home"); // Navigate back to Home
     } catch (error) {
       console.error("Error saving prompt entry:", error.message);
@@ -299,10 +304,18 @@ const savePromptEntry = async () => {
   }
 };
 
+
 const handleSaveEntry = async () => {
   if (newEntryTitle.trim() && newEntryText.trim()) {
     try {
-      await addJournalEntry(newEntryText, newEntryTitle, displayedDate);
+      // Check if an entry already exists for the selected date using entryDates
+      if (entryDates.includes(newEntryDate)) {
+        alert("A journal entry already exists for this date. You cannot create another one.");
+        return; // Stop the process if the date already has an entry
+      }
+
+      // Proceed with saving the journal entry
+      await addJournalEntry(newEntryText, newEntryTitle, newEntryDate);
 
       // Fetch updated entries and update context
       const updatedEntries = await getJournalEntries();
@@ -310,7 +323,7 @@ const handleSaveEntry = async () => {
 
       // Add the new entry date to entryDates if not already present
       setEntryDates((prevDates) =>
-        prevDates.includes(displayedDate) ? prevDates : [...prevDates, displayedDate]
+        prevDates.includes(newEntryDate) ? prevDates : [...prevDates, newEntryDate]
       );
 
       // Reset the input fields and close the modal

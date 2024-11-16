@@ -19,18 +19,17 @@ const DayCell = ({ day, month, entryDates, onDayPress }) => {
     return <Text style={[styles.day, styles.emptyDay]} />;
   }
 
+  const isDisabled = isFutureDate || isJournalDate;
+
   return (
     <TouchableOpacity
       onPress={() => {
-        if (!isFutureDate) {
+        if (!isDisabled) {
           onDayPress(`${month.year}-${String(month.index + 1).padStart(2, "0")}-${String(day).padStart(2, "0")}`);
         }
-      }} // Prevent future dates from triggering
-      style={[
-        styles.dayContainer,
-        isFutureDate && styles.disabledDayContainer, // Add disabled styling for future dates
-      ]}
-      disabled={isFutureDate} // Disable interaction for future dates
+      }} // Do nothing if disabled
+      style={[styles.dayContainer, isDisabled && styles.disabledDayContainer]} // Style for disabled days
+      disabled={isDisabled} // Disable interaction for future dates and highlighted dates
     >
       <Text
         style={[
@@ -67,7 +66,7 @@ const styles = StyleSheet.create({
     color: "#555", // Gray color for future dates
   },
   disabledDayContainer: {
-    opacity: 0.5, // Make the future date less visible
+    opacity: 0.5, // Make the day less visible
   },
 });
 
