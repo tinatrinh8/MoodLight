@@ -346,6 +346,19 @@ const styles = StyleSheet.create({
     fontSize: 18,
   },
 
+    saveChangesButton: {
+      backgroundColor: "#DC869A",
+      borderRadius: 50,
+      paddingVertical: 15,
+      paddingHorizontal: 30,
+      marginTop: 50,
+      width: "100%",
+      alignItems: "center",
+      shadowColor: "#00000",
+      shadowOpacity: 0.5, // Fully opaque shadow
+      shadowRadius: 4,
+    },
+
   // Second Modal Styles
   journalOptionsContainer: {
     flex: 1,
@@ -543,18 +556,26 @@ fixedButtonsContainer: {
     borderWidth: 1, // Optional: add a border
     borderColor: "#ddd", // Optional: border color
   },
-  promptText: {
-    fontSize: 18, // Font size for prompts
-    fontWeight: "bold", // Make prompts bold
-    color: "#333", // Text color
-    marginBottom: 5, // Add spacing below prompt text
-  },
+
   responseText: {
     fontSize: 16, // Font size for responses
     color: "#555", // Text color for responses
     lineHeight: 20, // Increase line spacing for better readability
   },
-
+    promptContainer: {
+      marginBottom: 20,
+    },
+    responseBox: {
+      backgroundColor: "#fff",
+      padding: 10,
+      borderRadius: 10,
+      shadowColor: "#000",
+      shadowOpacity: 0.1,
+      shadowRadius: 4,
+      shadowOffset: { width: 0, height: 2 },
+      elevation: 2,
+      marginTop: 5,
+    },
 
 });
 

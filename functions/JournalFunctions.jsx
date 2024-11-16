@@ -1,4 +1,4 @@
-import { collection, addDoc, deleteDoc, doc, query, orderBy, getDocs, where } from "firebase/firestore";
+import { collection, addDoc, deleteDoc, doc, query, orderBy, updateDoc, getDocs, where } from "firebase/firestore";
 import { auth, db } from "../components/firebase"; // Use `db` for Firestore instance
 /**
  * Function to add a journal entry with support for different types (free or prompts)
@@ -39,6 +39,41 @@ export const addJournalEntry = async (entryText, entryTitle, journalDate, type) 
   }
 };
 
+export const updateEntryInFirestore = async (updatedEntry, setJournalEntries) => {
+  try {
+    // Update the entry in Firestore
+    await updateJournalEntry(updatedEntry.id, updatedEntry);
+
+    // Update the local state if `setJournalEntries` is provided
+    if (setJournalEntries) {
+      setJournalEntries((prevEntries) =>
+        prevEntries.map((entry) =>
+          entry.id === updatedEntry.id ? updatedEntry : entry
+        )
+      );
+    }
+
+    console.log("Journal entry updated successfully in Firestore.");
+  } catch (error) {
+    console.error("Error updating entry in Firestore:", error.message);
+    alert("An error occurred while updating the journal entry.");
+  }
+};
+
+
+export const updateJournalEntry = async (id, updatedEntry) => {
+  const user = auth.currentUser;
+
+  if (!user) {
+    throw new Error("User is not authenticated.");
+  }
+
+  const userId = user.uid; // Use the authenticated user's UID
+  const entryRef = doc(db, "users", userId, "journalEntries", id);
+
+  await updateDoc(entryRef, updatedEntry);
+  console.log("Journal entry updated successfully in Firestore.");
+};
 
 /**
  * Function to fetch journal entries

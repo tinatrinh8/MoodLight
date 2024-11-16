@@ -24,6 +24,7 @@ import {
   getJournalEntries,
   handleSavePromptEntry,
   deleteJournalEntry,
+  updateEntryInFirestore,
 } from "../functions/JournalFunctions";
 import prompts from "../assets/prompts";
 import quotes from "../assets/Quotes";
@@ -31,7 +32,7 @@ import { useJournalContext } from "../components/EntryDatesContext"; // Import t
 import { useEntryDates } from "../components/EntryDatesContext"; // Import context
 import { utcToZonedTime, format } from "date-fns-tz";
 import { formatDateToTimezone } from "../utils/DateUtils";
-
+import EditJournalEntryModal from "../screens/EditJournalEntryModal";
 
 const SearchBar = () => (
   <View style={styles.searchBar}>
@@ -51,7 +52,7 @@ const getRandomQuote = () => {
   return quotes[randomIndex];
 };
 
-const ViewJournalEntryModal = ({ entry, onClose, setJournalEntries, setEntryDates }) => {
+const ViewJournalEntryModal = ({ entry, onClose, setJournalEntries, setEntryDates, setSelectedEntry, setEditModalVisible }) => {
   return (
     <Modal animationType="fade" transparent={true} visible={true}>
       <View style={styles.modalOverlay}>
@@ -68,13 +69,19 @@ const ViewJournalEntryModal = ({ entry, onClose, setJournalEntries, setEntryDate
                   <View style={styles.promptResponseContainer}>
                     <Text style={styles.responseText}>{entry.entryText || "No content available"}</Text>
                   </View>
-                ) : Array.isArray(entry.entryText) ? (
-                  entry.entryText.map((item, index) => (
-                    <View key={index} style={styles.promptResponseContainer}>
-                      <Text style={styles.promptText}>{item.prompt}</Text>
-                      <Text style={styles.responseText}>{item.response}</Text>
-                    </View>
-                  ))
+                    ) : Array.isArray(entry.entryText) ? (
+                      entry.entryText.map((item, index) => (
+                        <View key={index} style={styles.promptContainer}>
+                          {/* Prompt as a standalone title */}
+                          <Text style={styles.textBoxTitle}>{item.prompt}</Text>
+                          {/* Response in its own box */}
+                          <View style={styles.responseBox}>
+                            <Text style={styles.responseText}>
+                              {item.response || "No response provided"}
+                            </Text>
+                          </View>
+                        </View>
+                      ))
                 ) : (
                   <Text style={styles.modalViewText}>No prompts available</Text>
                 )}
@@ -83,9 +90,17 @@ const ViewJournalEntryModal = ({ entry, onClose, setJournalEntries, setEntryDate
             </ScrollView>
 
           <View style={styles.fixedButtonsContainer}>
-            <TouchableOpacity style={styles.editButton}>
+            <TouchableOpacity
+              style={styles.editButton}
+              onPress={() => {
+                setSelectedEntry(entry); // Set the entry to be edited
+                setEditModalVisible(true); // Open the edit modal
+                onClose(); // Close the view modal
+              }}
+            >
               <Text style={styles.continueButtonText}>Edit</Text>
             </TouchableOpacity>
+
             <TouchableOpacity
               style={styles.deleteButton}
               onPress={() => {
@@ -147,6 +162,9 @@ const HomePage = () => {
   const [newEntryTitle, setNewEntryTitle] = useState("");
   const [createEntryModalVisible, setCreateEntryModalVisible] = useState(false);
   const [newEntryDate, setNewEntryDate] = useState(""); // New state for the selected date
+  const [editModalVisible, setEditModalVisible] = useState(false); // Controls visibility of edit modal
+  const [selectedEntry, setSelectedEntry] = useState(null); // Stores the entry being edited
+
 
   // Helper function to reset newEntryDate to today's date
   const resetToTodayDate = () => {
@@ -185,7 +203,13 @@ const fetchEntries = useCallback(async () => {
 
 useEffect(() => {
   const unsubscribeAuth = onAuthStateChanged(auth, (currentUser) => {
-    setUser(currentUser || null);
+    if (currentUser) {
+      setUser(currentUser); // Set the authenticated user
+      console.log("Authenticated user UID:", currentUser.uid); // Log the UID for debugging or usage
+    } else {
+      setUser(null);
+      console.error("User is not authenticated."); // Handle unauthenticated state
+    }
   });
 
   // Check if a journal entry is passed from navigation
@@ -194,19 +218,21 @@ useEffect(() => {
     setViewJournalModalVisible(true); // Open the modal
   }
 
- // Check for creating a new entry date
-  const selectedDate = route.params?.selectedDate;
-  if (selectedDate) {
-    setNewEntryDate(selectedDate);
-    setCreateEntryModalVisible(true);
+  // Check for creating a new entry date
+  if (route.params?.selectedDate) {
+    setNewEntryDate(route.params.selectedDate); // Set the selected date for the new entry
+    setCreateEntryModalVisible(true); // Open the modal for creating an entry
   }
 
+  // Fetch existing journal entries for the authenticated user
   fetchEntries();
 
+  // Cleanup the authentication listener on component unmount
   return () => {
     unsubscribeAuth();
   };
 }, [fetchEntries, route.params]);
+
 
 
 const handleSaveEntry = async () => {
@@ -305,14 +331,26 @@ const handleSaveEntry = async () => {
     <View style={styles.container}>
       <Header />
       {/* View Journal Entry Modal */}
-      {viewJournalModalVisible && viewJournalEntry && (
-        <ViewJournalEntryModal
-          entry={viewJournalEntry}
-          onClose={handleCloseJournal}
-          setJournalEntries={setJournalEntries} // Pass the function
-          setEntryDates={setEntryDates}       // Pass the function
-        />
-      )}
+        {viewJournalModalVisible && viewJournalEntry && (
+          <ViewJournalEntryModal
+            entry={viewJournalEntry}
+            onClose={handleCloseJournal}
+            setJournalEntries={setJournalEntries}
+            setEntryDates={setEntryDates}
+            setSelectedEntry={setSelectedEntry} // Pass setSelectedEntry
+            setEditModalVisible={setEditModalVisible} // Pass setEditModalVisible
+          />
+        )}
+
+        {editModalVisible && selectedEntry && (
+          <EditJournalEntryModal
+            entry={selectedEntry}
+            onClose={() => setEditModalVisible(false)}
+            onSave={updateEntryInFirestore} // Correctly pass the onSave function here
+            setJournalEntries={setJournalEntries} // Pass the state updater
+          />
+        )}
+
       <FlatList
         data={contentData}
         keyExtractor={(item) => item.id}
