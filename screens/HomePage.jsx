@@ -11,6 +11,7 @@ import {
   Platform,
   ScrollView,
   Animated,
+  Alert,
 } from "react-native";
 import { onAuthStateChanged } from "firebase/auth";
 import { auth } from "../components/firebase";
@@ -22,6 +23,7 @@ import {
   addJournalEntry,
   getJournalEntries,
   handleSavePromptEntry,
+  deleteJournalEntry,
 } from "../functions/JournalFunctions";
 import prompts from "../assets/prompts";
 import quotes from "../assets/Quotes";
@@ -49,7 +51,7 @@ const getRandomQuote = () => {
   return quotes[randomIndex];
 };
 
-const ViewJournalEntryModal = ({ entry, onClose }) => {
+const ViewJournalEntryModal = ({ entry, onClose, setJournalEntries, setEntryDates }) => {
   return (
     <Modal animationType="fade" transparent={true} visible={true}>
       <View style={styles.modalOverlay}>
@@ -68,7 +70,45 @@ const ViewJournalEntryModal = ({ entry, onClose }) => {
             <TouchableOpacity style={styles.editButton}>
               <Text style={styles.continueButtonText}>Edit</Text>
             </TouchableOpacity>
-            <TouchableOpacity style={styles.deleteButton}>
+            <TouchableOpacity
+              style={styles.deleteButton}
+              onPress={() => {
+                Alert.alert(
+                  "Confirm Deletion",
+                  "Are you sure you want to delete this journal entry? This action cannot be undone.",
+                  [
+                    { text: "Cancel", style: "cancel" },
+                    {
+                      text: "Yes, Delete",
+                      style: "destructive",
+                      onPress: async () => {
+                        try {
+                          // Call delete function and remove from Firestore
+                          await deleteJournalEntry(entry.id);
+
+                          // Update the journal entries state to reflect deletion
+                          setJournalEntries((prevEntries) =>
+                            prevEntries.filter((e) => e.id !== entry.id)
+                          );
+
+                          // Update the entry dates state
+                          setEntryDates((prevDates) =>
+                            prevDates.filter((date) => date !== entry.journalDate)
+                          );
+
+                          // Close the modal
+                          onClose();
+
+                          console.log("Journal entry deleted successfully.");
+                        } catch (error) {
+                          console.error("Error deleting journal entry:", error.message);
+                        }
+                      },
+                    },
+                  ]
+                );
+              }}
+            >
               <Text style={styles.continueButtonText}>Delete</Text>
             </TouchableOpacity>
           </View>
@@ -252,7 +292,9 @@ const handleSaveEntry = async () => {
       {viewJournalModalVisible && viewJournalEntry && (
         <ViewJournalEntryModal
           entry={viewJournalEntry}
-          onClose={handleCloseJournal} // Pass the correct close handler
+          onClose={handleCloseJournal}
+          setJournalEntries={setJournalEntries} // Pass the function
+          setEntryDates={setEntryDates}       // Pass the function
         />
       )}
       <FlatList

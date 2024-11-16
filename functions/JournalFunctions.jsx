@@ -1,4 +1,4 @@
-import { collection, addDoc, query, orderBy, getDocs, where } from "firebase/firestore";
+import { collection, addDoc, deleteDoc, doc, query, orderBy, getDocs, where } from "firebase/firestore";
 import { auth, db } from "../components/firebase"; // Use `db` for Firestore instance
 
 /**
@@ -106,3 +106,26 @@ export const handleSavePromptEntry = async (promptResponses, entryTitle, journal
     throw new Error("Please fill out at least 3 prompts.");
   }
 };
+
+/**
+ * Function to delete a journal entry
+ * @param {string} entryId - The ID of the journal entry to delete
+ */
+export const deleteJournalEntry = async (entryId) => {
+  try {
+    const userId = auth.currentUser?.uid;
+    if (!userId) throw new Error("User not authenticated");
+
+    // Reference to the specific journal entry document
+    const entryRef = doc(db, "users", userId, "journalEntries", entryId);
+
+    // Delete the document
+    await deleteDoc(entryRef);
+
+    console.log("Journal entry deleted successfully!");
+  } catch (error) {
+    console.error("Error deleting journal entry:", error.message);
+    throw error; // Rethrow error for further handling if needed
+  }
+};
+
