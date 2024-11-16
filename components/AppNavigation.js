@@ -1,12 +1,17 @@
 import React from "react";
 import { createBottomTabNavigator } from "@react-navigation/bottom-tabs";
+import { createStackNavigator } from "@react-navigation/stack";
 import { Image } from "react-native";
+
+// Import Screens
 import HomePage from "../screens/HomePage";
 import Calendar from "../screens/Calendar";
 import Insights from "../screens/Insights";
 import Settings from "../screens/Settings";
 
+// Create Navigators
 const Tab = createBottomTabNavigator();
+const Stack = createStackNavigator();
 
 // Tab Navigator
 const TabNavigator = () => (
@@ -102,4 +107,13 @@ const TabNavigator = () => (
   </Tab.Navigator>
 );
 
-export default TabNavigator;
+// Root Stack Navigator
+const AppNavigation = () => {
+  return (
+    <Stack.Navigator screenOptions={{ headerShown: false }}>
+      <Stack.Screen name="Tabs" component={TabNavigator} />
+    </Stack.Navigator>
+  );
+};
+
+export default AppNavigation;

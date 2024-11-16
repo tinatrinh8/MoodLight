@@ -59,6 +59,8 @@ const HomePage = () => {
   const [newEntryText, setNewEntryText] = useState("");
   const [newEntryTitle, setNewEntryTitle] = useState("");
   const [createEntryModalVisible, setCreateEntryModalVisible] = useState(false);
+  const [newEntryDate, setNewEntryDate] = useState(""); // New state for the selected date
+
 
 const fetchEntries = useCallback(async () => {
   try {
@@ -80,42 +82,56 @@ const fetchEntries = useCallback(async () => {
   }
 }, [setEntryDates, setJournalEntries]);
 
-  useEffect(() => {
-    const unsubscribeAuth = onAuthStateChanged(auth, (currentUser) => {
-      setUser(currentUser || null);
-    });
+useEffect(() => {
+  const unsubscribeAuth = onAuthStateChanged(auth, (currentUser) => {
+    setUser(currentUser || null);
+  });
 
-    fetchEntries();
+  const selectedDate = route.params?.selectedDate; // Access navigation parameter
+  if (selectedDate) {
+    setNewEntryDate(selectedDate); // Set the date to the selected date
+    setCreateEntryModalVisible(true); // Open the create modal
+  }
 
-    return () => {
-      unsubscribeAuth();
-    };
-  }, [fetchEntries]);
+  fetchEntries();
+
+  return () => {
+    unsubscribeAuth();
+  };
+}, [fetchEntries, route.params?.selectedDate]);
 
 
-   const handleSaveEntry = async () => {
-     if (newEntryTitle.trim() && newEntryText.trim()) {
-       const currentDate = new Date().toISOString().split("T")[0];
-       try {
-         await addJournalEntry(newEntryText, newEntryTitle);
-         setNewEntryTitle("");
-         setNewEntryText("");
-         setCreateEntryModalVisible(false);
 
-         // Update entries and dates in context
-         const updatedEntries = await getJournalEntries();
-         setJournalEntries(updatedEntries);
+const handleSaveEntry = async () => {
+   if (newEntryTitle.trim() && newEntryText.trim()) {
+     const currentDate = newEntryDate || new Date().toISOString().split("T")[0];
+     try {
+       await addJournalEntry(newEntryText, newEntryTitle);
 
-         if (!entryDates.includes(currentDate)) {
-           setEntryDates([...entryDates, currentDate]);
-         }
-       } catch (error) {
-         console.error("Error saving entry:", error.message);
-       }
-     } else {
-       alert("Please provide both a title and content before saving.");
+       // Fetch updated entries and update context
+       const updatedEntries = await getJournalEntries();
+       setJournalEntries(updatedEntries);
+
+       // Add the new entry date to entryDates if not already present
+       setEntryDates((prevDates) =>
+         prevDates.includes(currentDate) ? prevDates : [...prevDates, currentDate]
+       );
+
+       setNewEntryTitle("");
+       setNewEntryText("");
+       closeModal();
+
+       // Navigate to Home tab
+       navigation.navigate("Tabs", {
+         screen: "Home",
+       });
+     } catch (error) {
+       console.error("Error saving entry:", error.message);
      }
-   };
+   } else {
+     alert("Please provide both a title and content before saving.");
+   }
+ };
 
   const closeModal = () => {
     setCreateEntryModalVisible(false);
@@ -159,10 +175,13 @@ const fetchEntries = useCallback(async () => {
           newEntryText={newEntryText}
           setNewEntryText={setNewEntryText}
           newEntryTitle={newEntryTitle}
+          newEntryDate={newEntryDate} // Pass the selected or default date
           setNewEntryTitle={setNewEntryTitle}
           modalVisible={createEntryModalVisible}
           setModalVisible={setCreateEntryModalVisible}
           handleSaveEntry={handleSaveEntry}
+          newEntryDate={newEntryDate}
+
         />
       ),
     },
@@ -183,7 +202,12 @@ const fetchEntries = useCallback(async () => {
 };
 
 
-const CreateJournalEntry = ({ modalVisible, setModalVisible }) => {
+const CreateJournalEntry = ({
+  modalVisible,
+  setModalVisible,
+  newEntryDate, // New prop added for selected or default date
+}) => {
+  const navigation = useNavigation(); // Access navigation directly
   const { entryDates, setEntryDates, setJournalEntries } = useEntryDates(); // Pull from context
   const [currentModal, setCurrentModal] = useState("main");
   const [newEntryText, setNewEntryText] = useState("");
@@ -192,6 +216,17 @@ const CreateJournalEntry = ({ modalVisible, setModalVisible }) => {
   const [promptEntryTitle, setPromptEntryTitle] = useState("");
   const [randomPrompts, setRandomPrompts] = useState([]);
   const fadeAnim = useRef(new Animated.Value(1)).current;
+
+
+     // Helper function to format dates to local timezone
+     const getLocalDate = (date = new Date()) => {
+       return new Intl.DateTimeFormat("en-CA", {
+         timeZone: Intl.DateTimeFormat().resolvedOptions().timeZone, // Ensures local timezone
+       }).format(date); // Format as YYYY-MM-DD
+     };
+
+   // Determine the displayed date
+   const displayedDate = newEntryDate || getLocalDate();
 
   const fadeTransition = () => {
     Animated.sequence([
@@ -226,7 +261,7 @@ const CreateJournalEntry = ({ modalVisible, setModalVisible }) => {
 
   const savePromptEntry = async () => {
     if (promptEntryTitle.trim() && promptResponses.some((response) => response.trim())) {
-      const currentDate = new Date().toISOString().split("T")[0];
+      const currentDate = newEntryDate || new Date().toISOString().split("T")[0];
       try {
         const filteredResponses = promptResponses.filter((response) => response.trim());
         const entryText = filteredResponses.join("\n\n");
@@ -244,6 +279,7 @@ const CreateJournalEntry = ({ modalVisible, setModalVisible }) => {
         setPromptResponses(Array(5).fill(""));
         setPromptEntryTitle("");
         closeModal();
+        navigation.navigate("Home"); // Navigate back to Home
       } catch (error) {
         console.error("Error saving prompt entry:", error.message);
       }
@@ -253,30 +289,32 @@ const CreateJournalEntry = ({ modalVisible, setModalVisible }) => {
   };
 
   const handleSaveEntry = async () => {
-    if (newEntryTitle.trim() && newEntryText.trim()) {
-      const currentDate = new Date().toISOString().split("T")[0];
-      try {
-        await addJournalEntry(newEntryText, newEntryTitle);
+     if (newEntryTitle.trim() && newEntryText.trim()) {
+       const currentDate = displayedDate; // Use the displayed date
+       try {
+         await addJournalEntry(newEntryText, newEntryTitle);
 
-        // Fetch updated entries and update context
-        const updatedEntries = await getJournalEntries();
-        setJournalEntries(updatedEntries);
+         // Fetch updated entries and update context
+         const updatedEntries = await getJournalEntries();
+         setJournalEntries(updatedEntries);
 
-        // Add the new entry date to entryDates if not already present
-        setEntryDates((prevDates) =>
-          prevDates.includes(currentDate) ? prevDates : [...prevDates, currentDate]
-        );
+         // Add the new entry date to entryDates if not already present
+         setEntryDates((prevDates) =>
+           prevDates.includes(currentDate) ? prevDates : [...prevDates, currentDate]
+         );
 
-        setNewEntryTitle("");
-        setNewEntryText("");
-        closeModal();
-      } catch (error) {
-        console.error("Error saving entry:", error.message);
-      }
-    } else {
-      alert("Please provide both a title and content before saving.");
-    }
-  };
+         setNewEntryTitle("");
+         setNewEntryText("");
+         closeModal();
+       } catch (error) {
+         console.error("Error saving entry:", error.message);
+       }
+     } else {
+       alert("Please provide both a title and content before saving.");
+     }
+   };
+
+
   return (
     <View style={styles.createEntryContainer}>
       <Image source={require("../assets/cat.png")} style={styles.cat} />
@@ -331,6 +369,10 @@ const CreateJournalEntry = ({ modalVisible, setModalVisible }) => {
             {currentModal === "writeFreely" && (
               <>
                 <Text style={styles.modalTitle}>Dear diary...</Text>
+
+                {/* Display Selected or Today's Date */}
+                <Text style={styles.dateText}>{displayedDate}</Text>
+
                 <TextInput
                   style={styles.titleInputBox}
                   placeholder="Name your journal entry"
@@ -354,9 +396,10 @@ const CreateJournalEntry = ({ modalVisible, setModalVisible }) => {
             )}
             {currentModal === "usePrompts" && (
               <>
-                <Text style={styles.modalTitle}>
-                  Need a little inspiration?
-                </Text>
+                <Text style={styles.modalTitle}>Need a little inspiration?</Text>
+
+                {/* Display Selected or Today's Date */}
+                <Text style={styles.dateText}>{displayedDate}</Text>
                 <Text style={styles.textBoxTitle}>Journal Title</Text>
                 <TextInput
                   style={styles.titleInputBox}

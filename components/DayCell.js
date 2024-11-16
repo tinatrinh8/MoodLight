@@ -1,31 +1,43 @@
 import React from "react";
-import { Text, StyleSheet } from "react-native";
+import { Text, StyleSheet, TouchableOpacity } from "react-native";
 
-const DayCell = ({ day, month, entryDates }) => {
+const DayCell = ({ day, month, entryDates, onDayPress }) => {
   const isJournalDate = day
     ? entryDates.includes(`${month.year}-${month.index + 1}-${day}`)
     : false;
 
+  // Handle empty day slots (like leading/trailing spaces in a month grid)
+  if (day === "") {
+    return <Text style={[styles.day, styles.emptyDay]} />;
+  }
+
   return (
-    <Text
-      style={[
-        styles.day,
-        day === "" && styles.emptyDay,
-        isJournalDate && styles.journalDay, // Apply pink styling
-      ]}
+    <TouchableOpacity
+      onPress={() => onDayPress(`${month.year}-${month.index + 1}-${day}`)}
+      style={styles.dayContainer}
     >
-      {day}
-    </Text>
+      <Text
+        style={[
+          styles.day,
+          isJournalDate && styles.journalDay, // Apply pink styling
+        ]}
+      >
+        {day}
+      </Text>
+    </TouchableOpacity>
   );
 };
 
 const styles = StyleSheet.create({
+  dayContainer: {
+    width: "13%", // Consistent sizing for calendar cells
+    alignItems: "center",
+    marginBottom: 10,
+  },
   day: {
     fontSize: 16,
     color: "#FFF",
     textAlign: "center",
-    width: "13%",
-    marginBottom: 10,
   },
   emptyDay: {
     color: "transparent",
@@ -35,3 +47,5 @@ const styles = StyleSheet.create({
     fontWeight: "bold",
   },
 });
+
+export default DayCell;

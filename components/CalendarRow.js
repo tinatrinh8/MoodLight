@@ -1,16 +1,23 @@
 import React from "react";
-import { View, Text, StyleSheet } from "react-native";
+import { View, StyleSheet, TouchableOpacity, Text } from "react-native";
 
-const CalendarRow = ({ days }) => {
+const CalendarRow = ({ days, month, entryDates, onDayPress }) => {
   return (
     <View style={styles.row}>
       {days.map((day, index) => (
-        <View
+        <TouchableOpacity
           key={index}
           style={[
             styles.dayContainer,
             day.isJournalDate && styles.highlightedContainer, // Highlight if it's a journal date
           ]}
+          onPress={() => {
+            if (day.day) {
+              const selectedDate = `${month.year}-${String(month.index + 1).padStart(2, "0")}-${String(day.day).padStart(2, "0")}`;
+              onDayPress(selectedDate); // Pass the formatted date to the callback
+            }
+          }}
+          disabled={!day.day} // Disable clicks for empty days
         >
           <Text
             style={[
@@ -20,7 +27,7 @@ const CalendarRow = ({ days }) => {
           >
             {day.day || ""} {/* Display day number or empty */}
           </Text>
-        </View>
+        </TouchableOpacity>
       ))}
     </View>
   );

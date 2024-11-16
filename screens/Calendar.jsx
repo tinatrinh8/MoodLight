@@ -3,9 +3,11 @@ import { View, Text, StyleSheet, ScrollView } from "react-native";
 import Header from "../components/Header";
 import CalendarRow from "../components/CalendarRow";
 import { useEntryDates } from "../components/EntryDatesContext";
+import { useNavigation } from "@react-navigation/native";
 
 const CalendarScreen = () => {
-  const { journalEntries } = useEntryDates(); // Access global journalEntries
+  const { entryDates, journalEntries } = useEntryDates(); // Access global state
+  const navigation = useNavigation(); // For navigating to the homepage
 
   const months = [
     { name: "September", days: 30, startDay: 0, year: 2024, index: 8 },
@@ -29,7 +31,7 @@ const CalendarScreen = () => {
           entryDate.getMonth() === month.index
         );
       })
-      .map((entry) => new Date(entry.date.seconds * 1000).getDate()); // Get day numbers
+      .map((entry) => new Date(entry.date.seconds * 1000).getDate()); // Get day numbers (e.g., 15)
 
     for (let i = 0; i < totalSlots; i++) {
       if (i < month.startDay || i >= month.days + month.startDay) {
@@ -48,6 +50,11 @@ const CalendarScreen = () => {
       chunks.push(array.slice(i, i + size));
     }
     return chunks;
+  };
+
+  const handleDayPress = (selectedDate) => {
+    // Navigate to the homepage and pass the selected date
+    navigation.navigate("HomePage", { selectedDate });
   };
 
   return (
@@ -70,7 +77,13 @@ const CalendarScreen = () => {
                 ))}
               </View>
               {rows.map((week, index) => (
-                <CalendarRow key={index} days={week} />
+                <CalendarRow
+                  key={index}
+                  days={week}
+                  month={month}
+                  entryDates={entryDates}
+                  onDayPress={handleDayPress} // Pass the click handler
+                />
               ))}
             </View>
           );
