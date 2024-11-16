@@ -471,6 +471,69 @@ const styles = StyleSheet.create({
     marginVertical: 10,
     lineHeight: 22,
   },
+  modalViewText: {
+    fontSize: 16, // Adjust font size for better readability
+    color: "#FFFFFF", // Change color for better contrast
+    lineHeight: 24, // Increase line height for readability
+    textAlign: "left", // Align the text to the left
+    marginBottom: 10, // Add some spacing below the text
+    fontFamily: "LexendDeca", // Use a readable and consistent font
+  },
+
+   modalDateText: {
+      fontSize: 16, // Adjust font size for better readability
+      color: "#FFD700",
+      lineHeight: 24, // Increase line height for readability
+      textAlign: "left", // Align the text to the left
+      marginBottom: 10, // Add some spacing below the text
+      fontFamily: "LexendDeca", // Use a readable and consistent font
+    },
+// Add this style for the button container
+buttonContainer: {
+  flexDirection: "row", // Arrange buttons in a row
+  justifyContent: "space-between", // Add spacing between buttons
+  alignItems: "center", // Align buttons vertically
+  marginTop: 20, // Adjust top margin for the whole container
+  width: "100%",
+  paddingHorizontal: 20, // Add horizontal padding
+},
+
+editButton: {
+  backgroundColor: "#DC869A",
+  borderRadius: 50,
+  paddingVertical: 15,
+  paddingHorizontal: 30,
+  width: "45%", // Reduce width to fit horizontally
+  alignItems: "center",
+  shadowColor: "#00000",
+  shadowOpacity: 0.5,
+  shadowRadius: 4,
+},
+deleteButton: {
+  backgroundColor: "rgba(0, 5, 34, 0.85)",
+  borderRadius: 50,
+  paddingVertical: 15,
+  paddingHorizontal: 30,
+  width: "45%", // Same width as the edit button
+  alignItems: "center",
+  shadowColor: "#00000",
+  shadowOpacity: 0.5,
+  shadowRadius: 4,
+},
+scrollContentView: {
+  flex: 1,
+  marginBottom: 80, // Leave space for the fixed buttons
+},
+fixedButtonsContainer: {
+  position: "absolute",
+  bottom: 20,
+  left: 0,
+  right: 0,
+  flexDirection: "row",
+  justifyContent: "space-evenly",
+  alignItems: "center",
+  paddingHorizontal: 20,
+},
 });
 
 export default styles;

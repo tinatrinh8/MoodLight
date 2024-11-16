@@ -49,11 +49,40 @@ const getRandomQuote = () => {
   return quotes[randomIndex];
 };
 
+const ViewJournalEntryModal = ({ entry, onClose }) => {
+  return (
+    <Modal animationType="fade" transparent={true} visible={true}>
+      <View style={styles.modalOverlay}>
+        <View style={styles.modalContent}>
+          <TouchableOpacity onPress={onClose} style={styles.closeButton}>
+            <Text style={styles.closeButtonText}>×</Text>
+          </TouchableOpacity>
+
+          <ScrollView style={styles.scrollContentView}>
+            <Text style={styles.modalTitle}>{entry.entryTitle}</Text>
+            <Text style={styles.modalDateText}>{entry.journalDate}</Text>
+            <Text style={styles.modalViewText}>{entry.entryText}</Text>
+          </ScrollView>
+
+          <View style={styles.fixedButtonsContainer}>
+            <TouchableOpacity style={styles.editButton}>
+              <Text style={styles.continueButtonText}>Edit</Text>
+            </TouchableOpacity>
+            <TouchableOpacity style={styles.deleteButton}>
+              <Text style={styles.continueButtonText}>Delete</Text>
+            </TouchableOpacity>
+          </View>
+        </View>
+      </View>
+    </Modal>
+  );
+};
+
 const HomePage = () => {
   const navigation = useNavigation();
   const route = useRoute();
   const { entryDates, setEntryDates, journalEntries, setJournalEntries } = useEntryDates(); // Use global state
-
+  const [viewJournalEntry, setViewJournalEntry] = useState(null); // State to hold the selected journal entry
   const [viewJournalModalVisible, setViewJournalModalVisible] = useState(false);
   const [user, setUser] = useState(null);
   const [loading, setLoading] = useState(false);
@@ -69,6 +98,16 @@ const HomePage = () => {
       timeZone: Intl.DateTimeFormat().resolvedOptions().timeZone,
     }).format(new Date()); // Format to YYYY-MM-DD
     setNewEntryDate(today); // Set today's date
+  };
+
+  const handleOpenJournal = (entry) => {
+    setViewJournalEntry(entry); // Set the clicked journal entry
+    setViewJournalModalVisible(true); // Open the modal
+  };
+
+  const handleCloseJournal = () => {
+    setViewJournalModalVisible(false); // Close the modal
+    setViewJournalEntry(null); // Clear the selected entry
   };
 
 const fetchEntries = useCallback(async () => {
@@ -172,7 +211,7 @@ const handleSaveEntry = async () => {
       id: "pastEntries",
       component: (
         <PastEntries
-          openViewJournalModal={setViewJournalModalVisible}
+          openViewJournalModal={handleOpenJournal} // Pass the callback
           journalEntries={journalEntries}
           loading={loading}
         />
@@ -202,6 +241,13 @@ const handleSaveEntry = async () => {
   return (
     <View style={styles.container}>
       <Header />
+      {/* View Journal Entry Modal */}
+      {viewJournalModalVisible && viewJournalEntry && (
+        <ViewJournalEntryModal
+          entry={viewJournalEntry}
+          onClose={handleCloseJournal} // Pass the correct close handler
+        />
+      )}
       <FlatList
         data={contentData}
         keyExtractor={(item) => item.id}
@@ -340,7 +386,6 @@ const handleSaveEntry = async () => {
     alert("Please provide both a title and content before saving.");
   }
 };
-
 
   return (
     <View style={styles.createEntryContainer}>
@@ -485,11 +530,10 @@ const PastEntries = ({ openViewJournalModal, journalEntries, loading }) => {
     return <Text style={styles.emptyText}>No journal entries yet.</Text>;
   }
 
-  // Ensure journalDate is consistently parsed as a Date object for sorting
   const recentEntries = journalEntries
-    .filter((entry) => entry.journalDate) // Ensure the entry has a valid date
-    .sort((a, b) => new Date(b.journalDate) - new Date(a.journalDate)) // Sort by journalDate (descending)
-    .slice(0, 4); // Get the 4 most recent entries
+    .filter((entry) => entry.journalDate)
+    .sort((a, b) => new Date(b.journalDate) - new Date(a.journalDate))
+    .slice(0, 4);
 
   return (
     <View style={styles.pastEntries}>
@@ -499,13 +543,13 @@ const PastEntries = ({ openViewJournalModal, journalEntries, loading }) => {
           <TouchableOpacity
             key={entry.id}
             style={styles.entryButton}
-            onPress={() => openViewJournalModal(entry)}
+            onPress={() => openViewJournalModal(entry)} // Pass the entry to the callback
           >
             <Text style={styles.entryText}>
               {entry.entryTitle || "Untitled Entry"}
             </Text>
             <Text style={styles.dateText}>
-              {new Date(entry.journalDate).toISOString().split("T")[0] || "No Date"}
+              {entry.journalDate || "No Date"}
             </Text>
           </TouchableOpacity>
         ))}
@@ -513,6 +557,7 @@ const PastEntries = ({ openViewJournalModal, journalEntries, loading }) => {
     </View>
   );
 };
+
 
 
 export default HomePage;
