@@ -25,13 +25,10 @@ const CalendarScreen = () => {
     // Extract all days from journalEntries that match this month and year
     const highlightedDays = journalEntries
       .filter((entry) => {
-        const entryDate = new Date(entry.date.seconds * 1000);
-        return (
-          entryDate.getFullYear() === month.year &&
-          entryDate.getMonth() === month.index
-        );
+        const [year, monthIndex, day] = entry.journalDate.split("-").map(Number); // Split journalDate into parts
+        return year === month.year && monthIndex - 1 === month.index; // Match year and month
       })
-      .map((entry) => new Date(entry.date.seconds * 1000).getDate()); // Get day numbers (e.g., 15)
+      .map((entry) => parseInt(entry.journalDate.split("-")[2], 10)); // Extract the day part as a number
 
     for (let i = 0; i < totalSlots; i++) {
       if (i < month.startDay || i >= month.days + month.startDay) {
@@ -53,8 +50,7 @@ const CalendarScreen = () => {
   };
 
   const handleDayPress = (selectedDate) => {
-    // Navigate to the homepage and pass the selected date
-    navigation.navigate("HomePage", { selectedDate });
+    navigation.navigate("Home", { selectedDate });
   };
 
   return (
