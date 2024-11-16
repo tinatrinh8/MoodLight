@@ -288,31 +288,38 @@ const CreateJournalEntry = ({
     }
   };
 
-  const handleSaveEntry = async () => {
-     if (newEntryTitle.trim() && newEntryText.trim()) {
-       const currentDate = displayedDate; // Use the displayed date
-       try {
-         await addJournalEntry(newEntryText, newEntryTitle);
+const handleSaveEntry = async () => {
+  if (newEntryTitle.trim() && newEntryText.trim()) {
+    const currentDate = new Date().toISOString().split("T")[0];
+    try {
+      await addJournalEntry(newEntryText, newEntryTitle);
 
-         // Fetch updated entries and update context
-         const updatedEntries = await getJournalEntries();
-         setJournalEntries(updatedEntries);
+      // Fetch updated entries and update context
+      const updatedEntries = await getJournalEntries();
+      setJournalEntries(updatedEntries);
 
-         // Add the new entry date to entryDates if not already present
-         setEntryDates((prevDates) =>
-           prevDates.includes(currentDate) ? prevDates : [...prevDates, currentDate]
-         );
+      // Add the new entry date to entryDates if not already present
+      setEntryDates((prevDates) =>
+        prevDates.includes(currentDate) ? prevDates : [...prevDates, currentDate]
+      );
 
-         setNewEntryTitle("");
-         setNewEntryText("");
-         closeModal();
-       } catch (error) {
-         console.error("Error saving entry:", error.message);
-       }
-     } else {
-       alert("Please provide both a title and content before saving.");
-     }
-   };
+      setNewEntryTitle("");
+      setNewEntryText("");
+      closeModal();
+
+      // Navigate to the 'Home' screen inside the 'MainTabs' tab navigator
+      navigation.navigate("MainTabs", { screen: "Home" });
+    } catch (error) {
+      console.error("Error saving entry:", error.message);
+    }
+  } else {
+    alert("Please provide both a title and content before saving.");
+  }
+};
+
+
+
+
 
 
   return (
