@@ -33,6 +33,7 @@ import { useEntryDates } from "../components/EntryDatesContext"; // Import conte
 import { utcToZonedTime, format } from "date-fns-tz";
 import { formatDateToTimezone } from "../utils/DateUtils";
 import EditJournalEntryModal from "../screens/EditJournalEntryModal";
+import LoadingFlower from '../components/LoadingFlower';
 
 const SearchBar = () => (
   <View style={styles.searchBar}>
@@ -648,9 +649,9 @@ const Title = ({ quote }) => (
 );
 
 const PastEntries = ({ openViewJournalModal, journalEntries, loading }) => {
-  if (loading) {
-    return <Text style={styles.loadingText}>Loading entries...</Text>;
-  }
+    if (loading) {
+      return <LoadingFlower />;
+    }
 
   if (!journalEntries.length) {
     return <Text style={styles.emptyText}>No journal entries yet.</Text>;
