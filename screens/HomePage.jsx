@@ -27,6 +27,8 @@ import prompts from "../assets/prompts";
 import quotes from "../assets/Quotes";
 import { useJournalContext } from "../components/EntryDatesContext"; // Import the context
 import { useEntryDates } from "../components/EntryDatesContext"; // Import context
+import { utcToZonedTime, format } from "date-fns-tz";
+import { formatDateToTimezone } from "../utils/DateUtils";
 const SearchBar = () => (
   <View style={styles.searchBar}>
     <TextInput
@@ -59,21 +61,24 @@ const HomePage = () => {
   const [createEntryModalVisible, setCreateEntryModalVisible] = useState(false);
 
 const fetchEntries = useCallback(async () => {
-    try {
-      setLoading(true);
-      const entries = await getJournalEntries();
-      const dates = entries.map((entry) =>
-        new Date(entry.date.seconds * 1000).toISOString().split("T")[0]
-      );
+  try {
+    setLoading(true);
+    const entries = await getJournalEntries();
 
-      setJournalEntries(entries); // Update global journal entries
-      setEntryDates(dates); // Update global entry dates
-    } catch (error) {
-      console.error("Error fetching journal entries:", error.message);
-    } finally {
-      setLoading(false);
-    }
-  }, [setEntryDates, setJournalEntries]);
+    // Format entry dates in UTC as YYYY-MM-DD
+    const dates = entries.map((entry) => {
+      const utcDate = new Date(entry.date.seconds * 1000); // Convert Firebase timestamp to Date
+      return utcDate.toISOString().split("T")[0]; // Extract YYYY-MM-DD in UTC
+    });
+
+    setJournalEntries(entries);
+    setEntryDates(dates); // Store dates in UTC format
+  } catch (error) {
+    console.error("Error fetching journal entries:", error.message);
+  } finally {
+    setLoading(false);
+  }
+}, [setEntryDates, setJournalEntries]);
 
   useEffect(() => {
     const unsubscribeAuth = onAuthStateChanged(auth, (currentUser) => {

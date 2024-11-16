@@ -1,5 +1,6 @@
 import { collection, addDoc, query, orderBy, getDocs, serverTimestamp } from "firebase/firestore";
 import { auth, db } from "../components/firebase"; // Use `db` for Firestore instance
+import { utcToZonedTime, format } from "date-fns-tz";
 
 /**
  * Function to add a journal entry

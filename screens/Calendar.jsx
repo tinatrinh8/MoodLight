@@ -5,26 +5,38 @@ import CalendarRow from "../components/CalendarRow";
 import { useEntryDates } from "../components/EntryDatesContext";
 
 const CalendarScreen = () => {
-  const { entryDates } = useEntryDates(); // Access global entryDates
+  const { journalEntries } = useEntryDates(); // Access global journalEntries
 
   const months = [
-    { name: "September", days: 30, startDay: 0 },
-    { name: "October", days: 31, startDay: 2 },
-    { name: "November", days: 30, startDay: 5 },
-    { name: "December", days: 31, startDay: 0 },
+    { name: "September", days: 30, startDay: 0, year: 2024, index: 8 },
+    { name: "October", days: 31, startDay: 2, year: 2024, index: 9 },
+    { name: "November", days: 30, startDay: 5, year: 2024, index: 10 },
+    { name: "December", days: 31, startDay: 0, year: 2024, index: 11 },
   ];
 
   const daysOfWeek = ["SUN", "MON", "TUE", "WED", "THU", "FRI", "SAT"];
 
-  const generateGrid = (days, startDay) => {
-    const totalSlots = Math.ceil((days + startDay) / 7) * 7;
+  const generateGrid = (month) => {
+    const totalSlots = Math.ceil((month.days + month.startDay) / 7) * 7;
     const grid = [];
 
+    // Extract all days from journalEntries that match this month and year
+    const highlightedDays = journalEntries
+      .filter((entry) => {
+        const entryDate = new Date(entry.date.seconds * 1000);
+        return (
+          entryDate.getFullYear() === month.year &&
+          entryDate.getMonth() === month.index
+        );
+      })
+      .map((entry) => new Date(entry.date.seconds * 1000).getDate()); // Get day numbers
+
     for (let i = 0; i < totalSlots; i++) {
-      if (i < startDay || i >= days + startDay) {
-        grid.push("");
+      if (i < month.startDay || i >= month.days + month.startDay) {
+        grid.push(""); // Empty slot
       } else {
-        grid.push(i - startDay + 1);
+        const day = i - month.startDay + 1;
+        grid.push({ day, isJournalDate: highlightedDays.includes(day) });
       }
     }
     return grid;
@@ -44,12 +56,12 @@ const CalendarScreen = () => {
       <Text style={styles.title}>Journal Entries</Text>
       <ScrollView>
         {months.map((month) => {
-          const grid = generateGrid(month.days, month.startDay);
+          const grid = generateGrid(month); // Pass the whole month object
           const rows = chunkArray(grid, 7);
 
           return (
             <View key={month.name} style={styles.monthContainer}>
-              <Text style={styles.monthTitle}>{month.name}, 2024</Text>
+              <Text style={styles.monthTitle}>{month.name}, {month.year}</Text>
               <View style={styles.weekHeader}>
                 {daysOfWeek.map((day, index) => (
                   <Text key={index} style={styles.weekDay}>
@@ -58,12 +70,7 @@ const CalendarScreen = () => {
                 ))}
               </View>
               {rows.map((week, index) => (
-                <CalendarRow
-                  key={index}
-                  days={week}
-                  entryDates={entryDates}
-                  month={month}
-                />
+                <CalendarRow key={index} days={week} />
               ))}
             </View>
           );

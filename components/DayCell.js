@@ -2,8 +2,8 @@ import React from "react";
 import { Text, StyleSheet } from "react-native";
 
 const DayCell = ({ day, month, entryDates }) => {
-  const isJournalDate = day 
-    ? entryDates.includes(`${month.year}-${month.index + 1}-${day}`) 
+  const isJournalDate = day
+    ? entryDates.includes(`${month.year}-${month.index + 1}-${day}`)
     : false;
 
   return (

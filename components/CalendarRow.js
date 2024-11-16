@@ -1,49 +1,27 @@
 import React from "react";
 import { View, Text, StyleSheet } from "react-native";
 
-const CalendarRow = ({ days, entryDates, month }) => {
-  const monthIndex = [
-    "January",
-    "February",
-    "March",
-    "April",
-    "May",
-    "June",
-    "July",
-    "August",
-    "September",
-    "October",
-    "November",
-    "December",
-  ].indexOf(month.name);
-
+const CalendarRow = ({ days }) => {
   return (
     <View style={styles.row}>
-      {days.map((day, index) => {
-        const isHighlighted =
-          day &&
-          entryDates.includes(
-            `2024-${String(monthIndex + 1).padStart(2, "0")}-${String(
-              day
-            ).padStart(2, "0")}`
-          );
-
-        return (
-          <View
-            key={index}
-            style={[styles.dayContainer, isHighlighted && styles.highlightedContainer]}
+      {days.map((day, index) => (
+        <View
+          key={index}
+          style={[
+            styles.dayContainer,
+            day.isJournalDate && styles.highlightedContainer, // Highlight if it's a journal date
+          ]}
+        >
+          <Text
+            style={[
+              styles.day,
+              day.isJournalDate && styles.highlightedDay, // Apply black text style for highlighted days
+            ]}
           >
-            <Text
-              style={[
-                styles.day,
-                isHighlighted && styles.highlightedDay, // Apply black text style
-              ]}
-            >
-              {day || ""}
-            </Text>
-          </View>
-        );
-      })}
+            {day.day || ""} {/* Display day number or empty */}
+          </Text>
+        </View>
+      ))}
     </View>
   );
 };
@@ -61,7 +39,7 @@ const styles = StyleSheet.create({
     alignItems: "center", // Center content horizontally
   },
   highlightedContainer: {
-    backgroundColor: "#DC869A", // Circle background color
+    backgroundColor: "#DC869A", // Circle background color for highlighted dates
     borderRadius: 20, // Ensures circular shape
   },
   day: {
