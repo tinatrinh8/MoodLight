@@ -107,9 +107,18 @@ useEffect(() => {
 
 
 const handleSaveEntry = async () => {
+  const today = new Date();
+  const currentDate = today.toISOString().split("T")[0]; // Format as YYYY-MM-DD
+
+  // Prevent saving entries for future dates
+  if (displayedDate > currentDate) {
+    alert("You cannot create journal entries for future dates.");
+    return;
+  }
+
   if (newEntryTitle.trim() && newEntryText.trim()) {
     try {
-      await addJournalEntry(newEntryText, newEntryTitle, displayedDate); // Pass displayedDate as journalDate
+      await addJournalEntry(newEntryText, newEntryTitle, displayedDate);
 
       // Fetch updated entries and update context
       const updatedEntries = await getJournalEntries();
@@ -134,6 +143,7 @@ const handleSaveEntry = async () => {
     alert("Please provide both a title and content before saving.");
   }
 };
+
 
 
 

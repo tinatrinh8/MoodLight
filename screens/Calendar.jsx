@@ -49,9 +49,17 @@ const CalendarScreen = () => {
     return chunks;
   };
 
-  const handleDayPress = (selectedDate) => {
-    navigation.navigate("Home", { selectedDate });
-  };
+    const handleDayPress = (selectedDate) => {
+      const today = new Date();
+      const selectedDateObj = new Date(selectedDate);
+
+      if (selectedDateObj > today) {
+        alert("You cannot select a future date.");
+        return; // Prevent navigation
+      }
+
+      navigation.navigate("Home", { selectedDate });
+    };
 
   return (
     <View style={styles.container}>

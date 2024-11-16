@@ -2,33 +2,42 @@ import React from "react";
 import { View, StyleSheet, TouchableOpacity, Text } from "react-native";
 
 const CalendarRow = ({ days, month, entryDates, onDayPress }) => {
+  const today = new Date();
+
   return (
     <View style={styles.row}>
-      {days.map((day, index) => (
-        <TouchableOpacity
-          key={index}
-          style={[
-            styles.dayContainer,
-            day.isJournalDate && styles.highlightedContainer, // Highlight if it's a journal date
-          ]}
-          onPress={() => {
-            if (day.day) {
-              const selectedDate = `${month.year}-${String(month.index + 1).padStart(2, "0")}-${String(day.day).padStart(2, "0")}`;
-              onDayPress(selectedDate); // Pass the formatted date to the callback
-            }
-          }}
-          disabled={!day.day} // Disable clicks for empty days
-        >
-          <Text
+      {days.map((day, index) => {
+        // Create the current date for comparison
+        const cellDate = new Date(month.year, month.index, day.day || 0);
+        const isFutureDate = day.day && cellDate > today;
+
+        return (
+          <TouchableOpacity
+            key={index}
             style={[
-              styles.day,
-              day.isJournalDate && styles.highlightedDay, // Apply black text style for highlighted days
+              styles.dayContainer,
+              day.isJournalDate && styles.highlightedContainer, // Highlight if it's a journal date
             ]}
+            onPress={() => {
+              if (day.day && !isFutureDate) {
+                const selectedDate = `${month.year}-${String(month.index + 1).padStart(2, "0")}-${String(day.day).padStart(2, "0")}`;
+                onDayPress(selectedDate); // Pass the formatted date to the callback
+              }
+            }}
+            disabled={!day.day || isFutureDate} // Disable clicks for empty days and future dates
           >
-            {day.day || ""} {/* Display day number or empty */}
-          </Text>
-        </TouchableOpacity>
-      ))}
+            <Text
+              style={[
+                styles.day,
+                day.isJournalDate && styles.highlightedDay, // Apply black text style for highlighted days
+                isFutureDate && styles.disabledDay, // Style for future dates
+              ]}
+            >
+              {day.day || ""} {/* Display day number or empty */}
+            </Text>
+          </TouchableOpacity>
+        );
+      })}
     </View>
   );
 };
@@ -57,6 +66,9 @@ const styles = StyleSheet.create({
   highlightedDay: {
     color: "#000", // Black font for highlighted days
     fontWeight: "bold",
+  },
+  disabledDay: {
+    color: "#555", // Greyed-out text for future dates
   },
 });
 
