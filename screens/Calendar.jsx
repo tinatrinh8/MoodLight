@@ -49,16 +49,21 @@ const CalendarScreen = () => {
     return chunks;
   };
 
-  const handleDayPress = (selectedDate) => {
-    const today = new Date();
-    const selectedDateObj = new Date(selectedDate);
+    const handleDayPress = (selectedDate) => {
+      // Check if the selected date is a journal entry
+      const journalEntry = journalEntries.find(
+        (entry) => entry.journalDate === selectedDate
+      );
 
-    if (entryDates.includes(selectedDate)) {
-      return; // Prevent navigation
-    }
+      if (journalEntry) {
+        // If it's a journal date, navigate to the homepage and pass the journal entry
+        navigation.navigate("Home", { viewJournalEntry: journalEntry });
+      } else {
+        // Handle normal days (e.g., creating a new journal entry)
+        navigation.navigate("Home", { selectedDate });
+      }
+    };
 
-    navigation.navigate("Home", { selectedDate });
-  };
 
   return (
     <View style={styles.container}>

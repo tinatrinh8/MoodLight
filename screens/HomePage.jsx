@@ -132,10 +132,17 @@ useEffect(() => {
     setUser(currentUser || null);
   });
 
-  const selectedDate = route.params?.selectedDate; // Access navigation parameter
+  // Check if a journal entry is passed from navigation
+  if (route.params?.viewJournalEntry) {
+    setViewJournalEntry(route.params.viewJournalEntry); // Set the entry for the modal
+    setViewJournalModalVisible(true); // Open the modal
+  }
+
+ // Check for creating a new entry date
+  const selectedDate = route.params?.selectedDate;
   if (selectedDate) {
-    setNewEntryDate(selectedDate); // Set the date to the selected date
-    setCreateEntryModalVisible(true); // Open the create modal
+    setNewEntryDate(selectedDate);
+    setCreateEntryModalVisible(true);
   }
 
   fetchEntries();
@@ -143,7 +150,7 @@ useEffect(() => {
   return () => {
     unsubscribeAuth();
   };
-}, [fetchEntries, route.params?.selectedDate]);
+}, [fetchEntries, route.params]);
 
 
 const handleSaveEntry = async () => {
