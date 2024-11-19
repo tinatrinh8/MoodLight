@@ -35,54 +35,55 @@ import { utcToZonedTime, format } from "date-fns-tz";
 import { formatDateToTimezone } from "../utils/DateUtils";
 import EditJournalEntryModal from "../screens/EditJournalEntryModal";
 import LoadingFlower from '../components/LoadingFlower';
-import { getJournalEntries } from "../functions/JournalFunctions";
 
-const [allEntries, setAllEntries] = useState([]);
-const [data, setData] = useState([]);
-const [isLoading, setIsLoading] = useState(false);
-const [searchQuery, setSearchQuery] = useState("");
+const SearchBar = () => {
+  const [allEntries, setAllEntries] = useState([]);
+  const [data, setData] = useState([]);
+  const [isLoading, setIsLoading] = useState(false);
+  const [searchQuery, setSearchQuery] = useState("");
 
-useEffect(() => {
-  setIsLoading(true);
-  getJournalEntries();
-  setIsLoading(false);
-}, []);
+  useEffect(() => {
+    setIsLoading(true);
+    getJournalEntries().then(res => setData(res))
+    .finally(() => setIsLoading(false));
+  }, []);
 
-const handleSearch = (query) => {
-  setSearchQuery(query);
+  const handleSearch = (query) => {
+    setSearchQuery(query);
+  }
+  return (
+    <SafeAreaView style={styles.searchBar}>
+      <TextInput
+        style={{ // should probably move this for reusability later
+          paddingHorizontal: 20,
+          paddingVertical: 10,
+          bordeColor: '#ccc',
+          borderWidth: 1,
+          borderRadius: 8
+        }}
+        placeholder="Search Past Entries?"
+        placeholderTextColor="#555"
+        clearButtonMode='always'
+        autoCapitalize='none'
+        autoCorrect={false}
+        value={searchQuery}
+        onChangeText={(query) => handleSearch(query)}
+      />
+      <FlatList>
+        data={data}
+        keyExtractor={(item) => item.entryTitle}
+        renderItem={({ item }) => (
+          <View>
+            <Text>{item.entryTitle} </Text>
+          </View>
+        )}
+      </FlatList>
+      <TouchableOpacity>
+        <Text style={styles.closeButton}>×</Text>
+      </TouchableOpacity>
+    </SafeAreaView>
+  );
 }
-
-const SearchBar = () => (
-  <SafeAreaView style={styles.searchBar}>
-    <TextInput
-      style={{ // should probably move this for reusability later
-        paddingHorizontal:20,
-        paddingVertical:10,
-        bordeColor:'#ccc',
-        borderWidth:1,
-        borderRadius:8}}
-      placeholder="Search Past Entries?"
-      placeholderTextColor="#555"
-      clearButtonMode='always'
-      autoCapitalize='none'
-      autoCorrect={false}
-      value={searchQuery}
-      onChangeText={(query) => handleSearch(query)}
-    />
-    <FlatList>
-      data={data}
-      keyExtractor={(item) => item.entryTitle}
-      renderItem={({item}) => (
-        <View>
-          <Text>{item.entryTitle} </Text>
-        </View>
-      )}
-    </FlatList>
-    <TouchableOpacity>
-      <Text style={styles.closeButton}>×</Text>
-    </TouchableOpacity>
-  </SafeAreaView>
-);
 
 const getRandomQuote = () => {
   const randomIndex = Math.floor(Math.random() * quotes.length);
@@ -98,33 +99,33 @@ const ViewJournalEntryModal = ({ entry, onClose, setJournalEntries, setEntryDate
             <Text style={styles.closeButtonText}>×</Text>
           </TouchableOpacity>
 
-            <ScrollView style={styles.scrollContentView}>
-              <Text style={styles.modalTitle}>{entry.entryTitle}</Text>
-              <Text style={styles.modalDateText}>{entry.journalDate}</Text>
+          <ScrollView style={styles.scrollContentView}>
+            <Text style={styles.modalTitle}>{entry.entryTitle}</Text>
+            <Text style={styles.modalDateText}>{entry.journalDate}</Text>
 
-                {entry.type === "free" ? (
-                  <View style={styles.promptResponseContainer}>
-                    <Text style={styles.responseText}>{entry.entryText || "No content available"}</Text>
+            {entry.type === "free" ? (
+              <View style={styles.promptResponseContainer}>
+                <Text style={styles.responseText}>{entry.entryText || "No content available"}</Text>
+              </View>
+            ) : Array.isArray(entry.entryText) ? (
+              entry.entryText.map((item, index) => (
+                <View key={index} style={styles.promptContainer}>
+                  {/* Prompt as a standalone title */}
+                  <Text style={styles.textBoxTitle}>{item.prompt}</Text>
+                  {/* Response in its own box */}
+                  <View style={styles.responseBox}>
+                    <Text style={styles.responseText}>
+                      {item.response || "No response provided"}
+                    </Text>
                   </View>
-                    ) : Array.isArray(entry.entryText) ? (
-                      entry.entryText.map((item, index) => (
-                        <View key={index} style={styles.promptContainer}>
-                          {/* Prompt as a standalone title */}
-                          <Text style={styles.textBoxTitle}>{item.prompt}</Text>
-                          {/* Response in its own box */}
-                          <View style={styles.responseBox}>
-                            <Text style={styles.responseText}>
-                              {item.response || "No response provided"}
-                            </Text>
-                          </View>
-                        </View>
-                      ))
-                ) : (
-                  <Text style={styles.modalViewText}>No prompts available</Text>
-                )}
+                </View>
+              ))
+            ) : (
+              <Text style={styles.modalViewText}>No prompts available</Text>
+            )}
 
 
-            </ScrollView>
+          </ScrollView>
 
           <View style={styles.fixedButtonsContainer}>
             <TouchableOpacity
@@ -221,92 +222,92 @@ const HomePage = () => {
     setViewJournalEntry(null); // Clear the selected entry
   };
 
-const fetchEntries = useCallback(async () => {
-  try {
-    setLoading(true);
-    const entries = await getJournalEntries();
-
-    // Extract journal dates directly as strings
-    const dates = entries.map((entry) => entry.journalDate); // Use journalDate directly
-
-    setJournalEntries(entries);
-    setEntryDates(dates); // Store dates as strings
-  } catch (error) {
-    console.error("Error fetching journal entries:", error.message);
-  } finally {
-    setLoading(false);
-  }
-}, [setEntryDates, setJournalEntries]);
-
-useEffect(() => {
-  const unsubscribeAuth = onAuthStateChanged(auth, (currentUser) => {
-    if (currentUser) {
-      setUser(currentUser); // Set the authenticated user
-      console.log("Authenticated user UID:", currentUser.uid); // Log the UID for debugging or usage
-    } else {
-      setUser(null);
-      console.error("User is not authenticated."); // Handle unauthenticated state
-    }
-  });
-
-  // Check if a journal entry is passed from navigation
-  if (route.params?.viewJournalEntry) {
-    setViewJournalEntry(route.params.viewJournalEntry); // Set the entry for the modal
-    setViewJournalModalVisible(true); // Open the modal
-  }
-
-  // Check for creating a new entry date
-  if (route.params?.selectedDate) {
-    setNewEntryDate(route.params.selectedDate); // Set the selected date for the new entry
-    setCreateEntryModalVisible(true); // Open the modal for creating an entry
-  }
-
-  // Fetch existing journal entries for the authenticated user
-  fetchEntries();
-
-  // Cleanup the authentication listener on component unmount
-  return () => {
-    unsubscribeAuth();
-  };
-}, [fetchEntries, route.params]);
-
-
-
-const handleSaveEntry = async () => {
-  if (newEntryTitle.trim() && newEntryText.trim()) {
+  const fetchEntries = useCallback(async () => {
     try {
-      // Check if an entry already exists for the selected date using entryDates
-      if (entryDates.includes(newEntryDate)) {
-        alert("A journal entry already exists for this date. You cannot create another one.");
-        return; // Stop the process if the date already has an entry
-      }
+      setLoading(true);
+      const entries = await getJournalEntries();
 
-      // Proceed with saving the journal entry
-      await addJournalEntry(newEntryText, newEntryTitle, newEntryDate);
+      // Extract journal dates directly as strings
+      const dates = entries.map((entry) => entry.journalDate); // Use journalDate directly
 
-      // Fetch updated entries and update context
-      const updatedEntries = await getJournalEntries();
-      setJournalEntries(updatedEntries);
-
-      // Add the new entry date to entryDates if not already present
-      setEntryDates((prevDates) =>
-        prevDates.includes(newEntryDate) ? prevDates : [...prevDates, newEntryDate]
-      );
-
-      // Reset the input fields and close the modal
-      setNewEntryTitle("");
-      setNewEntryText("");
-      closeModal();
-
-      // Navigate back to the home page
-      navigation.navigate("Tabs", { screen: "Home" });
+      setJournalEntries(entries);
+      setEntryDates(dates); // Store dates as strings
     } catch (error) {
-      console.error("Error saving entry:", error.message);
+      console.error("Error fetching journal entries:", error.message);
+    } finally {
+      setLoading(false);
     }
-  } else {
-    alert("Please provide both a title and content before saving.");
-  }
-};
+  }, [setEntryDates, setJournalEntries]);
+
+  useEffect(() => {
+    const unsubscribeAuth = onAuthStateChanged(auth, (currentUser) => {
+      if (currentUser) {
+        setUser(currentUser); // Set the authenticated user
+        console.log("Authenticated user UID:", currentUser.uid); // Log the UID for debugging or usage
+      } else {
+        setUser(null);
+        console.error("User is not authenticated."); // Handle unauthenticated state
+      }
+    });
+
+    // Check if a journal entry is passed from navigation
+    if (route.params?.viewJournalEntry) {
+      setViewJournalEntry(route.params.viewJournalEntry); // Set the entry for the modal
+      setViewJournalModalVisible(true); // Open the modal
+    }
+
+    // Check for creating a new entry date
+    if (route.params?.selectedDate) {
+      setNewEntryDate(route.params.selectedDate); // Set the selected date for the new entry
+      setCreateEntryModalVisible(true); // Open the modal for creating an entry
+    }
+
+    // Fetch existing journal entries for the authenticated user
+    fetchEntries();
+
+    // Cleanup the authentication listener on component unmount
+    return () => {
+      unsubscribeAuth();
+    };
+  }, [fetchEntries, route.params]);
+
+
+
+  const handleSaveEntry = async () => {
+    if (newEntryTitle.trim() && newEntryText.trim()) {
+      try {
+        // Check if an entry already exists for the selected date using entryDates
+        if (entryDates.includes(newEntryDate)) {
+          alert("A journal entry already exists for this date. You cannot create another one.");
+          return; // Stop the process if the date already has an entry
+        }
+
+        // Proceed with saving the journal entry
+        await addJournalEntry(newEntryText, newEntryTitle, newEntryDate);
+
+        // Fetch updated entries and update context
+        const updatedEntries = await getJournalEntries();
+        setJournalEntries(updatedEntries);
+
+        // Add the new entry date to entryDates if not already present
+        setEntryDates((prevDates) =>
+          prevDates.includes(newEntryDate) ? prevDates : [...prevDates, newEntryDate]
+        );
+
+        // Reset the input fields and close the modal
+        setNewEntryTitle("");
+        setNewEntryText("");
+        closeModal();
+
+        // Navigate back to the home page
+        navigation.navigate("Tabs", { screen: "Home" });
+      } catch (error) {
+        console.error("Error saving entry:", error.message);
+      }
+    } else {
+      alert("Please provide both a title and content before saving.");
+    }
+  };
 
   const closeModal = () => {
     setCreateEntryModalVisible(false);
@@ -367,25 +368,25 @@ const handleSaveEntry = async () => {
     <View style={styles.container}>
       <Header />
       {/* View Journal Entry Modal */}
-        {viewJournalModalVisible && viewJournalEntry && (
-          <ViewJournalEntryModal
-            entry={viewJournalEntry}
-            onClose={handleCloseJournal}
-            setJournalEntries={setJournalEntries}
-            setEntryDates={setEntryDates}
-            setSelectedEntry={setSelectedEntry} // Pass setSelectedEntry
-            setEditModalVisible={setEditModalVisible} // Pass setEditModalVisible
-          />
-        )}
+      {viewJournalModalVisible && viewJournalEntry && (
+        <ViewJournalEntryModal
+          entry={viewJournalEntry}
+          onClose={handleCloseJournal}
+          setJournalEntries={setJournalEntries}
+          setEntryDates={setEntryDates}
+          setSelectedEntry={setSelectedEntry} // Pass setSelectedEntry
+          setEditModalVisible={setEditModalVisible} // Pass setEditModalVisible
+        />
+      )}
 
-        {editModalVisible && selectedEntry && (
-          <EditJournalEntryModal
-            entry={selectedEntry}
-            onClose={() => setEditModalVisible(false)}
-            onSave={updateEntryInFirestore} // Correctly pass the onSave function here
-            setJournalEntries={setJournalEntries} // Pass the state updater
-          />
-        )}
+      {editModalVisible && selectedEntry && (
+        <EditJournalEntryModal
+          entry={selectedEntry}
+          onClose={() => setEditModalVisible(false)}
+          onSave={updateEntryInFirestore} // Correctly pass the onSave function here
+          setJournalEntries={setJournalEntries} // Pass the state updater
+        />
+      )}
 
       <FlatList
         data={contentData}
@@ -416,8 +417,8 @@ const CreateJournalEntry = ({
   const fadeAnim = useRef(new Animated.Value(1)).current;
 
 
-   // Determine the displayed date
-   const displayedDate = newEntryDate; // Always use the prop value
+  // Determine the displayed date
+  const displayedDate = newEntryDate; // Always use the prop value
 
 
   const fadeTransition = () => {
@@ -451,102 +452,102 @@ const CreateJournalEntry = ({
     switchModal("usePrompts");
   };
 
-const savePromptEntry = async () => {
-  try {
-    // Validate title and responses
-    if (!promptEntryTitle.trim()) {
-      alert("Please provide a title for your journal entry.");
-      return;
-    }
-    if (!promptResponses.some((response) => response.trim())) {
-      alert("Please provide at least one response to the prompts.");
-      return;
-    }
-
-    // Check if an entry already exists for the selected date
-    if (entryDates.includes(displayedDate)) {
-      alert("A journal entry already exists for this date. You cannot create another one.");
-      return;
-    }
-
-    // Combine prompts and responses into an array of objects, filtering out empty responses
-    const promptsData = randomPrompts
-      .map((prompt, index) => ({
-        prompt,
-        response: promptResponses[index]?.trim() || "", // Trim whitespace from responses
-      }))
-      .filter((item) => item.response); // Filter out prompts with empty responses
-
-    // Log the data being saved for debugging
-    console.log("Saving prompt-based journal entry with the following data:", {
-      promptsData,
-      promptEntryTitle,
-      displayedDate,
-      type: "prompts",
-    });
-
-    // Save the journal entry with the "prompts" type
-    await addJournalEntry(promptsData, promptEntryTitle, displayedDate, "prompts");
-
-    // Fetch updated entries and update the context
-    const updatedEntries = await getJournalEntries();
-    setJournalEntries(updatedEntries);
-
-    // Add the new entry date to entryDates if not already present
-    setEntryDates((prevDates) =>
-      prevDates.includes(displayedDate) ? prevDates : [...prevDates, displayedDate]
-    );
-
-    // Reset the input fields and close the modal
-    setPromptResponses(Array(5).fill(""));
-    setPromptEntryTitle("");
-    closeModal();
-
-    navigation.navigate("Home"); // Navigate back to Home
-    console.log("Prompt-based journal entry saved successfully.");
-  } catch (error) {
-    console.error("Error saving prompt entry:", error.message);
-    alert("An error occurred while saving the journal entry. Please try again.");
-  }
-};
-
-
-const handleSaveEntry = async () => {
-  if (newEntryTitle.trim() && newEntryText.trim()) {
+  const savePromptEntry = async () => {
     try {
-      // Check if an entry already exists for the selected date using entryDates
-      if (entryDates.includes(newEntryDate)) {
-        alert("A journal entry already exists for this date. You cannot create another one.");
-        return; // Stop the process if the date already has an entry
+      // Validate title and responses
+      if (!promptEntryTitle.trim()) {
+        alert("Please provide a title for your journal entry.");
+        return;
+      }
+      if (!promptResponses.some((response) => response.trim())) {
+        alert("Please provide at least one response to the prompts.");
+        return;
       }
 
-      // Proceed with saving the journal entry as "free"
-      await addJournalEntry(newEntryText, newEntryTitle, newEntryDate, "free");
+      // Check if an entry already exists for the selected date
+      if (entryDates.includes(displayedDate)) {
+        alert("A journal entry already exists for this date. You cannot create another one.");
+        return;
+      }
 
-      // Fetch updated entries and update context
+      // Combine prompts and responses into an array of objects, filtering out empty responses
+      const promptsData = randomPrompts
+        .map((prompt, index) => ({
+          prompt,
+          response: promptResponses[index]?.trim() || "", // Trim whitespace from responses
+        }))
+        .filter((item) => item.response); // Filter out prompts with empty responses
+
+      // Log the data being saved for debugging
+      console.log("Saving prompt-based journal entry with the following data:", {
+        promptsData,
+        promptEntryTitle,
+        displayedDate,
+        type: "prompts",
+      });
+
+      // Save the journal entry with the "prompts" type
+      await addJournalEntry(promptsData, promptEntryTitle, displayedDate, "prompts");
+
+      // Fetch updated entries and update the context
       const updatedEntries = await getJournalEntries();
       setJournalEntries(updatedEntries);
 
       // Add the new entry date to entryDates if not already present
       setEntryDates((prevDates) =>
-        prevDates.includes(newEntryDate) ? prevDates : [...prevDates, newEntryDate]
+        prevDates.includes(displayedDate) ? prevDates : [...prevDates, displayedDate]
       );
 
       // Reset the input fields and close the modal
-      setNewEntryTitle("");
-      setNewEntryText("");
+      setPromptResponses(Array(5).fill(""));
+      setPromptEntryTitle("");
       closeModal();
 
-      navigation.navigate("Home"); // Navigate back to the home page
-      console.log("Free-writing journal entry saved successfully.");
+      navigation.navigate("Home"); // Navigate back to Home
+      console.log("Prompt-based journal entry saved successfully.");
     } catch (error) {
-      console.error("Error saving entry:", error.message);
+      console.error("Error saving prompt entry:", error.message);
       alert("An error occurred while saving the journal entry. Please try again.");
     }
-  } else {
-    alert("Please provide both a title and content before saving.");
-  }
-};
+  };
+
+
+  const handleSaveEntry = async () => {
+    if (newEntryTitle.trim() && newEntryText.trim()) {
+      try {
+        // Check if an entry already exists for the selected date using entryDates
+        if (entryDates.includes(newEntryDate)) {
+          alert("A journal entry already exists for this date. You cannot create another one.");
+          return; // Stop the process if the date already has an entry
+        }
+
+        // Proceed with saving the journal entry as "free"
+        await addJournalEntry(newEntryText, newEntryTitle, newEntryDate, "free");
+
+        // Fetch updated entries and update context
+        const updatedEntries = await getJournalEntries();
+        setJournalEntries(updatedEntries);
+
+        // Add the new entry date to entryDates if not already present
+        setEntryDates((prevDates) =>
+          prevDates.includes(newEntryDate) ? prevDates : [...prevDates, newEntryDate]
+        );
+
+        // Reset the input fields and close the modal
+        setNewEntryTitle("");
+        setNewEntryText("");
+        closeModal();
+
+        navigation.navigate("Home"); // Navigate back to the home page
+        console.log("Free-writing journal entry saved successfully.");
+      } catch (error) {
+        console.error("Error saving entry:", error.message);
+        alert("An error occurred while saving the journal entry. Please try again.");
+      }
+    } else {
+      alert("Please provide both a title and content before saving.");
+    }
+  };
 
 
   return (
@@ -684,9 +685,9 @@ const Title = ({ quote }) => (
 );
 
 const PastEntries = ({ openViewJournalModal, journalEntries, loading }) => {
-    if (loading) {
-      return <LoadingFlower />;
-    }
+  if (loading) {
+    return <LoadingFlower />;
+  }
 
   if (!journalEntries.length) {
     return <Text style={styles.emptyText}>No journal entries yet.</Text>;
