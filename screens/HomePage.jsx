@@ -52,14 +52,6 @@ const handleSearch = (query) => {
   setSearchQuery(query);
 }
 
-if(isLoading) {
-  return (
-    <View style={{flex:1, justifyContent:'center', alignItems:'center'}}>
-      <ActivityIndicator size ={'large'} color="#5500dc" />
-    </View>
-  )
-}
-
 const SearchBar = () => (
   <SafeAreaView style={styles.searchBar}>
     <TextInput
@@ -363,7 +355,6 @@ const handleSaveEntry = async () => {
           modalVisible={createEntryModalVisible}
           setModalVisible={setCreateEntryModalVisible}
           handleSaveEntry={handleSaveEntry}
-          newEntryDate={newEntryDate}
           onResetToTodayDate={resetToTodayDate} // Pass down the reset function
 
         />

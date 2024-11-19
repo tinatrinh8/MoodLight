@@ -3,7 +3,7 @@ import { ScrollView, View, Image, Text, TouchableOpacity } from "react-native";
 import { useNavigation } from "@react-navigation/native"; // Import navigation hook
 import styles from "../styles/AnalysisStyles";
 import Header from "../components/Header"; // Use existing Header component
-
+// SHOULD BE BROUGHT TO ANALYSIS ON: From view there's view analysis
 // Emotion Card Component
 function EmotionCard({ rank, emotion, icon }) {
   return (
