@@ -515,8 +515,8 @@ editButton: {
   backgroundColor: "#DC869A",
   borderRadius: 50,
   paddingVertical: 15,
-  paddingHorizontal: 30,
-  width: "45%", // Reduce width to fit horizontally
+  paddingHorizontal: 10,
+  width: "30%", // Reduce width to fit horizontally
   alignItems: "center",
   shadowColor: "#00000",
   shadowOpacity: 0.5,
@@ -526,8 +526,8 @@ deleteButton: {
   backgroundColor: "rgba(0, 5, 34, 0.85)",
   borderRadius: 50,
   paddingVertical: 15,
-  paddingHorizontal: 30,
-  width: "45%", // Same width as the edit button
+  paddingHorizontal: 10,
+  width: "30%", // Same width as the edit button
   alignItems: "center",
   shadowColor: "#00000",
   shadowOpacity: 0.5,
@@ -537,8 +537,8 @@ analysisButton: {
   backgroundColor: "#8FCACA",
   borderRadius: 50,
   paddingVertical: 15,
-  paddingHorizontal: 30,
-  width: "45%", // Same as edit and delete
+  paddingHorizontal: 10,
+  width: "30%", // Same as edit and delete
   alignItems: "center",
   shadowColor: "#00000",
   shadowOpacity: 0.5,
