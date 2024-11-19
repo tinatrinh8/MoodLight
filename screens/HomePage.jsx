@@ -98,7 +98,7 @@ const getRandomQuote = () => {
   return quotes[randomIndex];
 };
 
-const ViewJournalEntryModal = ({ entry, onClose, setJournalEntries, setEntryDates, setSelectedEntry, setEditModalVisible }) => {
+const ViewJournalEntryModal = ({ entry, onClose, setJournalEntries, setEntryDates, setSelectedEntry, setEditModalVisible, navigation }) => {
   return (
     <Modal animationType="fade" transparent={true} visible={true}>
       <View style={styles.modalOverlay}>
@@ -136,6 +136,16 @@ const ViewJournalEntryModal = ({ entry, onClose, setJournalEntries, setEntryDate
           </ScrollView>
 
           <View style={styles.fixedButtonsContainer}>
+          <TouchableOpacity
+              style={styles.analysisButton}
+              onPress={() => {
+                setSelectedEntry(entry); // Set the entry to be analysed (just in case)
+                onClose(); // Close the view modal
+                navigation.navigate("Analysis") // go to Analysis
+              }}
+            >
+              <Text style={styles.continueButtonText}>Analysis</Text>
+            </TouchableOpacity>
             <TouchableOpacity
               style={styles.editButton}
               onPress={() => {
@@ -384,6 +394,7 @@ const HomePage = () => {
           setEntryDates={setEntryDates}
           setSelectedEntry={setSelectedEntry} // Pass setSelectedEntry
           setEditModalVisible={setEditModalVisible} // Pass setEditModalVisible
+          navigation={navigation}
         />
       )}
 
@@ -549,7 +560,7 @@ const CreateJournalEntry = ({
         setNewEntryText("");
         closeModal();
 
-        navigation.navigate("Analysis"); // Navigate back to the home page
+        navigation.navigate("Analysis"); // Navigate back to the analysis page
         console.log("Free-writing journal entry saved successfully.");
       } catch (error) {
         console.error("Error saving entry:", error.message);

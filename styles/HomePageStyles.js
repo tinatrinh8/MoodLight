@@ -533,6 +533,17 @@ deleteButton: {
   shadowOpacity: 0.5,
   shadowRadius: 4,
 },
+analysisButton: {
+  backgroundColor: "#8FCACA",
+  borderRadius: 50,
+  paddingVertical: 15,
+  paddingHorizontal: 30,
+  width: "45%", // Same as edit and delete
+  alignItems: "center",
+  shadowColor: "#00000",
+  shadowOpacity: 0.5,
+  shadowRadius: 4,
+},
 scrollContentView: {
   flex: 1,
   marginBottom: 80, // Leave space for the fixed buttons
