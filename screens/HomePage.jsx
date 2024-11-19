@@ -1,6 +1,7 @@
 import React, { useState, useEffect, useRef, useCallback, useMemo } from "react";
 import {
   View,
+  SafeAreaView,
   Image,
   Text,
   TextInput,
@@ -44,32 +45,40 @@ const SearchBar = () => {
 
   useEffect(() => {
     setIsLoading(true);
-    getJournalEntries().then(res => setData(res))
-    .finally(() => setIsLoading(false));
+    getJournalEntries().then(res => {
+      setData(res)
+    })
+      .finally(() => setIsLoading(false));
   }, []);
 
   const handleSearch = (query) => {
     setSearchQuery(query);
   }
   return (
-    <SafeAreaView style={styles.searchBar}>
-      <TextInput
-        style={{ // should probably move this for reusability later
-          paddingHorizontal: 20,
-          paddingVertical: 10,
-          bordeColor: '#ccc',
-          borderWidth: 1,
-          borderRadius: 8
-        }}
-        placeholder="Search Past Entries?"
-        placeholderTextColor="#555"
-        clearButtonMode='always'
-        autoCapitalize='none'
-        autoCorrect={false}
-        value={searchQuery}
-        onChangeText={(query) => handleSearch(query)}
-      />
-      <FlatList>
+    <>
+      <SafeAreaView style={styles.searchBar}>
+        <TextInput
+          style={{ // should probably move this for reusability later
+            paddingHorizontal: 20,
+            paddingVertical: 10,
+            bordeColor: '#ccc',
+            borderWidth: 1,
+            borderRadius: 8,
+            flexGrow: 1
+          }}
+          placeholder="Search Past Entries?"
+          placeholderTextColor="#555"
+          clearButtonMode='always'
+          autoCapitalize='none'
+          autoCorrect={false}
+          value={searchQuery}
+          onChangeText={(query) => handleSearch(query)}
+        />
+        <TouchableOpacity>
+          <Text style={styles.closeButton}>×</Text>
+        </TouchableOpacity>
+      </SafeAreaView>
+      <FlatList
         data={data}
         keyExtractor={(item) => item.entryTitle}
         renderItem={({ item }) => (
@@ -77,11 +86,10 @@ const SearchBar = () => {
             <Text>{item.entryTitle} </Text>
           </View>
         )}
+      >
       </FlatList>
-      <TouchableOpacity>
-        <Text style={styles.closeButton}>×</Text>
-      </TouchableOpacity>
-    </SafeAreaView>
+    </>
+
   );
 }
 

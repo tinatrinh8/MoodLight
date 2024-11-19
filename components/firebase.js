@@ -1,9 +1,10 @@
 // Import the Firebase SDK
 import { initializeApp, getApps, getApp } from "firebase/app"; // Include getApp for accessing existing app
+//@ts-ignore
+import { getReactNativePersistence } from '@firebase/auth/dist/rn/index.js';
 import {
   getAuth,
   initializeAuth,
-  getReactNativePersistence,
 } from "firebase/auth"; // For authentication with persistence
 import { getFirestore } from "firebase/firestore"; // For Firestore database
 import { getStorage } from "firebase/storage"; // For file storage
