@@ -390,7 +390,10 @@ const HomePage = () => {
       {editModalVisible && selectedEntry && (
         <EditJournalEntryModal
           entry={selectedEntry}
-          onClose={() => setEditModalVisible(false)}
+          onClose={() => {
+            setEditModalVisible(false)
+            navigation.navigate("Analysis")
+          }}
           onSave={updateEntryInFirestore} // Correctly pass the onSave function here
           setJournalEntries={setJournalEntries} // Pass the state updater
         />
@@ -546,7 +549,7 @@ const CreateJournalEntry = ({
         setNewEntryText("");
         closeModal();
 
-        navigation.navigate("Home"); // Navigate back to the home page
+        navigation.navigate("Analysis"); // Navigate back to the home page
         console.log("Free-writing journal entry saved successfully.");
       } catch (error) {
         console.error("Error saving entry:", error.message);
