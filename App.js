@@ -74,7 +74,7 @@ export default function App() {
             <>
               {/* MainTabs is now properly treated as a nested navigator */}
               <Stack.Screen name="MainTabs" component={TabNavigator} />
-              <Stack.Screen name="HomePage" component={HomePage} />
+              {/* <Stack.Screen name="HomePage" component={HomePage} /> */}
               <Stack.Screen name="Analysis" component={Analysis} />
             </>
           )}

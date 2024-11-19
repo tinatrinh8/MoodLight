@@ -1,4 +1,4 @@
-import React, { useState, useEffect, useRef, useCallback, useMemo } from "react";
+import React, { useState, useEffect, useRef, useCallback, useMemo, useContext } from "react";
 import {
   View,
   SafeAreaView,
@@ -136,12 +136,12 @@ const ViewJournalEntryModal = ({ entry, onClose, setJournalEntries, setEntryDate
           </ScrollView>
 
           <View style={styles.fixedButtonsContainer}>
-          <TouchableOpacity
+            <TouchableOpacity
               style={styles.analysisButton}
               onPress={() => {
                 setSelectedEntry(entry); // Set the entry to be analysed (just in case)
                 onClose(); // Close the view modal
-                navigation.navigate("Analysis") // go to Analysis
+                navigation.navigate("Analysis", { ...entry}) // go to Analysis
               }}
             >
               <Text style={styles.continueButtonText}>Analysis</Text>
@@ -220,7 +220,6 @@ const HomePage = () => {
   const [newEntryDate, setNewEntryDate] = useState(""); // New state for the selected date
   const [editModalVisible, setEditModalVisible] = useState(false); // Controls visibility of edit modal
   const [selectedEntry, setSelectedEntry] = useState(null); // Stores the entry being edited
-
 
   // Helper function to reset newEntryDate to today's date
   const resetToTodayDate = () => {
@@ -403,7 +402,7 @@ const HomePage = () => {
           entry={selectedEntry}
           onClose={() => {
             setEditModalVisible(false)
-            navigation.navigate("Analysis")
+            navigation.navigate("Analysis", { ...selectedEntry })
           }}
           onSave={updateEntryInFirestore} // Correctly pass the onSave function here
           setJournalEntries={setJournalEntries} // Pass the state updater

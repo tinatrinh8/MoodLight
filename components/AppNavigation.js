@@ -11,7 +11,7 @@ import Settings from "../screens/Settings";
 
 // Create Navigators
 const Tab = createBottomTabNavigator();
-const Stack = createStackNavigator();
+// const Stack = createStackNavigator();
 
 // Tab Navigator
 const TabNavigator = () => (
@@ -108,12 +108,13 @@ const TabNavigator = () => (
 );
 
 // Root Stack Navigator
-const AppNavigation = () => {
-  return (
-    <Stack.Navigator screenOptions={{ headerShown: false }}>
-      <Stack.Screen name="Tabs" component={TabNavigator} />
-    </Stack.Navigator>
-  );
-};
+// const AppNavigation = () => {
+  // return TabNavigator
+  // return (
+  //   <Tab.Navigator screenOptions={{ headerShown: false }}>
+  //     <Tab.Screen name="Tabs" component={TabNavigator} />
+  //   </Tab.Navigator>
+  // );
+// };
 
-export default AppNavigation;
+export default TabNavigator;

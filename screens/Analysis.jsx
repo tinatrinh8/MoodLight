@@ -1,9 +1,11 @@
-import React from "react";
+import React, { useEffect, useContext } from "react";
 import { ScrollView, View, Image, Text, TouchableOpacity } from "react-native";
 import { useNavigation } from "@react-navigation/native"; // Import navigation hook
 import styles from "../styles/AnalysisStyles";
 import Header from "../components/Header"; // Use existing Header component
-// SHOULD BE BROUGHT TO ANALYSIS ON: From view there's view analysis
+import { useRoute } from "@react-navigation/native";
+
+
 // Emotion Card Component
 function EmotionCard({ rank, emotion, icon }) {
   return (
@@ -74,10 +76,28 @@ function SummaryFeedback() {
 
 // Analysis Component
 export default function Analysis() {
+  const route = useRoute()
+  const ENTRY_DEFAULTS = {
+    entryTitle: "something",
+    entryText: "something",
+    type: "something",
+    journalDate: "MM/YYYY",
+  }
+  const entry = route.params !== undefined ? route.params : ENTRY_DEFAULTS;
+
+  const {
+    entryTitle,
+    entryText,
+    type,
+    journalDate,
+  } = entry;
+  useEffect(() => {
+    console.log(route.params)
+  }, [route.params])
   const navigation = useNavigation(); // Use navigation hook
 
   const closeModal = () => {
-      navigation.navigate("MainTabs", { screen: "Home" }); // Navigate to MainTabs and ensure Home tab is active
+    navigation.navigate("MainTabs", { screen: "Home" }); // Navigate to MainTabs and ensure Home tab is active
   };
 
   return (
