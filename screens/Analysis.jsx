@@ -1,4 +1,4 @@
-import React, { useEffect, useContext } from "react";
+import React, { useEffect, useContext, useRef, useState } from "react";
 import { ScrollView, View, Image, Text, TouchableOpacity } from "react-native";
 import { useNavigation } from "@react-navigation/native"; // Import navigation hook
 import styles from "../styles/AnalysisStyles";
@@ -90,6 +90,39 @@ function SummaryFeedback() {
 
 // Analysis Component
 export default function Analysis() {
+  
+  // FOLLOWING ARE FOR NLP
+  const [ready, setReady] = useState(null);
+  const [disabled, setDisabled] = useState(false);
+  const [progressItems, setProgressItems] = useState([]);
+  const [input, setInput] = useState('TEST EMOTION INPUT! I am having a tough time');
+  const [output, setOutput] = useState('');
+
+  const worker = useRef(null);
+
+// FOLLOWING CODE SETS UP THE NLP PIPELINE
+
+//  use the `useEffect` hook to setup the worker as soon as the `Analysis` component is mounted
+useEffect(() => {
+  if (!worker.current) {
+    // Create the worker if it does not yet exist.
+    worker.current = new Worker(new URL('./worker.js', import.meta.url), {
+        type: 'module'
+    });
+  }
+
+  // Create a callback function for messages from the worker thread.
+  const onMessageReceived = (e) => {
+    // in progress
+  };
+
+  // Attach the callback function as an event listener.
+  worker.current.addEventListener('message', onMessageReceived);
+
+  // Define a cleanup function for when the component is unmounted.
+  return () => worker.current.removeEventListener('message', onMessageReceived);
+});
+
   const route = useRoute();
   const ENTRY_DEFAULTS = {
     entryTitle: "something",
@@ -98,16 +131,25 @@ export default function Analysis() {
     journalDate: "MM/YYYY",
   };
   const entry = route.params !== undefined ? route.params : ENTRY_DEFAULTS;
-
-  const { entryTitle, entryText, type, journalDate } = entry;
-  useEffect(() => {
-    console.log(route.params);
-  }, [route.params]);
+  // this just sets the params to the defaults if the entry somehow isn't passed
+  const {
+    entryTitle,
+    entryText,
+    type,
+    journalDate,
+  } = entry;
   const navigation = useNavigation(); // Use navigation hook
 
   const closeModal = () => {
     navigation.navigate("MainTabs", { screen: "Home" }); // Navigate to MainTabs and ensure Home tab is active
   };
+
+  // Function to get emotions
+  const getEmotions = () => {
+    worker.current.postMessage({
+      text: entryText
+    });
+  }
 
   return (
     <ScrollView
@@ -140,10 +182,10 @@ export default function Analysis() {
             <View style={styles.journalEntryFrame} />
             <View style={styles.journalEntryContent}>
               <Text style={styles.journalEntryDate}>
-                Journal Entry: dd/mm/yyyy
+                Journal Entry: {journalDate}
               </Text>
               <Text style={styles.journalEntryTitle}>
-                {"{title of journal}"}
+                {entryTitle}
               </Text>
             </View>
           </View>
