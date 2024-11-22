@@ -421,6 +421,7 @@ const styles = StyleSheet.create({
     fontWeight: "300",
     marginTop: 5,
   },
+
   // Modal Title and Subtitle
   modalTitle: {
     fontSize: 22,
@@ -469,6 +470,45 @@ const styles = StyleSheet.create({
     marginBottom: 5,
   },
 
+  // Suggested Prompts Container
+  suggestedPromptsContainer: {
+    marginTop: 20,
+    padding: 15,
+    backgroundColor: "#f2f2f2",
+    borderRadius: 10,
+    borderWidth: 1,
+    borderColor: "#ccc",
+    shadowColor: "#000",
+    shadowOpacity: 0.1,
+    shadowOffset: { width: 0, height: 2 },
+    shadowRadius: 6,
+    elevation: 3,
+  },
+  suggestedPromptsTitle: {
+    fontSize: 20,
+    fontWeight: "bold",
+    color: "#333",
+    marginBottom: 10,
+    fontFamily: "LexendDeca",
+  },
+  suggestedPromptText: {
+    fontSize: 16,
+    color: "#555",
+    marginBottom: 8,
+    fontFamily: "LexendDeca",
+    padding: 10,
+    backgroundColor: "#FFFFFF",
+    borderRadius: 8,
+    borderWidth: 1,
+    borderColor: "#ddd",
+    textAlign: "left",
+    shadowColor: "#000",
+    shadowOpacity: 0.1,
+    shadowOffset: { width: 0, height: 1 },
+    shadowRadius: 3,
+    elevation: 2,
+  },
+
   // Text Input Box
   textInputBox: {
     width: "100%",
@@ -515,6 +555,7 @@ const styles = StyleSheet.create({
     marginBottom: 10, // Add some spacing below the text
     fontFamily: "LexendDeca", // Use a readable and consistent font
   },
+
   // Add this style for the button container
   buttonContainer: {
     flexDirection: "row", // Arrange buttons in a row

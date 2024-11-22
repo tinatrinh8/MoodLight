@@ -43,7 +43,7 @@ import { utcToZonedTime, format } from "date-fns-tz";
 import { formatDateToTimezone } from "../utils/DateUtils";
 import EditJournalEntryModal from "../screens/EditJournalEntryModal";
 import LoadingFlower from "../components/LoadingFlower";
-import { fetchPrompts } from "../components/SuggestedPrompts";
+import { getSuggestedPrompts } from "../components/SuggestedPrompts";
 
 const SearchBar = () => {
   const [allEntries, setAllEntries] = useState([]);
@@ -244,6 +244,31 @@ const HomePage = () => {
   const [selectedEntry, setSelectedEntry] = useState(null); // Stores the entry being edited
   const translateY = useRef(new Animated.Value(-300)).current; // Start from above the screen
   const opacity = useRef(new Animated.Value(0)).current; // Start with transparent flowers
+  const [suggestedPrompts, setSuggestedPrompts] = useState([]);
+  const [loadingPrompts, setLoadingPrompts] = useState(true); // State for loading prompts
+
+  // Fetch prompts when the component mounts
+  useEffect(() => {
+    const fetchPrompts = async () => {
+      try {
+        setLoadingPrompts(true);
+        // Fetch the user's journal entries from Firestore
+        const journalEntries = await getJournalEntries();
+
+        // Use those entries to generate suggested prompts
+        const prompts = await getSuggestedPrompts(journalEntries);
+
+        // Set the generated prompts to the state
+        setSuggestedPrompts(prompts);
+      } catch (error) {
+        console.error("Error fetching suggested prompts:", error);
+      } finally {
+        setLoadingPrompts(false);
+      }
+    };
+
+    fetchPrompts();
+  }, []);
 
   // Helper function to reset newEntryDate to today's date
   const resetToTodayDate = () => {
@@ -490,6 +515,32 @@ const CreateJournalEntry = ({
   const [promptEntryTitle, setPromptEntryTitle] = useState("");
   const [randomPrompts, setRandomPrompts] = useState([]);
   const fadeAnim = useRef(new Animated.Value(1)).current;
+  const [suggestedPrompts, setSuggestedPrompts] = useState([]);
+  const [loadingPrompts, setLoadingPrompts] = useState(true);
+
+  // Fetch prompts based on user's past journal entries
+  useEffect(() => {
+    const fetchPrompts = async () => {
+      try {
+        // Fetch journal entries from Firestore
+        const journalEntries = await getJournalEntries();
+
+        // Use the fetched journal entries to generate AI prompts
+        const prompts = await getSuggestedPrompts(journalEntries);
+
+        // Set the prompts to state
+        setSuggestedPrompts(prompts);
+      } catch (error) {
+        console.error("Error fetching prompts:", error);
+      } finally {
+        setLoadingPrompts(false);
+      }
+    };
+
+    if (currentModal === "usePrompts") {
+      fetchPrompts();
+    }
+  }, [currentModal]);
 
   // Determine the displayed date
   const displayedDate = newEntryDate; // Always use the prop value
@@ -515,28 +566,8 @@ const CreateJournalEntry = ({
   };
 
   const closeModal = () => {
-    Alert.alert(
-      "Cancel Entry",
-      "Are you sure you want to cancel? All unsaved changes will be lost.",
-      [
-        {
-          text: "No, I'll continue",
-          style: "cancel",
-        },
-        {
-          text: "Yes, I'm sure",
-          style: "destructive",
-          onPress: () => {
-            setModalVisible(false);
-            setCurrentModal("main"); // Reset to the main modal
-            setNewEntryTitle("");
-            setNewEntryText("");
-            setPromptResponses(Array(5).fill(""));
-            setPromptEntryTitle("");
-          },
-        },
-      ]
-    );
+    setModalVisible(false);
+    setCurrentModal("main"); // Reset to the main modal
   };
 
   const openPromptsModal = () => {
@@ -718,6 +749,7 @@ const CreateJournalEntry = ({
                 </TouchableOpacity>
               </>
             )}
+            {/* Write Freely Modal */}
             {currentModal === "writeFreely" && (
               <>
                 <Text style={styles.modalTitle}>Dear diary...</Text>
@@ -746,6 +778,7 @@ const CreateJournalEntry = ({
                 </TouchableOpacity>
               </>
             )}
+            {/* Use Prompts Modal */}
             {currentModal === "usePrompts" && (
               <>
                 <Text style={styles.modalTitle}>
@@ -761,24 +794,31 @@ const CreateJournalEntry = ({
                   value={promptEntryTitle}
                   onChangeText={setPromptEntryTitle}
                 />
-                <ScrollView contentContainerStyle={styles.scrollContent}>
-                  {randomPrompts.map((prompt, index) => (
-                    <View key={index} style={styles.promptContainer}>
-                      <Text style={styles.textBoxTitle}>{prompt}</Text>
-                      <TextInput
-                        style={styles.textInputBox}
-                        placeholder="Write your answer here..."
-                        multiline={true}
-                        value={promptResponses[index]}
-                        onChangeText={(text) => {
-                          const updatedResponses = [...promptResponses];
-                          updatedResponses[index] = text;
-                          setPromptResponses(updatedResponses);
-                        }}
-                      />
-                    </View>
-                  ))}
-                </ScrollView>
+
+                {/* ScrollView to hold 5 prompts with their respective text inputs */}
+                {loadingPrompts ? (
+                  <Text>Loading prompts...</Text>
+                ) : (
+                  <ScrollView contentContainerStyle={styles.scrollContent}>
+                    {suggestedPrompts.map((prompt, index) => (
+                      <View key={index} style={styles.promptContainer}>
+                        <Text style={styles.textBoxTitle}>{prompt}</Text>
+                        <TextInput
+                          style={styles.textInputBox}
+                          placeholder="Write your answer here..."
+                          multiline={true}
+                          value={promptResponses[index]}
+                          onChangeText={(text) => {
+                            const updatedResponses = [...promptResponses];
+                            updatedResponses[index] = text;
+                            setPromptResponses(updatedResponses);
+                          }}
+                        />
+                      </View>
+                    ))}
+                  </ScrollView>
+                )}
+
                 <TouchableOpacity
                   style={styles.continueButton}
                   onPress={savePromptEntry}
