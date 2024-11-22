@@ -43,6 +43,7 @@ import { utcToZonedTime, format } from "date-fns-tz";
 import { formatDateToTimezone } from "../utils/DateUtils";
 import EditJournalEntryModal from "../screens/EditJournalEntryModal";
 import LoadingFlower from "../components/LoadingFlower";
+import { fetchPrompts } from "../components/SuggestedPrompts";
 
 const SearchBar = () => {
   const [allEntries, setAllEntries] = useState([]);
@@ -514,8 +515,28 @@ const CreateJournalEntry = ({
   };
 
   const closeModal = () => {
-    setModalVisible(false);
-    setCurrentModal("main");
+    Alert.alert(
+      "Cancel Entry",
+      "Are you sure you want to cancel? All unsaved changes will be lost.",
+      [
+        {
+          text: "No, I'll continue",
+          style: "cancel",
+        },
+        {
+          text: "Yes, I'm sure",
+          style: "destructive",
+          onPress: () => {
+            setModalVisible(false);
+            setCurrentModal("main"); // Reset to the main modal
+            setNewEntryTitle("");
+            setNewEntryText("");
+            setPromptResponses(Array(5).fill(""));
+            setPromptEntryTitle("");
+          },
+        },
+      ]
+    );
   };
 
   const openPromptsModal = () => {
@@ -677,6 +698,7 @@ const CreateJournalEntry = ({
             <TouchableOpacity onPress={closeModal} style={styles.closeButton}>
               <Text style={styles.closeButtonText}>×</Text>
             </TouchableOpacity>
+
             {currentModal === "main" && (
               <>
                 <Text style={styles.modalTitle}>
