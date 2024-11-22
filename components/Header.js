@@ -44,8 +44,8 @@ const styles = StyleSheet.create({
     fontFamily: "Belgan Aesthetic",
     fontSize: 22,
     color: "#FFF",
+    borderColor: "rgba(217, 105, 159, 0.9)",
   },
 });
-
 
 export default Header;

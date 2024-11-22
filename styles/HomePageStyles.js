@@ -7,6 +7,18 @@ const styles = StyleSheet.create({
     backgroundColor: "#F5F0E8",
     padding: 20,
   },
+
+  flowerGif: {
+    position: "absolute",
+    top: 0, // Start at the top
+    width: "100%", // Cover the screen's width
+    right: 20,
+    height: 120, // Adjust based on your GIF size
+    resizeMode: "contain", // Ensure proper scaling
+    transform: [{ scaleY: -1 }], // Flip the image vertically to make it upside down
+    zIndex: -1, // Send it behind other elements
+  },
+
   greetingContainer: {
     flexDirection: "row",
     justifyContent: "space-between",
@@ -59,13 +71,13 @@ const styles = StyleSheet.create({
   searchBar: {
     flexDirection: "row",
     alignItems: "center",
-    backgroundColor: "#FFF",
-    borderRadius: 20,
+    borderRadius: 10,
     paddingHorizontal: 10,
     paddingVertical: 5,
     borderColor: "#ddd",
-    borderWidth: 1,
     marginBottom: 20,
+    borderColor: "black", // Add black border color
+    borderWidth: 1, // Ensure consistent border
   },
   searchInput: {
     flex: 1,
@@ -133,6 +145,8 @@ const styles = StyleSheet.create({
     marginBottom: 10,
     width: "48%", // Adjust width for two buttons per row
     alignItems: "center", // Center align text
+    borderColor: "black", // Add black border color
+    borderWidth: 2, // Ensure consistent border
   },
 
   entryText: {
@@ -346,18 +360,18 @@ const styles = StyleSheet.create({
     fontSize: 18,
   },
 
-    saveChangesButton: {
-      backgroundColor: "#DC869A",
-      borderRadius: 50,
-      paddingVertical: 15,
-      paddingHorizontal: 30,
-      marginTop: 50,
-      width: "100%",
-      alignItems: "center",
-      shadowColor: "#00000",
-      shadowOpacity: 0.5, // Fully opaque shadow
-      shadowRadius: 4,
-    },
+  saveChangesButton: {
+    backgroundColor: "#DC869A",
+    borderRadius: 50,
+    paddingVertical: 15,
+    paddingHorizontal: 30,
+    marginTop: 50,
+    width: "100%",
+    alignItems: "center",
+    shadowColor: "#00000",
+    shadowOpacity: 0.5, // Fully opaque shadow
+    shadowRadius: 4,
+  },
 
   // Second Modal Styles
   journalOptionsContainer: {
@@ -493,71 +507,71 @@ const styles = StyleSheet.create({
     fontFamily: "LexendDeca", // Use a readable and consistent font
   },
 
-   modalDateText: {
-      fontSize: 16, // Adjust font size for better readability
-      color: "#FFD700",
-      lineHeight: 24, // Increase line height for readability
-      textAlign: "left", // Align the text to the left
-      marginBottom: 10, // Add some spacing below the text
-      fontFamily: "LexendDeca", // Use a readable and consistent font
-    },
-// Add this style for the button container
-buttonContainer: {
-  flexDirection: "row", // Arrange buttons in a row
-  justifyContent: "space-between", // Add spacing between buttons
-  alignItems: "center", // Align buttons vertically
-  marginTop: 20, // Adjust top margin for the whole container
-  width: "100%",
-  paddingHorizontal: 20, // Add horizontal padding
-},
+  modalDateText: {
+    fontSize: 16, // Adjust font size for better readability
+    color: "#FFD700",
+    lineHeight: 24, // Increase line height for readability
+    textAlign: "left", // Align the text to the left
+    marginBottom: 10, // Add some spacing below the text
+    fontFamily: "LexendDeca", // Use a readable and consistent font
+  },
+  // Add this style for the button container
+  buttonContainer: {
+    flexDirection: "row", // Arrange buttons in a row
+    justifyContent: "space-between", // Add spacing between buttons
+    alignItems: "center", // Align buttons vertically
+    marginTop: 20, // Adjust top margin for the whole container
+    width: "100%",
+    paddingHorizontal: 20, // Add horizontal padding
+  },
 
-editButton: {
-  backgroundColor: "#DC869A",
-  borderRadius: 50,
-  paddingVertical: 15,
-  paddingHorizontal: 10,
-  width: "30%", // Reduce width to fit horizontally
-  alignItems: "center",
-  shadowColor: "#00000",
-  shadowOpacity: 0.5,
-  shadowRadius: 4,
-},
-deleteButton: {
-  backgroundColor: "rgba(0, 5, 34, 0.85)",
-  borderRadius: 50,
-  paddingVertical: 15,
-  paddingHorizontal: 10,
-  width: "30%", // Same width as the edit button
-  alignItems: "center",
-  shadowColor: "#00000",
-  shadowOpacity: 0.5,
-  shadowRadius: 4,
-},
-analysisButton: {
-  backgroundColor: "#8FCACA",
-  borderRadius: 50,
-  paddingVertical: 15,
-  paddingHorizontal: 10,
-  width: "30%", // Same as edit and delete
-  alignItems: "center",
-  shadowColor: "#00000",
-  shadowOpacity: 0.5,
-  shadowRadius: 4,
-},
-scrollContentView: {
-  flex: 1,
-  marginBottom: 80, // Leave space for the fixed buttons
-},
-fixedButtonsContainer: {
-  position: "absolute",
-  bottom: 20,
-  left: 0,
-  right: 0,
-  flexDirection: "row",
-  justifyContent: "space-evenly",
-  alignItems: "center",
-  paddingHorizontal: 20,
-},
+  editButton: {
+    backgroundColor: "#C82C87",
+    borderRadius: 50,
+    paddingVertical: 15,
+    paddingHorizontal: 10,
+    width: "30%", // Reduce width to fit horizontally
+    alignItems: "center",
+    shadowColor: "#00000",
+    shadowOpacity: 0.5,
+    shadowRadius: 4,
+  },
+  deleteButton: {
+    backgroundColor: "#FDADCE",
+    borderRadius: 50,
+    paddingVertical: 15,
+    paddingHorizontal: 10,
+    width: "30%", // Same width as the edit button
+    alignItems: "center",
+    shadowColor: "#00000",
+    shadowOpacity: 0.5,
+    shadowRadius: 4,
+  },
+  analysisButton: {
+    backgroundColor: "#E0639A",
+    borderRadius: 50,
+    paddingVertical: 15,
+    paddingHorizontal: 10,
+    width: "30%", // Same as edit and delete
+    alignItems: "center",
+    shadowColor: "#00000",
+    shadowOpacity: 0.5,
+    shadowRadius: 4,
+  },
+  scrollContentView: {
+    flex: 1,
+    marginBottom: 80, // Leave space for the fixed buttons
+  },
+  fixedButtonsContainer: {
+    position: "absolute",
+    bottom: 20,
+    left: 0,
+    right: 0,
+    flexDirection: "row",
+    justifyContent: "space-evenly",
+    alignItems: "center",
+    paddingHorizontal: 20,
+  },
 
   promptResponseContainer: {
     marginBottom: 15, // Add spacing between prompt-response pairs
@@ -573,21 +587,20 @@ fixedButtonsContainer: {
     color: "#555", // Text color for responses
     lineHeight: 20, // Increase line spacing for better readability
   },
-    promptContainer: {
-      marginBottom: 20,
-    },
-    responseBox: {
-      backgroundColor: "#fff",
-      padding: 10,
-      borderRadius: 10,
-      shadowColor: "#000",
-      shadowOpacity: 0.1,
-      shadowRadius: 4,
-      shadowOffset: { width: 0, height: 2 },
-      elevation: 2,
-      marginTop: 5,
-    },
-
+  promptContainer: {
+    marginBottom: 20,
+  },
+  responseBox: {
+    backgroundColor: "#fff",
+    padding: 10,
+    borderRadius: 10,
+    shadowColor: "#000",
+    shadowOpacity: 0.1,
+    shadowRadius: 4,
+    shadowOffset: { width: 0, height: 2 },
+    elevation: 2,
+    marginTop: 5,
+  },
 });
 
 export default styles;

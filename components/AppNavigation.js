@@ -21,13 +21,19 @@ const TabNavigator = () => (
       headerShown: false,
       tabBarStyle: {
         backgroundColor: "#DC869A",
-        borderRadius: 25,
-        height: 60,
+        borderRadius: 40,
+        height: 65, // Keep the height as 70
         position: "absolute",
-        left: 10,
-        right: 10,
-        bottom: 10,
+        left: 10, // Narrowed left margin
+        right: 10, // Narrowed right margin
+        bottom: 20, // Increased value to move the bar higher
         elevation: 5,
+        borderColor: "black", // Add black border color
+        borderWidth: 4, // Ensure consistent border
+      },
+      tabBarItemStyle: {
+        justifyContent: "center", // Center items vertically
+        alignItems: "center", // Center items horizontally
       },
       tabBarShowLabel: true,
       tabBarLabelStyle: {
@@ -109,12 +115,12 @@ const TabNavigator = () => (
 
 // Root Stack Navigator
 // const AppNavigation = () => {
-  // return TabNavigator
-  // return (
-  //   <Tab.Navigator screenOptions={{ headerShown: false }}>
-  //     <Tab.Screen name="Tabs" component={TabNavigator} />
-  //   </Tab.Navigator>
-  // );
+// return TabNavigator
+// return (
+//   <Tab.Navigator screenOptions={{ headerShown: false }}>
+//     <Tab.Screen name="Tabs" component={TabNavigator} />
+//   </Tab.Navigator>
+// );
 // };
 
 export default TabNavigator;

@@ -5,7 +5,6 @@ import styles from "../styles/AnalysisStyles";
 import Header from "../components/Header"; // Use existing Header component
 import { useRoute } from "@react-navigation/native";
 
-
 // Emotion Card Component
 function EmotionCard({ rank, emotion, icon }) {
   return (
@@ -29,9 +28,21 @@ function EmotionCard({ rank, emotion, icon }) {
 // Emotions Detected Component
 function EmotionsDetected() {
   const emotionsData = [
-    { rank: 2, emotion: "Disgust", icon: require("../assets/disgust.png") },
-    { rank: 1, emotion: "Desire", icon: require("../assets/desire.png") },
-    { rank: 3, emotion: "Surprise", icon: require("../assets/surprised.png") },
+    {
+      rank: 1,
+      emotion: "Desire",
+      icon: require("../assets/emojis/desire.png"),
+    },
+    {
+      rank: 2,
+      emotion: "Disgust",
+      icon: require("../assets/emojis/disgust.png"),
+    },
+    {
+      rank: 3,
+      emotion: "Surprise",
+      icon: require("../assets/emojis/surprise.png"),
+    },
   ];
 
   return (
@@ -59,7 +70,7 @@ function SummaryFeedback() {
       </View>
 
       {/* Suggestions Section */}
-      <Text style={styles.sectionTitleCentered}>Suggestions</Text>
+      <Text style={styles.sectionTitleCentered}>Feedback</Text>
       <View style={styles.suggestionsContainer}>
         <Text style={styles.suggestionsContent}>
           {"{Suggestions Content goes here...}"}
@@ -67,7 +78,10 @@ function SummaryFeedback() {
       </View>
 
       {/* View Journal Button */}
-      <TouchableOpacity style={styles.viewPromptButton} accessibilityRole="button">
+      <TouchableOpacity
+        style={styles.viewPromptButton}
+        accessibilityRole="button"
+      >
         <Text style={styles.viewPromptText}>View Journal</Text>
       </TouchableOpacity>
     </View>
@@ -76,24 +90,19 @@ function SummaryFeedback() {
 
 // Analysis Component
 export default function Analysis() {
-  const route = useRoute()
+  const route = useRoute();
   const ENTRY_DEFAULTS = {
     entryTitle: "something",
     entryText: "something",
     type: "something",
     journalDate: "MM/YYYY",
-  }
+  };
   const entry = route.params !== undefined ? route.params : ENTRY_DEFAULTS;
 
-  const {
-    entryTitle,
-    entryText,
-    type,
-    journalDate,
-  } = entry;
+  const { entryTitle, entryText, type, journalDate } = entry;
   useEffect(() => {
-    console.log(route.params)
-  }, [route.params])
+    console.log(route.params);
+  }, [route.params]);
   const navigation = useNavigation(); // Use navigation hook
 
   const closeModal = () => {
@@ -101,7 +110,10 @@ export default function Analysis() {
   };
 
   return (
-    <ScrollView style={styles.scrollContainer} contentContainerStyle={styles.scrollContent}>
+    <ScrollView
+      style={styles.scrollContainer}
+      contentContainerStyle={styles.scrollContent}
+    >
       <View style={styles.container}>
         <Header />
 
@@ -127,8 +139,12 @@ export default function Analysis() {
           <View style={styles.journalEntryContainer}>
             <View style={styles.journalEntryFrame} />
             <View style={styles.journalEntryContent}>
-              <Text style={styles.journalEntryDate}>Journal Entry: dd/mm/yyyy</Text>
-              <Text style={styles.journalEntryTitle}>{"{title of journal}"}</Text>
+              <Text style={styles.journalEntryDate}>
+                Journal Entry: dd/mm/yyyy
+              </Text>
+              <Text style={styles.journalEntryTitle}>
+                {"{title of journal}"}
+              </Text>
             </View>
           </View>
         </View>

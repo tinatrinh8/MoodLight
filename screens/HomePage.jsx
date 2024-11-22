@@ -1,4 +1,11 @@
-import React, { useState, useEffect, useRef, useCallback, useMemo, useContext } from "react";
+import React, {
+  useState,
+  useEffect,
+  useRef,
+  useCallback,
+  useMemo,
+  useContext,
+} from "react";
 import {
   View,
   SafeAreaView,
@@ -13,7 +20,7 @@ import {
   ScrollView,
   Animated,
   Alert,
-  ActivityIndicator
+  ActivityIndicator,
 } from "react-native";
 import { onAuthStateChanged } from "firebase/auth";
 import { auth } from "../components/firebase";
@@ -35,7 +42,7 @@ import { useEntryDates } from "../components/EntryDatesContext"; // Import conte
 import { utcToZonedTime, format } from "date-fns-tz";
 import { formatDateToTimezone } from "../utils/DateUtils";
 import EditJournalEntryModal from "../screens/EditJournalEntryModal";
-import LoadingFlower from '../components/LoadingFlower';
+import LoadingFlower from "../components/LoadingFlower";
 
 const SearchBar = () => {
   const [allEntries, setAllEntries] = useState([]);
@@ -45,31 +52,33 @@ const SearchBar = () => {
 
   useEffect(() => {
     setIsLoading(true);
-    getJournalEntries().then(res => {
-      setData(res)
-    })
+    getJournalEntries()
+      .then((res) => {
+        setData(res);
+      })
       .finally(() => setIsLoading(false));
   }, []);
 
   const handleSearch = (query) => {
     setSearchQuery(query);
-  }
+  };
   return (
     <>
       <SafeAreaView style={styles.searchBar}>
         <TextInput
-          style={{ // should probably move this for reusability later
+          style={{
+            // should probably move this for reusability later
             paddingHorizontal: 20,
             paddingVertical: 10,
-            bordeColor: '#ccc',
+            bordeColor: "#ccc",
             borderWidth: 1,
             borderRadius: 8,
-            flexGrow: 1
+            flexGrow: 1,
           }}
           placeholder="Search Past Entries?"
           placeholderTextColor="#555"
-          clearButtonMode='always'
-          autoCapitalize='none'
+          clearButtonMode="always"
+          autoCapitalize="none"
           autoCorrect={false}
           value={searchQuery}
           onChangeText={(query) => handleSearch(query)}
@@ -86,19 +95,25 @@ const SearchBar = () => {
             <Text>{item.entryTitle} </Text>
           </View>
         )}
-      >
-      </FlatList>
+      ></FlatList>
     </>
-
   );
-}
+};
 
 const getRandomQuote = () => {
   const randomIndex = Math.floor(Math.random() * quotes.length);
   return quotes[randomIndex];
 };
 
-const ViewJournalEntryModal = ({ entry, onClose, setJournalEntries, setEntryDates, setSelectedEntry, setEditModalVisible, navigation }) => {
+const ViewJournalEntryModal = ({
+  entry,
+  onClose,
+  setJournalEntries,
+  setEntryDates,
+  setSelectedEntry,
+  setEditModalVisible,
+  navigation,
+}) => {
   return (
     <Modal animationType="fade" transparent={true} visible={true}>
       <View style={styles.modalOverlay}>
@@ -113,7 +128,9 @@ const ViewJournalEntryModal = ({ entry, onClose, setJournalEntries, setEntryDate
 
             {entry.type === "free" ? (
               <View style={styles.promptResponseContainer}>
-                <Text style={styles.responseText}>{entry.entryText || "No content available"}</Text>
+                <Text style={styles.responseText}>
+                  {entry.entryText || "No content available"}
+                </Text>
               </View>
             ) : Array.isArray(entry.entryText) ? (
               entry.entryText.map((item, index) => (
@@ -131,8 +148,6 @@ const ViewJournalEntryModal = ({ entry, onClose, setJournalEntries, setEntryDate
             ) : (
               <Text style={styles.modalViewText}>No prompts available</Text>
             )}
-
-
           </ScrollView>
 
           <View style={styles.fixedButtonsContainer}>
@@ -141,7 +156,7 @@ const ViewJournalEntryModal = ({ entry, onClose, setJournalEntries, setEntryDate
               onPress={() => {
                 setSelectedEntry(entry); // Set the entry to be analysed (just in case)
                 onClose(); // Close the view modal
-                navigation.navigate("Analysis", { ...entry}) // go to Analysis
+                navigation.navigate("Analysis", { ...entry }); // go to Analysis
               }}
             >
               <Text style={styles.continueButtonText}>Analysis</Text>
@@ -180,7 +195,9 @@ const ViewJournalEntryModal = ({ entry, onClose, setJournalEntries, setEntryDate
 
                           // Update the entry dates state
                           setEntryDates((prevDates) =>
-                            prevDates.filter((date) => date !== entry.journalDate)
+                            prevDates.filter(
+                              (date) => date !== entry.journalDate
+                            )
                           );
 
                           // Close the modal
@@ -188,7 +205,10 @@ const ViewJournalEntryModal = ({ entry, onClose, setJournalEntries, setEntryDate
 
                           console.log("Journal entry deleted successfully.");
                         } catch (error) {
-                          console.error("Error deleting journal entry:", error.message);
+                          console.error(
+                            "Error deleting journal entry:",
+                            error.message
+                          );
                         }
                       },
                     },
@@ -208,7 +228,8 @@ const ViewJournalEntryModal = ({ entry, onClose, setJournalEntries, setEntryDate
 const HomePage = () => {
   const navigation = useNavigation();
   const route = useRoute();
-  const { entryDates, setEntryDates, journalEntries, setJournalEntries } = useEntryDates(); // Use global state
+  const { entryDates, setEntryDates, journalEntries, setJournalEntries } =
+    useEntryDates(); // Use global state
   const [viewJournalEntry, setViewJournalEntry] = useState(null); // State to hold the selected journal entry
   const [viewJournalModalVisible, setViewJournalModalVisible] = useState(false);
   const [user, setUser] = useState(null);
@@ -220,6 +241,8 @@ const HomePage = () => {
   const [newEntryDate, setNewEntryDate] = useState(""); // New state for the selected date
   const [editModalVisible, setEditModalVisible] = useState(false); // Controls visibility of edit modal
   const [selectedEntry, setSelectedEntry] = useState(null); // Stores the entry being edited
+  const translateY = useRef(new Animated.Value(-300)).current; // Start from above the screen
+  const opacity = useRef(new Animated.Value(0)).current; // Start with transparent flowers
 
   // Helper function to reset newEntryDate to today's date
   const resetToTodayDate = () => {
@@ -256,6 +279,24 @@ const HomePage = () => {
     }
   }, [setEntryDates, setJournalEntries]);
 
+  // Trigger background animation
+  useEffect(() => {
+    fetchEntries();
+
+    Animated.sequence([
+      Animated.timing(translateY, {
+        toValue: 0, // Flowers move into view
+        duration: 3000,
+        useNativeDriver: true,
+      }),
+      Animated.timing(opacity, {
+        toValue: 1, // Flowers fade in
+        duration: 1000,
+        useNativeDriver: true,
+      }),
+    ]).start();
+  }, [fetchEntries]);
+
   useEffect(() => {
     const unsubscribeAuth = onAuthStateChanged(auth, (currentUser) => {
       if (currentUser) {
@@ -288,14 +329,14 @@ const HomePage = () => {
     };
   }, [fetchEntries, route.params]);
 
-
-
   const handleSaveEntry = async () => {
     if (newEntryTitle.trim() && newEntryText.trim()) {
       try {
         // Check if an entry already exists for the selected date using entryDates
         if (entryDates.includes(newEntryDate)) {
-          alert("A journal entry already exists for this date. You cannot create another one.");
+          alert(
+            "A journal entry already exists for this date. You cannot create another one."
+          );
           return; // Stop the process if the date already has an entry
         }
 
@@ -308,7 +349,9 @@ const HomePage = () => {
 
         // Add the new entry date to entryDates if not already present
         setEntryDates((prevDates) =>
-          prevDates.includes(newEntryDate) ? prevDates : [...prevDates, newEntryDate]
+          prevDates.includes(newEntryDate)
+            ? prevDates
+            : [...prevDates, newEntryDate]
         );
 
         // Reset the input fields and close the modal
@@ -343,7 +386,9 @@ const HomePage = () => {
             onPress={() => navigation.navigate("Settings")}
           >
             <Text style={styles.profileText}>
-              {user?.displayName ? user.displayName.charAt(0).toUpperCase() : "U"}
+              {user?.displayName
+                ? user.displayName.charAt(0).toUpperCase()
+                : "U"}
             </Text>
           </TouchableOpacity>
         </View>
@@ -374,15 +419,24 @@ const HomePage = () => {
           setModalVisible={setCreateEntryModalVisible}
           handleSaveEntry={handleSaveEntry}
           onResetToTodayDate={resetToTodayDate} // Pass down the reset function
-
         />
       ),
     },
-
   ];
 
   return (
     <View style={styles.container}>
+      {/* Animated GIF Background */}
+      <Animated.Image
+        source={require("../assets/flowers.gif")} // Use your GIF file
+        style={[
+          styles.flowerGif,
+          {
+            transform: [{ translateY }], // Move GIF vertically
+            opacity, // Fade effect
+          },
+        ]}
+      />
       <Header />
       {/* View Journal Entry Modal */}
       {viewJournalModalVisible && viewJournalEntry && (
@@ -401,8 +455,8 @@ const HomePage = () => {
         <EditJournalEntryModal
           entry={selectedEntry}
           onClose={() => {
-            setEditModalVisible(false)
-            navigation.navigate("Analysis", { ...selectedEntry })
+            setEditModalVisible(false);
+            navigation.navigate("Analysis", { ...selectedEntry });
           }}
           onSave={updateEntryInFirestore} // Correctly pass the onSave function here
           setJournalEntries={setJournalEntries} // Pass the state updater
@@ -420,7 +474,6 @@ const HomePage = () => {
   );
 };
 
-
 const CreateJournalEntry = ({
   modalVisible,
   setModalVisible,
@@ -437,10 +490,8 @@ const CreateJournalEntry = ({
   const [randomPrompts, setRandomPrompts] = useState([]);
   const fadeAnim = useRef(new Animated.Value(1)).current;
 
-
   // Determine the displayed date
   const displayedDate = newEntryDate; // Always use the prop value
-
 
   const fadeTransition = () => {
     Animated.sequence([
@@ -487,7 +538,9 @@ const CreateJournalEntry = ({
 
       // Check if an entry already exists for the selected date
       if (entryDates.includes(displayedDate)) {
-        alert("A journal entry already exists for this date. You cannot create another one.");
+        alert(
+          "A journal entry already exists for this date. You cannot create another one."
+        );
         return;
       }
 
@@ -500,15 +553,23 @@ const CreateJournalEntry = ({
         .filter((item) => item.response); // Filter out prompts with empty responses
 
       // Log the data being saved for debugging
-      console.log("Saving prompt-based journal entry with the following data:", {
+      console.log(
+        "Saving prompt-based journal entry with the following data:",
+        {
+          promptsData,
+          promptEntryTitle,
+          displayedDate,
+          type: "prompts",
+        }
+      );
+
+      // Save the journal entry with the "prompts" type
+      await addJournalEntry(
         promptsData,
         promptEntryTitle,
         displayedDate,
-        type: "prompts",
-      });
-
-      // Save the journal entry with the "prompts" type
-      await addJournalEntry(promptsData, promptEntryTitle, displayedDate, "prompts");
+        "prompts"
+      );
 
       // Fetch updated entries and update the context
       const updatedEntries = await getJournalEntries();
@@ -516,7 +577,9 @@ const CreateJournalEntry = ({
 
       // Add the new entry date to entryDates if not already present
       setEntryDates((prevDates) =>
-        prevDates.includes(displayedDate) ? prevDates : [...prevDates, displayedDate]
+        prevDates.includes(displayedDate)
+          ? prevDates
+          : [...prevDates, displayedDate]
       );
 
       // Reset the input fields and close the modal
@@ -528,22 +591,30 @@ const CreateJournalEntry = ({
       console.log("Prompt-based journal entry saved successfully.");
     } catch (error) {
       console.error("Error saving prompt entry:", error.message);
-      alert("An error occurred while saving the journal entry. Please try again.");
+      alert(
+        "An error occurred while saving the journal entry. Please try again."
+      );
     }
   };
-
 
   const handleSaveEntry = async () => {
     if (newEntryTitle.trim() && newEntryText.trim()) {
       try {
         // Check if an entry already exists for the selected date using entryDates
         if (entryDates.includes(newEntryDate)) {
-          alert("A journal entry already exists for this date. You cannot create another one.");
+          alert(
+            "A journal entry already exists for this date. You cannot create another one."
+          );
           return; // Stop the process if the date already has an entry
         }
 
         // Proceed with saving the journal entry as "free"
-        await addJournalEntry(newEntryText, newEntryTitle, newEntryDate, "free");
+        await addJournalEntry(
+          newEntryText,
+          newEntryTitle,
+          newEntryDate,
+          "free"
+        );
 
         // Fetch updated entries and update context
         const updatedEntries = await getJournalEntries();
@@ -551,7 +622,9 @@ const CreateJournalEntry = ({
 
         // Add the new entry date to entryDates if not already present
         setEntryDates((prevDates) =>
-          prevDates.includes(newEntryDate) ? prevDates : [...prevDates, newEntryDate]
+          prevDates.includes(newEntryDate)
+            ? prevDates
+            : [...prevDates, newEntryDate]
         );
 
         // Reset the input fields and close the modal
@@ -563,13 +636,14 @@ const CreateJournalEntry = ({
         console.log("Free-writing journal entry saved successfully.");
       } catch (error) {
         console.error("Error saving entry:", error.message);
-        alert("An error occurred while saving the journal entry. Please try again.");
+        alert(
+          "An error occurred while saving the journal entry. Please try again."
+        );
       }
     } else {
       alert("Please provide both a title and content before saving.");
     }
   };
-
 
   return (
     <View style={styles.createEntryContainer}>
@@ -652,7 +726,9 @@ const CreateJournalEntry = ({
             )}
             {currentModal === "usePrompts" && (
               <>
-                <Text style={styles.modalTitle}>Need a little inspiration?</Text>
+                <Text style={styles.modalTitle}>
+                  Need a little inspiration?
+                </Text>
 
                 {/* Display Selected or Today's Date */}
                 <Text style={styles.dateText}>{displayedDate}</Text>
@@ -741,7 +817,5 @@ const PastEntries = ({ openViewJournalModal, journalEntries, loading }) => {
     </View>
   );
 };
-
-
 
 export default HomePage;
