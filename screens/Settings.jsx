@@ -35,7 +35,7 @@ const Settings = () => {
     try {
       await signOut(auth);
       Alert.alert("Logged out", "You have been successfully logged out.");
-      navigation.replace("Login");
+      navigation.navigate("Login");
     } catch (error) {
       console.error("Logout Error:", error.message);
       Alert.alert("Logout Failed", "An error occurred while logging out.");

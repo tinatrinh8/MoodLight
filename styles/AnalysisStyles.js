@@ -87,35 +87,49 @@ const AnalysisStyles = StyleSheet.create({
   },
 
   // Emotions Section
-    emotionsContainer: {
-      marginTop: 20,
-      flexDirection: "row", // Arrange cards in a row
-      justifyContent: "center", // Center the cards
-      gap: 15, // Add space between the cards
-    },
-    emotionCard: {
-      backgroundColor: "#F4E6EB", // Light pink background
-      borderRadius: 15, // Rounded corners
-      padding: 10,
-      alignItems: "center",
-      borderWidth: 2, // Add a border
-      borderColor: "#000", // Black border
-      shadowColor: "#000", // Optional: Shadow for lifted effect
-      shadowOffset: { width: 0, height: 2 },
-      shadowOpacity: 0.2,
-      shadowRadius: 3,
-      elevation: 5,
-      width: 90, // Set card width
-    },
+  emotionsContainer: {
+    marginTop: 20,
+    flexDirection: "row", // Arrange cards in a row
+    justifyContent: "center", // Center all cards horizontally
+    alignItems: "flex-end", // Align cards to the bottom
+  },
+  emotionCard: {
+    borderRadius: 15, // Rounded corners
+    padding: 10,
+    alignItems: "center",
+    borderWidth: 2,
+    borderColor: "#000", // Black border
+    shadowColor: "#000",
+    shadowOffset: { width: 0, height: 2 },
+    shadowOpacity: 0.2,
+    shadowRadius: 3,
+    elevation: 5,
+    width: 100, // Uniform width for all cards
+    justifyContent: "flex-end", // Align content to the bottom for different heights
+  },
+   emotionCardRank1: {
+     backgroundColor: "#E6C3CB",
+     height: 180, // Tallest for rank 1
+   },
+   emotionCardRank2: {
+     backgroundColor: "#954356",
+     height: 140, // Medium for rank 2
+   },
+   emotionCardRank3: {
+     backgroundColor: "#BA677B",
+     height: 120, // Shortest for rank 3
+   },
   rankText: {
-    fontSize: 18,
+    fontSize: 20,
     fontWeight: "bold",
     color: "#000000",
     fontFamily: "LexendDeca",
+    position: "absolute",
+    top: 5, // Position rank number at the very top of the card
   },
   emotionIcon: {
-    width: 50,
-    height: 50,
+    width: 34,
+    height: 34, // Smaller emoji size
     marginVertical: 8,
   },
   emotionName: {

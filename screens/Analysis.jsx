@@ -4,52 +4,47 @@ import { useNavigation } from "@react-navigation/native"; // Import navigation h
 import styles from "../styles/AnalysisStyles";
 import Header from "../components/Header"; // Use existing Header component
 import { useRoute } from "@react-navigation/native";
-import axios from 'axios';
+import axios from "axios";
 import { HUGGING_FACE_API_KEY } from "@env";
-import { emotionData } from '../components/emotionData'
+import { emotionData } from "../components/emotionData";
 
-// Emotion Card Component
 function EmotionCard({ rank, emotion, icon }) {
   return (
-    <View style={styles.emotionCard}>
-      <View style={styles.rankContainer}>
-        <Text style={styles.rankText}>{rank}</Text>
-      </View>
+    <View style={[styles.emotionCard, styles[`emotionCardRank${rank}`]]}>
+      <Text style={styles.rankText}>{rank}</Text>
       <Image
         accessibilityLabel={`${emotion} icon`}
         resizeMode="contain"
         source={icon}
         style={styles.emotionIcon}
       />
-      <View style={styles.emotionNameContainer}>
-        <Text style={styles.emotionName}>{emotion}</Text>
-      </View>
+      <Text style={styles.emotionName}>{emotion}</Text>
     </View>
   );
 }
 
 // Emotions Detected Component
 function EmotionsDetected({ emotions }) {
-  const [emotionsMeta, setEmotionMeta] = useState([])
+  const [emotionsMeta, setEmotionMeta] = useState([]);
   useEffect(() => {
     setEmotionMeta([
-      {
-        rank: 1,
-        emotion: emotions[0],
-        icon: emotionData[emotions[0]],
-      },
       {
         rank: 2,
         emotion: emotions[1],
         icon: emotionData[emotions[1]],
       },
       {
+        rank: 1,
+        emotion: emotions[0],
+        icon: emotionData[emotions[0]],
+      },
+      {
         rank: 3,
         emotion: emotions[2],
         icon: emotionData[emotions[2]],
       },
-    ])
-  }, [emotions])
+    ]);
+  }, [emotions]);
 
   return (
     <View style={styles.emotionsSection}>
@@ -64,7 +59,15 @@ function EmotionsDetected({ emotions }) {
 }
 
 // Summary and Feedback Component
-function SummaryFeedback() {
+function SummaryFeedback({ entry }) {
+  const navigation = useNavigation();
+  const handleViewJournal = () => {
+    // Navigate to Home and pass the journal entry as a parameter
+    navigation.navigate("MainTabs", {
+      screen: "Home",
+      params: { viewJournalEntry: entry },
+    });
+  };
   return (
     <View>
       {/* Summary Section */}
@@ -86,6 +89,7 @@ function SummaryFeedback() {
       {/* View Journal Button */}
       <TouchableOpacity
         style={styles.viewPromptButton}
+        onPress={handleViewJournal}
         accessibilityRole="button"
       >
         <Text style={styles.viewPromptText}>View Journal</Text>
@@ -96,7 +100,6 @@ function SummaryFeedback() {
 
 // Analysis Component
 export default function Analysis() {
-
   const route = useRoute();
   const ENTRY_DEFAULTS = {
     entryTitle: "something",
@@ -106,59 +109,81 @@ export default function Analysis() {
   };
   const entry = route.params !== undefined ? route.params : ENTRY_DEFAULTS;
   // this just sets the params to the defaults if the entry somehow isn't passed
-  const {
-    entryTitle,
-    entryText,
-    type,
-    journalDate,
-  } = entry;
+  const { entryTitle, entryText, type, journalDate } = entry;
   const navigation = useNavigation(); // Use navigation hook
 
   const closeModal = () => {
     navigation.navigate("MainTabs", { screen: "Home" }); // Navigate to MainTabs and ensure Home tab is active
   };
 
-  const [topEmotions, setTopEmotions] = useState([])
-  const [loadingEmotions, setLoadingEmotions] = useState(true)
+  const [topEmotions, setTopEmotions] = useState([]);
+  const [loadingEmotions, setLoadingEmotions] = useState(true);
 
   const getEmotion = (text) => {
-    return axios.post(
-      "https://api-inference.huggingface.co/models/borisn70/bert-43-multilabel-emotion-detection",
-      { inputs: text },
-      {
-        headers: {
-          Authorization: `Bearer ${HUGGING_FACE_API_KEY}`,
-        },
-      }
-    ).then(res => res.data[0]).catch(e => console.error('Error fetching sentiment', e))
-  }
+    return axios
+      .post(
+        "https://api-inference.huggingface.co/models/borisn70/bert-43-multilabel-emotion-detection",
+        { inputs: text },
+        {
+          headers: {
+            Authorization: `Bearer ${HUGGING_FACE_API_KEY}`,
+          },
+        }
+      )
+      .then((res) => res.data[0])
+      .catch((e) => console.error("Error fetching sentiment", e));
+  };
 
   const aggregateEmotions = (emotions) => {
-    return emotions.map(r => r.value).flat()
-  }
+    return emotions.map((r) => r.value).flat();
+  };
 
-  const filterEmotions = (emotions) => {
-    return emotions.sort(function (a, b) {
-      return b.score - a.score;
-    }).map(item => item.label.toLowerCase()).slice(0, 3);
-  }
+const filterEmotions = (emotions) => {
+  // Sort by score in descending order
+  const sortedEmotions = emotions.sort((a, b) => b.score - a.score);
 
-  const parseTopEmotions = (emotions) => {
-    let aggregatedEmotions = aggregateEmotions(emotions)
-    let filteredEmotions = filterEmotions(aggregatedEmotions)
-    setTopEmotions(filteredEmotions)
-  }
-  useEffect(() => {
-    if (type === 'free') {
-      setLoadingEmotions(true)
-      Promise.allSettled([getEmotion(entryText)]).then(results => parseTopEmotions(results))
-      setLoadingEmotions(false)
-    } else {
-      setLoadingEmotions(true)
-      Promise.allSettled(entryText.map(text => getEmotion(text['response']))).then(results => parseTopEmotions(results))
-      setLoadingEmotions(false)
+  // Extract unique emotions
+  const uniqueEmotions = [];
+  const seenLabels = new Set();
+
+  for (const emotion of sortedEmotions) {
+    if (!seenLabels.has(emotion.label.toLowerCase())) {
+      uniqueEmotions.push(emotion.label.toLowerCase());
+      seenLabels.add(emotion.label.toLowerCase());
     }
-  }, [entryText, entryText, journalDate, type])
+
+    // Stop once we have 3 unique emotions
+    if (uniqueEmotions.length === 3) {
+      break;
+    }
+  }
+
+  return uniqueEmotions;
+};
+
+
+const parseTopEmotions = (emotions) => {
+  const aggregatedEmotions = aggregateEmotions(emotions);
+  const filteredEmotions = filterEmotions(aggregatedEmotions);
+  setTopEmotions(filteredEmotions); // This will now include only unique emotions
+};
+
+
+  useEffect(() => {
+    if (type === "free") {
+      setLoadingEmotions(true);
+      Promise.allSettled([getEmotion(entryText)]).then((results) =>
+        parseTopEmotions(results)
+      );
+      setLoadingEmotions(false);
+    } else {
+      setLoadingEmotions(true);
+      Promise.allSettled(
+        entryText.map((text) => getEmotion(text["response"]))
+      ).then((results) => parseTopEmotions(results));
+      setLoadingEmotions(false);
+    }
+  }, [entryText, entryText, journalDate, type]);
 
   return (
     <ScrollView
@@ -193,19 +218,19 @@ export default function Analysis() {
               <Text style={styles.journalEntryDate}>
                 Journal Entry: {journalDate}
               </Text>
-              <Text style={styles.journalEntryTitle}>
-                {entryTitle}
-              </Text>
+              <Text style={styles.journalEntryTitle}>{entryTitle}</Text>
             </View>
           </View>
         </View>
 
         {/* Emotions Detected Section */}
-        {
-          loadingEmotions ? (<></>) : (<EmotionsDetected emotions={topEmotions} />)
-        }
+        {loadingEmotions ? (
+          <></>
+        ) : (
+          <EmotionsDetected emotions={topEmotions} />
+        )}
         {/* Summary and Feedback Section */}
-        <SummaryFeedback />
+        <SummaryFeedback entry={entry} />
       </View>
     </ScrollView>
   );
