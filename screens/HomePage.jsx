@@ -45,8 +45,6 @@ import EditJournalEntryModal from "../screens/EditJournalEntryModal";
 import LoadingFlower from '../components/LoadingFlower';
 import { getSuggestedPrompts } from "../components/SuggestedPrompts";
 import { SearchArea } from '../components/SearchArea'
-import { fetchEmotionAnalysis } from "../functions/JournalAPI";
-
 
 const getRandomQuote = () => {
   const randomIndex = Math.floor(Math.random() * quotes.length);
@@ -61,8 +59,6 @@ const ViewJournalEntryModal = ({
   setSelectedEntry,
   setEditModalVisible,
   navigation,
-  loading,
-  setLoading,
 }) => {
   return (
     <Modal animationType="fade" transparent={true} visible={true}>
@@ -75,22 +71,19 @@ const ViewJournalEntryModal = ({
           <ScrollView style={styles.scrollContentView}>
             <Text style={styles.modalTitle}>{entry.entryTitle}</Text>
             <Text style={styles.modalDateText}>{entry.journalDate}</Text>
+
             {entry.type === "free" ? (
-              // For free-writing entries, render as plain text
               <View style={styles.promptResponseContainer}>
                 <Text style={styles.responseText}>
-                  {typeof entry.entryText === "string"
-                    ? entry.entryText
-                    : "No content available"}
+                  {entry.entryText || "No content available"}
                 </Text>
               </View>
             ) : Array.isArray(entry.entryText) ? (
-              // For prompt-based entries, render each prompt-response pair
               entry.entryText.map((item, index) => (
                 <View key={index} style={styles.promptContainer}>
-                  {/* Render prompt */}
-                  <Text style={styles.textBoxTitle}>{item.prompt || "No prompt provided"}</Text>
-                  {/* Render response */}
+                  {/* Prompt as a standalone title */}
+                  <Text style={styles.textBoxTitle}>{item.prompt}</Text>
+                  {/* Response in its own box */}
                   <View style={styles.responseBox}>
                     <Text style={styles.responseText}>
                       {item.response || "No response provided"}
@@ -101,39 +94,18 @@ const ViewJournalEntryModal = ({
             ) : (
               <Text style={styles.modalViewText}>No prompts available</Text>
             )}
-
           </ScrollView>
 
           <View style={styles.fixedButtonsContainer}>
             <TouchableOpacity
               style={styles.analysisButton}
-                onPress={async () => {
-                  try {
-                    setLoading(true); // Show the loading spinner
-
-                    // Fetch the top emotions for the journal entry
-                    const emotions = await fetchEmotionAnalysis(entry.entryText);
-
-                    // Navigate to the Analysis page with all necessary data
-                    navigation.navigate("Analysis", {
-                      entryTitle: entry.entryTitle,
-                      journalDate: entry.journalDate,
-                      entryText: entry.entryText,
-                      emotions, // Pass the emotions data
-                    });
-                  } catch (error) {
-                    console.error("Failed to fetch emotions:", error.message);
-                    Alert.alert("Error", "Unable to analyze emotions at this time.");
-                  } finally {
-                    setLoading(false); // Stop the loading spinner
-                  }
-                }}
+              onPress={() => {
+                setSelectedEntry(entry); // Set the entry to be analysed (just in case)
+                onClose(); // Close the view modal
+                navigation.navigate("Analysis", { ...entry  }); // go to Analysis
+              }}
             >
-              {loading ? (
-                <LoadingFlower /> // Show your spinning flower if loading
-              ) : (
-                <Text style={styles.continueButtonText}>Analysis</Text>
-              )}
+              <Text style={styles.continueButtonText}>Analysis</Text>
             </TouchableOpacity>
             <TouchableOpacity
               style={styles.editButton}
@@ -145,6 +117,7 @@ const ViewJournalEntryModal = ({
             >
               <Text style={styles.continueButtonText}>Edit</Text>
             </TouchableOpacity>
+
             <TouchableOpacity
               style={styles.deleteButton}
               onPress={() => {
@@ -446,8 +419,6 @@ const HomePage = () => {
           setSelectedEntry={setSelectedEntry} // Pass setSelectedEntry
           setEditModalVisible={setEditModalVisible} // Pass setEditModalVisible
           navigation={navigation}
-          loading={loading} // Pass the loading state
-          setLoading={setLoading} // Pass the setLoading function
         />
       )}
 
