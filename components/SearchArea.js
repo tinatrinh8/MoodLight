@@ -14,7 +14,7 @@ import {
 export const SearchArea = () => {
 
     const [searchTerm, setSearchTerm] = useState(null)
-    
+
 
     return (
         <>
@@ -28,7 +28,7 @@ export const SearchArea = () => {
 }
 
 const SearchResults = ({ searchTerm }) => {
-    
+
     const [allEntries, setAllEntries] = useState([]);
     const [isLoading, setIsLoading] = useState(false);
 
@@ -38,8 +38,7 @@ const SearchResults = ({ searchTerm }) => {
             setAllEntries([])
         } else {
             getJournalEntries().then(res => {
-                filterEntries(searchTerm, setAllEntries(res))
-                console.log(res)
+                setAllEntries(filterEntries(searchTerm, res))
             })
                 .finally(() => {
                     setIsLoading(false)
@@ -49,9 +48,7 @@ const SearchResults = ({ searchTerm }) => {
     }, [searchTerm]);
 
     function filterEntries(search, entries) {
-        return entries.filter((item) => {
-            item.entryText.includes(search)
-        })
+        return entries.filter((item) => item.entryTitle.toLowerCase().includes(search.toLowerCase()));
     }
 
     // do a query
@@ -73,7 +70,7 @@ const SearchResults = ({ searchTerm }) => {
 
 
 }
-const SearchBar = ({ onSearch,  }) => {
+const SearchBar = ({ onSearch }) => {
 
     const [searchValue, setSearchValue] = useState('')
 
@@ -94,7 +91,6 @@ const SearchBar = ({ onSearch,  }) => {
     const handleSearchChange = (value) => {
         setSearchValue(value)
         debouncedSearch(value);
-
     }
 
     return (
@@ -122,8 +118,8 @@ const SearchBar = ({ onSearch,  }) => {
             <Button
                 // onPress={onPressLearnMore}
                 title="X"
-                // color="#841584"
-                // accessibilityLabel="Learn more about this purple button"
+            // color="#841584"
+            // accessibilityLabel="Learn more about this purple button"
             />
         </SafeAreaView >
     )
