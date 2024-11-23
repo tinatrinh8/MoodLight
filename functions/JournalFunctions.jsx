@@ -25,14 +25,17 @@ export const addJournalEntry = async (entryText, entryTitle, journalDate, type) 
     }
 
     const journalRef = collection(db, "users", userId, "journalEntries");
-    await addDoc(journalRef, {
+    const entry = {
       entryText,
       entryTitle,
       journalDate,
       type, // Ensure type is saved correctly
-    });
+    }
+    await addDoc(journalRef, entry);
 
     console.log("Journal entry added successfully!");
+
+    return entry
   } catch (error) {
     console.error("Error adding journal entry:", error.message);
     throw error;
