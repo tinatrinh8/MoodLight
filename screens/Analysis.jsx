@@ -6,6 +6,8 @@ import Header from "../components/Header"; // Use existing Header component
 import { useRoute } from "@react-navigation/native";
 import axios from 'axios';
 import { HUGGING_FACE_API_KEY } from "@env";
+import { emotionData } from '../components/emotionData'
+
 // Emotion Card Component
 function EmotionCard({ rank, emotion, icon }) {
   return (
@@ -28,29 +30,29 @@ function EmotionCard({ rank, emotion, icon }) {
 
 // Emotions Detected Component
 function EmotionsDetected({ emotions }) {
-  const emotionsData = [
+  const emotionsMeta = [
     {
       rank: 1,
-      emotion: "Desire",
-      icon: require("../assets/emojis/desire.png"),
+      emotion: emotions[0],
+      icon: emotionData[emotions[0]],
     },
     {
       rank: 2,
-      emotion: "Disgust",
-      icon: require("../assets/emojis/disgust.png"),
+      emotion: emotions[1],
+      icon: emotionData[emotions[1]],
     },
     {
       rank: 3,
-      emotion: "Surprise",
-      icon: require("../assets/emojis/surprise.png"),
+      emotion: emotions[2],
+      icon: emotionData[emotions[1]],
     },
   ];
-
+  
   return (
     <View style={styles.emotionsSection}>
       <Text style={styles.title}>Top Emotions Detected</Text>
       <View style={styles.emotionsContainer}>
-        {emotionsData.filter((emote => emotions.includes(emote.toLowerCase()))).map((emotion, index) => (
+        {emotionsMeta.map((emotion, index) => (
           <EmotionCard key={index} {...emotion} />
         ))}
       </View>
@@ -91,8 +93,8 @@ function SummaryFeedback() {
 
 // Analysis Component
 export default function Analysis() {
-  
-    const route = useRoute();
+
+  const route = useRoute();
   const ENTRY_DEFAULTS = {
     entryTitle: "something",
     entryText: "something",
@@ -113,8 +115,8 @@ export default function Analysis() {
     navigation.navigate("MainTabs", { screen: "Home" }); // Navigate to MainTabs and ensure Home tab is active
   };
 
-  const [ emotion, setEmotion ] = useState("")
-
+  const [emotion, setEmotion] = useState("")
+  const [loadingEmotions, setLoadingEmotions] = useState(true)
   const getEmotions = () => {
     // Allocate a pipeline for sentiment-analysis
     // pipeline('sentiment-analysis', 'borisn70/bert-43-multilabel-emotion-detection').then(
@@ -126,7 +128,8 @@ export default function Analysis() {
     //     })
     //   }
     // )
-
+    console.log('hello')
+    setLoadingEmotions(true)
     const response = axios.post(
       "https://api-inference.huggingface.co/models/borisn70/bert-43-multilabel-emotion-detection",
       { inputs: entryText },
@@ -136,10 +139,11 @@ export default function Analysis() {
         },
       }
     ).then(res => {
-      let sorted = res.data[0].sort(function(a, b) {
+      let sorted = res.data[0].sort(function (a, b) {
         return b.score - a.score;
-      }).map(item => item.label.toLowerCase()).slice(0,3);
-
+      }).map(item => item.label.toLowerCase()).slice(0, 3);
+      console.log(sorted)
+      setLoadingEmotions(false)
       setEmotion(sorted)
     })
   }
@@ -189,7 +193,9 @@ export default function Analysis() {
         </View>
 
         {/* Emotions Detected Section */}
-        <EmotionsDetected emotions={emotion} />
+        {
+          loadingEmotions ? (<></>) : (<EmotionsDetected emotions={emotion} />)
+        }
         {/* Summary and Feedback Section */}
         <SummaryFeedback />
       </View>
