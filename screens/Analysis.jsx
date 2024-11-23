@@ -4,6 +4,7 @@ import { useNavigation } from "@react-navigation/native"; // Import navigation h
 import styles from "../styles/AnalysisStyles";
 import Header from "../components/Header"; // Use existing Header component
 import { useRoute } from "@react-navigation/native";
+import { pipeline } from '@huggingface/transformers';
 
 // Emotion Card Component
 function EmotionCard({ rank, emotion, icon }) {
@@ -26,7 +27,7 @@ function EmotionCard({ rank, emotion, icon }) {
 }
 
 // Emotions Detected Component
-function EmotionsDetected() {
+function EmotionsDetected({ emotions }) {
   const emotionsData = [
     {
       rank: 1,
@@ -49,7 +50,7 @@ function EmotionsDetected() {
     <View style={styles.emotionsSection}>
       <Text style={styles.title}>Top Emotions Detected</Text>
       <View style={styles.emotionsContainer}>
-        {emotionsData.map((emotion, index) => (
+        {emotionsData.filter((emote => emotions.includes(emote))).map((emotion, index) => (
           <EmotionCard key={index} {...emotion} />
         ))}
       </View>
@@ -91,39 +92,7 @@ function SummaryFeedback() {
 // Analysis Component
 export default function Analysis() {
   
-  // FOLLOWING ARE FOR NLP
-  const [ready, setReady] = useState(null);
-  const [disabled, setDisabled] = useState(false);
-  const [progressItems, setProgressItems] = useState([]);
-  const [input, setInput] = useState('TEST EMOTION INPUT! I am having a tough time');
-  const [output, setOutput] = useState('');
-
-  const worker = useRef(null);
-
-// FOLLOWING CODE SETS UP THE NLP PIPELINE
-
-//  use the `useEffect` hook to setup the worker as soon as the `Analysis` component is mounted
-useEffect(() => {
-  if (!worker.current) {
-    // Create the worker if it does not yet exist.
-    worker.current = new Worker(new URL('./worker.js', import.meta.url), {
-        type: 'module'
-    });
-  }
-
-  // Create a callback function for messages from the worker thread.
-  const onMessageReceived = (e) => {
-    // in progress
-  };
-
-  // Attach the callback function as an event listener.
-  worker.current.addEventListener('message', onMessageReceived);
-
-  // Define a cleanup function for when the component is unmounted.
-  return () => worker.current.removeEventListener('message', onMessageReceived);
-});
-
-  const route = useRoute();
+    const route = useRoute();
   const ENTRY_DEFAULTS = {
     entryTitle: "something",
     entryText: "something",
@@ -144,12 +113,24 @@ useEffect(() => {
     navigation.navigate("MainTabs", { screen: "Home" }); // Navigate to MainTabs and ensure Home tab is active
   };
 
-  // Function to get emotions
+  const [ emotion, setEmotion ] = useState("")
+
   const getEmotions = () => {
-    worker.current.postMessage({
-      text: entryText
-    });
+    // Allocate a pipeline for sentiment-analysis
+    pipeline('sentiment-analysis', 'borisn70/bert-43-multilabel-emotion-detection').then(
+      (pipe) => {
+        pipe(entryText).then(out => {
+          // not sure what the raw respones from the model will be
+          console.log(out)
+          setEmotion(out)
+        })
+      }
+    )
   }
+
+  useEffect(() => {
+    getEmotions()
+  }, [])
 
   return (
     <ScrollView
@@ -192,8 +173,7 @@ useEffect(() => {
         </View>
 
         {/* Emotions Detected Section */}
-        <EmotionsDetected />
-
+        <EmotionsDetected emotions={emotion} />
         {/* Summary and Feedback Section */}
         <SummaryFeedback />
       </View>
