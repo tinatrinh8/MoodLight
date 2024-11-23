@@ -1,13 +1,33 @@
-import { collection, addDoc, deleteDoc, doc, query, orderBy, updateDoc, getDocs, where } from "firebase/firestore";
-import { auth, db } from "../components/firebase"; // Use `db` for Firestore instance
+import {
+  collection,
+  addDoc,
+  deleteDoc,
+  doc,
+  query,
+  orderBy,
+  updateDoc,
+  getDocs,
+  where,
+} from "firebase/firestore";
+import { auth, db } from "../components/firebase";
+import { getEmotion } from "../utils/HuggingFaceAPI"; // Utility for Hugging Face API integration
+
 /**
  * Function to add a journal entry with support for different types (free or prompts)
+ * and saving top emotions.
  * @param {string} entryText - The content of the journal entry (string for free, array for prompts)
  * @param {string} entryTitle - The title of the journal entry
  * @param {string} journalDate - The date of the journal entry as a plain string (e.g., 'YYYY-MM-DD')
  * @param {string} type - The type of the journal entry ("free" or "prompts")
+ * @param {Array<string>} topEmotions - The top three detected emotions (default: empty array)
  */
-export const addJournalEntry = async (entryText, entryTitle, journalDate, type) => {
+export const addJournalEntry = async (
+  entryText,
+  entryTitle,
+  journalDate,
+  type,
+  topEmotions = []
+) => {
   try {
     const userId = auth.currentUser?.uid;
     if (!userId) throw new Error("User not authenticated");
@@ -29,57 +49,43 @@ export const addJournalEntry = async (entryText, entryTitle, journalDate, type) 
       entryText,
       entryTitle,
       journalDate,
-      type, // Ensure type is saved correctly
-    }
-    await addDoc(journalRef, entry);
+      type,
+      topEmotions, // Include the top emotions in the saved document
+      createdAt: new Date().toISOString(), // Optionally add a timestamp
+    };
 
+    const docRef = await addDoc(journalRef, entry);
     console.log("Journal entry added successfully!");
 
-    return entry
+    return { id: docRef.id, ...entry }; // Return the entry with the generated ID
   } catch (error) {
     console.error("Error adding journal entry:", error.message);
     throw error;
   }
 };
 
-export const updateEntryInFirestore = async (updatedEntry, setJournalEntries) => {
+/**
+ * Function to update an existing journal entry in Firestore.
+ * This supports updating top emotions or other fields.
+ * @param {string} id - The Firestore document ID of the journal entry
+ * @param {Object} updatedEntry - The updated entry data
+ */
+export const updateJournalEntry = async (id, updatedEntry) => {
   try {
-    // Update the entry in Firestore
-    await updateJournalEntry(updatedEntry.id, updatedEntry);
+    const userId = auth.currentUser?.uid;
+    if (!userId) throw new Error("User not authenticated");
 
-    // Update the local state if `setJournalEntries` is provided
-    if (setJournalEntries) {
-      setJournalEntries((prevEntries) =>
-        prevEntries.map((entry) =>
-          entry.id === updatedEntry.id ? updatedEntry : entry
-        )
-      );
-    }
-
+    const entryRef = doc(db, "users", userId, "journalEntries", id);
+    await updateDoc(entryRef, updatedEntry); // Updated entry can include `topEmotions`
     console.log("Journal entry updated successfully in Firestore.");
   } catch (error) {
-    console.error("Error updating entry in Firestore:", error.message);
-    alert("An error occurred while updating the journal entry.");
+    console.error("Error updating journal entry:", error.message);
+    throw error;
   }
-};
-
-
-export const updateJournalEntry = async (id, updatedEntry) => {
-  const user = auth.currentUser;
-
-  if (!user) {
-    throw new Error("User is not authenticated.");
-  }
-
-  const userId = user.uid; // Use the authenticated user's UID
-  const entryRef = doc(db, "users", userId, "journalEntries", id);
-
-  await updateDoc(entryRef, updatedEntry);
-  console.log("Journal entry updated successfully in Firestore.");
 };
 
 /**
- * Function to fetch journal entries
+ * Function to fetch all journal entries for the authenticated user.
  * @returns {Array} Array of journal entry objects
  */
 export const getJournalEntries = async () => {
@@ -102,7 +108,7 @@ export const getJournalEntries = async () => {
 };
 
 /**
- * Function to fetch journal entries by a specific date
+ * Function to fetch journal entries for a specific date.
  * @param {string} journalDate - The date of the journal entry to search for
  * @returns {Array} Array of journal entries for the specific date
  */
@@ -120,35 +126,53 @@ export const getJournalEntriesByDate = async (journalDate) => {
       ...doc.data(),
     }));
   } catch (error) {
-    console.error(`Error fetching journal entries for date ${journalDate}:`, error.message);
+    console.error(
+      `Error fetching journal entries for date ${journalDate}:`,
+      error.message
+    );
     return [];
   }
 };
 
 /**
- * Function to save a journal entry using prompt responses
- * @param {Array} promptResponses - Array of responses to prompts
+ * Function to save a journal entry using prompts and detect emotions.
+ * @param {Array<string>} promptResponses - Array of responses to prompts
  * @param {string} entryTitle - The title of the journal entry
  * @param {string} journalDate - The date of the journal entry as a plain string (e.g., 'YYYY-MM-DD')
  */
-export const handleSavePromptEntry = async (promptResponses, entryTitle, journalDate) => {
-  const nonEmptyResponses = promptResponses.filter((response) => response.trim());
-  if (nonEmptyResponses.length >= 3) {
-    try {
-      const entryText = nonEmptyResponses.join("\n\n"); // Combine responses into a single text
-      await addJournalEntry(entryText, entryTitle, journalDate); // Save journalDate as a plain string
-      console.log("Prompt entry saved successfully!");
-    } catch (error) {
-      console.error("Error saving prompt entry:", error.message);
-      throw error;
+export const savePromptEntry = async (promptResponses, entryTitle, journalDate) => {
+  try {
+    if (!entryTitle.trim()) {
+      throw new Error("Please provide a title for your journal entry.");
     }
-  } else {
-    throw new Error("Please fill out at least 3 prompts.");
+
+    const combinedResponses = promptResponses.filter((r) => r.trim()).join(" ");
+
+    // Detect emotions for the combined responses
+    const detectedEmotions = await getEmotion(combinedResponses);
+    const topEmotions = detectedEmotions
+      .sort((a, b) => b.score - a.score) // Sort by score
+      .slice(0, 3) // Get top 3 emotions
+      .map((emotion) => emotion.label.toLowerCase()); // Extract emotion labels
+
+    const addedEntry = await addJournalEntry(
+      combinedResponses,
+      entryTitle,
+      journalDate,
+      "prompts",
+      topEmotions // Save top emotions
+    );
+
+    console.log("Prompt-based entry saved with emotions:", topEmotions);
+    return addedEntry;
+  } catch (error) {
+    console.error("Error saving prompt entry:", error.message);
+    throw error;
   }
 };
 
 /**
- * Function to delete a journal entry
+ * Function to delete a journal entry.
  * @param {string} entryId - The ID of the journal entry to delete
  */
 export const deleteJournalEntry = async (entryId) => {
@@ -156,16 +180,12 @@ export const deleteJournalEntry = async (entryId) => {
     const userId = auth.currentUser?.uid;
     if (!userId) throw new Error("User not authenticated");
 
-    // Reference to the specific journal entry document
     const entryRef = doc(db, "users", userId, "journalEntries", entryId);
-
-    // Delete the document
     await deleteDoc(entryRef);
 
     console.log("Journal entry deleted successfully!");
   } catch (error) {
     console.error("Error deleting journal entry:", error.message);
-    throw error; // Rethrow error for further handling if needed
+    throw error;
   }
 };
-

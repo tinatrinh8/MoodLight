@@ -1,13 +1,13 @@
 import React, { useEffect, useState } from "react";
 import { ScrollView, View, Image, Text, TouchableOpacity } from "react-native";
-import { useNavigation } from "@react-navigation/native"; // Import navigation hook
+import { useNavigation, useRoute } from "@react-navigation/native";
 import styles from "../styles/AnalysisStyles";
-import Header from "../components/Header"; // Use existing Header component
-import { useRoute } from "@react-navigation/native";
-import axios from "axios";
-import { HUGGING_FACE_API_KEY } from "@env";
-import { emotionData } from "../components/emotionData";
+import Header from "../components/Header";
+import { getEmotion } from "../utils/HuggingFaceAPI";
+import { updateJournalEntry } from "../functions/JournalFunctions";
+import { emotionData } from "../components/emotionData"; // Emotion icons and metadata
 
+// EmotionCard Component
 function EmotionCard({ rank, emotion, icon }) {
   return (
     <View style={[styles.emotionCard, styles[`emotionCardRank${rank}`]]}>
@@ -23,9 +23,10 @@ function EmotionCard({ rank, emotion, icon }) {
   );
 }
 
-// Emotions Detected Component
+// EmotionsDetected Component
 function EmotionsDetected({ emotions }) {
   const [emotionsMeta, setEmotionMeta] = useState([]);
+
   useEffect(() => {
     setEmotionMeta([
       {
@@ -58,35 +59,33 @@ function EmotionsDetected({ emotions }) {
   );
 }
 
-// Summary and Feedback Component
+// SummaryFeedback Component
 function SummaryFeedback({ entry }) {
   const navigation = useNavigation();
+
   const handleViewJournal = () => {
-    // Navigate to Home and pass the journal entry as a parameter
     navigation.navigate("MainTabs", {
       screen: "Home",
       params: { viewJournalEntry: entry },
     });
   };
+
   return (
     <View>
-      {/* Summary Section */}
       <Text style={styles.sectionTitleCentered}>Summary</Text>
       <View style={styles.summaryContainer}>
         <Text style={styles.summaryContent}>
-          {"{Emotion Summary Content goes here...}"}
+          {"This is your emotion summary. Use it to reflect and grow."}
         </Text>
       </View>
 
-      {/* Suggestions Section */}
       <Text style={styles.sectionTitleCentered}>Feedback</Text>
       <View style={styles.suggestionsContainer}>
         <Text style={styles.suggestionsContent}>
-          {"{Suggestions Content goes here...}"}
+          {"Consider journaling regularly to track emotional trends."}
         </Text>
       </View>
 
-      {/* View Journal Button */}
       <TouchableOpacity
         style={styles.viewPromptButton}
         onPress={handleViewJournal}
@@ -98,92 +97,111 @@ function SummaryFeedback({ entry }) {
   );
 }
 
-// Analysis Component
+// Main Analysis Component
 export default function Analysis() {
   const route = useRoute();
+  const navigation = useNavigation();
+
+  // Default journal entry if no parameters are provided
   const ENTRY_DEFAULTS = {
-    entryTitle: "something",
-    entryText: "something",
-    type: "something",
+    entryId: null,
+    entryTitle: "Untitled Entry",
+    entryText: "",
+    type: "general",
     journalDate: "MM/YYYY",
   };
-  const entry = route.params !== undefined ? route.params : ENTRY_DEFAULTS;
-  // this just sets the params to the defaults if the entry somehow isn't passed
-  const { entryTitle, entryText, type, journalDate } = entry;
-  const navigation = useNavigation(); // Use navigation hook
 
-  const closeModal = () => {
-    navigation.navigate("MainTabs", { screen: "Home" }); // Navigate to MainTabs and ensure Home tab is active
-  };
+  const entry = route.params || ENTRY_DEFAULTS;
+  const { entryId, entryTitle, entryText, journalDate } = entry;
 
   const [topEmotions, setTopEmotions] = useState([]);
   const [loadingEmotions, setLoadingEmotions] = useState(true);
 
-  const getEmotion = (text) => {
-    return axios
-      .post(
-        "https://api-inference.huggingface.co/models/borisn70/bert-43-multilabel-emotion-detection",
-        { inputs: text },
-        {
-          headers: {
-            Authorization: `Bearer ${HUGGING_FACE_API_KEY}`,
-          },
-        }
-      )
-      .then((res) => res.data[0])
-      .catch((e) => console.error("Error fetching sentiment", e));
+  const closeModal = () => {
+    navigation.navigate("MainTabs", { screen: "Home" });
   };
 
-  const aggregateEmotions = (emotions) => {
-    return emotions.map((r) => r.value).flat();
+  // Filter and sort emotions
+  const filterEmotions = (emotions) => {
+    const sortedEmotions = emotions.sort((a, b) => b.score - a.score);
+    const uniqueEmotions = [];
+    const seen = new Set();
+
+    for (const emotion of sortedEmotions) {
+      if (!seen.has(emotion.label.toLowerCase())) {
+        uniqueEmotions.push(emotion.label.toLowerCase());
+        seen.add(emotion.label.toLowerCase());
+      }
+      if (uniqueEmotions.length === 3) break;
+    }
+    return uniqueEmotions;
   };
 
-const filterEmotions = (emotions) => {
-  // Sort by score in descending order
-  const sortedEmotions = emotions.sort((a, b) => b.score - a.score);
+  // Parse and save top emotions
+  const parseTopEmotions = async (emotions) => {
+    const filteredEmotions = filterEmotions(emotions);
+    setTopEmotions(filteredEmotions);
 
-  // Extract unique emotions
-  const uniqueEmotions = [];
-  const seenLabels = new Set();
-
-  for (const emotion of sortedEmotions) {
-    if (!seenLabels.has(emotion.label.toLowerCase())) {
-      uniqueEmotions.push(emotion.label.toLowerCase());
-      seenLabels.add(emotion.label.toLowerCase());
-    }
-
-    // Stop once we have 3 unique emotions
-    if (uniqueEmotions.length === 3) {
-      break;
-    }
-  }
-
-  return uniqueEmotions;
-};
-
-
-const parseTopEmotions = (emotions) => {
-  const aggregatedEmotions = aggregateEmotions(emotions);
-  const filteredEmotions = filterEmotions(aggregatedEmotions);
-  setTopEmotions(filteredEmotions); // This will now include only unique emotions
-};
-
-
-  useEffect(() => {
-    if (type === "free") {
-      setLoadingEmotions(true);
-      Promise.allSettled([getEmotion(entryText)]).then((results) =>
-        parseTopEmotions(results)
-      );
-      setLoadingEmotions(false);
+    if (entryId) {
+      try {
+        await updateJournalEntry(entryId, { topEmotions: filteredEmotions });
+        console.log("Top emotions saved successfully.");
+      } catch (error) {
+        console.error("Error saving top emotions:", error);
+      }
     } else {
-      setLoadingEmotions(true);
-      Promise.allSettled(
-        entryText.map((text) => getEmotion(text["response"]))
-      ).then((results) => parseTopEmotions(results));
+      console.warn("No entryId provided, unable to save top emotions.");
+    }
+  };
+
+useEffect(() => {
+  const fetchEmotions = async () => {
+    setLoadingEmotions(true);
+
+    try {
+      let textForAnalysis = "";
+
+      if (entry.topEmotions && entry.topEmotions.length > 0) {
+        // Use stored emotions if available
+        setTopEmotions(entry.topEmotions);
+        return;
+      }
+
+      if (entry.type === "prompts" && entry.promptsData) {
+        // Combine all prompt responses into a single string
+        textForAnalysis = entry.promptsData
+          .map((item) => item.response)
+          .join(". "); // Join all responses with a period and space
+      } else if (entryText) {
+        // Use free-writing text as-is
+        textForAnalysis = entryText;
+      }
+
+      if (!textForAnalysis || typeof textForAnalysis !== "string") {
+        throw new Error("Invalid input: Emotion analysis requires a non-empty string.");
+      }
+
+      console.log("Text for emotion analysis:", textForAnalysis);
+
+      const detectedEmotions = await getEmotion(textForAnalysis);
+
+      if (!detectedEmotions || !Array.isArray(detectedEmotions)) {
+        throw new Error("Invalid response from emotion analysis API.");
+      }
+
+      await parseTopEmotions(detectedEmotions);
+    } catch (error) {
+      console.error("Error fetching emotions:", error.message || error);
+    } finally {
       setLoadingEmotions(false);
     }
-  }, [entryText, entryText, journalDate, type]);
+  };
+
+  fetchEmotions();
+}, [entry, entryId, entryText]);
+
+
+
 
   return (
     <ScrollView
@@ -193,43 +211,25 @@ const parseTopEmotions = (emotions) => {
       <View style={styles.container}>
         <Header />
 
-        {/* Exit Button */}
-        <TouchableOpacity
-          onPress={() => closeModal()}
-          style={styles.exitButton}
-        >
+        <TouchableOpacity onPress={closeModal} style={styles.exitButton}>
           <Text style={styles.exitButtonText}>×</Text>
         </TouchableOpacity>
 
-        {/* Analysis Page Content */}
         <View style={styles.analysisHeader}>
-          <View style={styles.titleContainer}></View>
-
-          {/* Results Section */}
-          <View style={styles.resultsContainer}>
-            <Text style={styles.resultsText}>Results</Text>
-            <Image source={require("../assets/sofa.png")} style={styles.sofa} />
-          </View>
-
-          {/* Journal Entry Section */}
+          <Text style={styles.resultsText}>Analysis Results</Text>
+          <Image source={require("../assets/sofa.png")} style={styles.sofa} />
           <View style={styles.journalEntryContainer}>
-            <View style={styles.journalEntryFrame} />
-            <View style={styles.journalEntryContent}>
-              <Text style={styles.journalEntryDate}>
-                Journal Entry: {journalDate}
-              </Text>
-              <Text style={styles.journalEntryTitle}>{entryTitle}</Text>
-            </View>
+            <Text style={styles.journalEntryDate}>Date: {journalDate}</Text>
+            <Text style={styles.journalEntryTitle}>{entryTitle}</Text>
           </View>
         </View>
 
-        {/* Emotions Detected Section */}
         {loadingEmotions ? (
-          <></>
+          <Text>Loading emotions...</Text>
         ) : (
           <EmotionsDetected emotions={topEmotions} />
         )}
-        {/* Summary and Feedback Section */}
+
         <SummaryFeedback entry={entry} />
       </View>
     </ScrollView>

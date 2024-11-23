@@ -45,6 +45,7 @@ import EditJournalEntryModal from "../screens/EditJournalEntryModal";
 import LoadingFlower from '../components/LoadingFlower';
 import { getSuggestedPrompts } from "../components/SuggestedPrompts";
 import { SearchArea } from '../components/SearchArea'
+import { getEmotion } from "../utils/HuggingFaceAPI";
 
 const getRandomQuote = () => {
   const randomIndex = Math.floor(Math.random() * quotes.length);
@@ -300,45 +301,42 @@ const HomePage = () => {
     };
   }, [fetchEntries, route.params]);
 
-  const handleSaveEntry = async () => {
-    if (newEntryTitle.trim() && newEntryText.trim()) {
-      try {
-        // Check if an entry already exists for the selected date using entryDates
-        if (entryDates.includes(newEntryDate)) {
-          alert(
-            "A journal entry already exists for this date. You cannot create another one."
-          );
-          return; // Stop the process if the date already has an entry
-        }
+const handleSaveEntry = async () => {
+  if (newEntryTitle.trim() && newEntryText.trim()) {
+    try {
+      // Detect emotions for the entry text
+      const detectedEmotions = await getEmotion(newEntryText);
+      const topEmotions = detectedEmotions
+        .sort((a, b) => b.score - a.score) // Sort by score
+        .slice(0, 3) // Get top 3 emotions
+        .map((emotion) => emotion.label.toLowerCase()); // Extract emotion labels
 
-        // Proceed with saving the journal entry
-        await addJournalEntry(newEntryText, newEntryTitle, newEntryDate);
+      // Save the entry with top emotions
+      const addedEntry = await addJournalEntry(
+        newEntryText,
+        newEntryTitle,
+        newEntryDate,
+        "free",
+        topEmotions // Pass top emotions to Firestore
+      );
 
-        // Fetch updated entries and update context
-        const updatedEntries = await getJournalEntries();
-        setJournalEntries(updatedEntries);
-
-        // Add the new entry date to entryDates if not already present
-        setEntryDates((prevDates) =>
-          prevDates.includes(newEntryDate)
-            ? prevDates
-            : [...prevDates, newEntryDate]
-        );
-
-        // Reset the input fields and close the modal
-        setNewEntryTitle("");
-        setNewEntryText("");
-        closeModal();
-
-        // Navigate back to the home page
-        navigation.navigate("Tabs", { screen: "Home" });
-      } catch (error) {
-        console.error("Error saving entry:", error.message);
-      }
-    } else {
-      alert("Please provide both a title and content before saving.");
+      console.log("Saved with emotions:", topEmotions);
+      navigation.navigate("Analysis", {
+        entryId: addedEntry.id,
+        entryTitle: addedEntry.entryTitle,
+        entryText: addedEntry.entryText,
+        type: addedEntry.type,
+        journalDate: addedEntry.journalDate,
+        topEmotions: addedEntry.topEmotions, // Pass to Analysis screen
+      });
+    } catch (error) {
+      console.error("Error saving entry:", error.message);
     }
-  };
+  } else {
+    alert("Please provide both a title and content.");
+  }
+};
+
 
   const closeModal = () => {
     setCreateEntryModalVisible(false);
@@ -521,125 +519,90 @@ const CreateJournalEntry = ({
     switchModal("usePrompts");
   };
 
-  const savePromptEntry = async () => {
+const savePromptEntry = async () => {
+  try {
+    if (!promptEntryTitle.trim()) {
+      alert("Please provide a title for your journal entry.");
+      return;
+    }
+    if (!promptResponses.some((response) => response.trim())) {
+      alert("Please provide at least one response to the prompts.");
+      return;
+    }
+
+    const promptsData = randomPrompts
+      .map((prompt, index) => ({
+        prompt,
+        response: promptResponses[index]?.trim() || "",
+      }))
+      .filter((item) => item.response); // Filter out empty responses
+
+    console.log("Saving prompt-based journal entry:", {
+      promptsData,
+      promptEntryTitle,
+      displayedDate,
+      type: "prompts",
+    });
+
+    const addedEntry = await addJournalEntry(
+      promptsData,
+      promptEntryTitle,
+      displayedDate,
+      "prompts"
+    );
+
+    // Combine responses into a single string for analysis
+    const combinedResponses = promptsData
+      .map((item) => item.response)
+      .join(". ");
+
+    navigation.navigate("Analysis", {
+      entryId: addedEntry.id,
+      entryTitle: addedEntry.entryTitle,
+      entryText: combinedResponses, // Pass concatenated text
+      type: addedEntry.type,
+      journalDate: addedEntry.journalDate,
+      promptsData, // Pass full prompts data if needed
+    });
+
+    console.log("Prompt-based journal entry saved successfully.");
+  } catch (error) {
+    console.error("Error saving prompt entry:", error.message);
+    alert(
+      "An error occurred while saving the journal entry. Please try again."
+    );
+  }
+};
+
+
+
+const handleSaveEntry = async () => {
+  if (newEntryTitle.trim() && newEntryText.trim()) {
     try {
-      // Validate title and responses
-      if (!promptEntryTitle.trim()) {
-        alert("Please provide a title for your journal entry.");
-        return;
-      }
-      if (!promptResponses.some((response) => response.trim())) {
-        alert("Please provide at least one response to the prompts.");
-        return;
-      }
-
-      // Check if an entry already exists for the selected date
-      if (entryDates.includes(displayedDate)) {
-        alert(
-          "A journal entry already exists for this date. You cannot create another one."
-        );
-        return;
-      }
-
-      // Combine prompts and responses into an array of objects, filtering out empty responses
-      const promptsData = randomPrompts
-        .map((prompt, index) => ({
-          prompt,
-          response: promptResponses[index]?.trim() || "", // Trim whitespace from responses
-        }))
-        .filter((item) => item.response); // Filter out prompts with empty responses
-
-      // Log the data being saved for debugging
-      console.log(
-        "Saving prompt-based journal entry with the following data:",
-        {
-          promptsData,
-          promptEntryTitle,
-          displayedDate,
-          type: "prompts",
-        }
+      const addedEntry = await addJournalEntry(
+        newEntryText,
+        newEntryTitle,
+        newEntryDate,
+        "free"
       );
 
-      // Save the journal entry with the "prompts" type
-      const added_entry = await addJournalEntry(
-        promptsData,
-        promptEntryTitle,
-        displayedDate,
-        "prompts"
-      )
+      navigation.navigate("Analysis", {
+        entryId: addedEntry.id,
+        entryTitle: addedEntry.entryTitle,
+        entryText: newEntryText,
+        type: addedEntry.type,
+        journalDate: addedEntry.journalDate,
+      });
 
-      // Fetch updated entries and update the context
-      const updatedEntries = await getJournalEntries();
-      setJournalEntries(updatedEntries);
-
-      // Add the new entry date to entryDates if not already present
-      setEntryDates((prevDates) =>
-        prevDates.includes(displayedDate)
-          ? prevDates
-          : [...prevDates, displayedDate]
-      );
-
-      // Reset the input fields and close the modal
-      setPromptResponses(Array(5).fill(""));
-      setPromptEntryTitle("");
-      closeModal();
-
-      navigation.navigate("Analysis", { ...added_entry })
-      console.log("Prompt-based journal entry saved successfully.");
+      console.log("Free-writing journal entry saved successfully.");
     } catch (error) {
-      console.error("Error saving prompt entry:", error.message);
-      alert(
-        "An error occurred while saving the journal entry. Please try again."
-      );
+      console.error("Error saving entry:", error.message);
+      alert("An error occurred while saving the journal entry. Please try again.");
     }
-  };
-
-  const handleSaveEntry = async () => {
-    if (newEntryTitle.trim() && newEntryText.trim()) {
-      try {
-        // Check if an entry already exists for the selected date using entryDates
-        if (entryDates.includes(newEntryDate)) {
-          alert(
-            "A journal entry already exists for this date. You cannot create another one."
-          );
-          return; // Stop the process if the date already has an entry
-        }
-
-        // Proceed with saving the journal entry as "free"
-        const added_entry = await addJournalEntry(
-          newEntryText,
-          newEntryTitle,
-          newEntryDate,
-          "free"
-        )
-        // Fetch updated entries and update context
-        const updatedEntries = await getJournalEntries();
-        setJournalEntries(updatedEntries);
-
-        // Add the new entry date to entryDates if not already present
-        setEntryDates((prevDates) =>
-          prevDates.includes(newEntryDate)
-            ? prevDates
-            : [...prevDates, newEntryDate]
-        );
-
-        // Reset the input fields and close the modal
-        setNewEntryTitle("");
-        setNewEntryText("");
-        closeModal();
-
-        navigation.navigate("Analysis", { ...added_entry })
-        console.log("Free-writing journal entry saved successfully.");
-      } catch (error) {
-        console.error("Error saving entry:", error.message);
-        alert(
-          "An error occurred while saving the journal entry. Please try again."
-        );
-      }
-    } else {
-      alert("Please provide both a title and content before saving.");
-    }
-  };
+  } else {
+    alert("Please provide both a title and content before saving.");
+  }
+};
 
   return (
     <View style={styles.createEntryContainer}>
