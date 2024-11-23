@@ -55,7 +55,7 @@ export const getSuggestedPrompts = async (pastEntries) => {
           },
           {
             role: "user",
-            content: `Based on these recent journal entries: ${contextText}, generate exactly 5 reflective and personal prompts. Do not include any introductions, explanations, or additional text—just the 5 prompts in list form. Full Complete Sentences`,
+            content: `Based on these recent journal entries: ${contextText}, generate exactly 5 full reflective and personal prompts. Do not include any introductions, explanations, or additional text—just the 5 prompts in list form. Full Complete Sentences`,
           },
         ],
         max_tokens: 150,
