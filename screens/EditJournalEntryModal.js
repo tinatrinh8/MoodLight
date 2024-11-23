@@ -19,9 +19,15 @@ const EditJournalEntryModal = ({
   setJournalEntries,
 }) => {
   const [entryTitle, setEntryTitle] = useState(entry?.entryTitle || "");
-  const [entryText, setEntryText] = useState(entry?.entryText || "");
+  const [entryText, setEntryText] = useState(
+    entry?.type === "free" && typeof entry.entryText === "string"
+      ? entry.entryText
+      : ""
+  );
   const [editedPrompts, setEditedPrompts] = useState(
-    entry?.type === "prompts" ? entry.entryText : []
+    entry?.type === "prompts" && Array.isArray(entry.entryText)
+      ? entry.entryText
+      : []
   );
 
   const handleSaveChanges = async () => {
@@ -31,7 +37,7 @@ const EditJournalEntryModal = ({
         return;
       }
     } else if (entry.type === "prompts") {
-      if (!editedPrompts.length) {
+      if (!editedPrompts.length || editedPrompts.every((p) => !p.response.trim())) {
         alert("Please ensure at least one response is provided.");
         return;
       }
@@ -69,7 +75,10 @@ const EditJournalEntryModal = ({
           style={styles.modalContent}
           behavior={Platform.OS === "ios" ? "padding" : "height"}
         >
-          <TouchableOpacity onPress={confirmDiscardChanges} style={styles.closeButton}>
+          <TouchableOpacity
+            onPress={confirmDiscardChanges}
+            style={styles.closeButton}
+          >
             <Text style={styles.closeButtonText}>×</Text>
           </TouchableOpacity>
 
@@ -93,34 +102,32 @@ const EditJournalEntryModal = ({
                 placeholder="Edit your journal content"
               />
             ) : (
-              <ScrollView>
-                {editedPrompts.map((prompt, index) => (
-                  <View key={index} style={styles.promptContainer}>
-                    <Text style={styles.textBoxTitle}>{prompt.prompt}</Text>
-                    <TextInput
-                      style={styles.textInputBox}
-                      value={prompt.response}
-                      onChangeText={(text) => {
-                        const updatedPrompts = editedPrompts.filter((p, i) =>
-                          i === index ? text.trim() !== "" : true
-                        );
-                        if (text.trim() !== "") {
-                          updatedPrompts[index] = {
-                            ...prompt,
-                            response: text,
-                          };
-                        }
-                        setEditedPrompts(updatedPrompts);
-                      }}
-                      placeholder="Edit your response"
-                    />
-                  </View>
-                ))}
-              </ScrollView>
+              editedPrompts.map((prompt, index) => (
+                <View key={index} style={styles.promptContainer}>
+                  <Text style={styles.textBoxTitle}>{prompt.prompt || "No prompt provided"}</Text>
+                  <TextInput
+                    style={styles.textInputBox}
+                    value={prompt.response}
+                    onChangeText={(text) => {
+                      const updatedPrompts = [...editedPrompts];
+                      updatedPrompts[index] = {
+                        ...prompt,
+                        response: text.trim(),
+                      };
+                      setEditedPrompts(updatedPrompts);
+                    }}
+                    placeholder="Edit your response"
+                    multiline={true}
+                  />
+                </View>
+              ))
             )}
           </ScrollView>
 
-          <TouchableOpacity style={styles.saveChangesButton} onPress={handleSaveChanges}>
+          <TouchableOpacity
+            style={styles.saveChangesButton}
+            onPress={handleSaveChanges}
+          >
             <Text style={styles.continueButtonText}>Save Changes</Text>
           </TouchableOpacity>
         </KeyboardAvoidingView>

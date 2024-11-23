@@ -66,16 +66,32 @@ const AnalysisStyles = StyleSheet.create({
   journalEntryContent: {
     padding: 10,
   },
-  journalEntryDate: {
-    fontSize: 18,
-    fontWeight: "bold",
-    color: "#000000",
-    fontFamily: "LexendDeca",
-  },
-  journalEntryTitle: {
-    fontSize: 14,
-    color: "#000000",
-  },
+    journalEntryDate: {
+      fontSize: 16,
+      textAlign: "center",
+    },
+    journalEntryTitle: {
+      fontSize: 25,
+      fontWeight: "bold",
+      textAlign: "center",
+      marginBottom: 5,
+    },
+    journalEntryBox: {
+      alignSelf: "center",
+      width: "80%", // Adjust to your desired width
+      backgroundColor: "#E6C3CB", // Light pink background
+      borderRadius: 10,
+      borderWidth: 2, // Add border width
+      borderColor: "#000", // Black border
+      padding: 15,
+      marginVertical: 20,
+      shadowColor: "#000",
+      shadowOffset: { width: 0, height: 2 },
+      shadowOpacity: 0.1,
+      shadowRadius: 4,
+      elevation: 5, // For Android shadow
+      alignItems: "center", // Center content inside the box
+    },
   title: {
     fontSize: 20, // Keep or adjust the font size
     fontWeight: "bold", // Make the text bold
@@ -220,6 +236,32 @@ const AnalysisStyles = StyleSheet.create({
     color: "#FFF", // Keep it white for visibility
     fontWeight: "bold",
   },
+emotionCard: {
+  width: 100,
+  height: 140,
+  margin: 5,
+  alignItems: "center",
+  justifyContent: "center",
+  borderRadius: 10,
+  backgroundColor: "#ffe4e1", // Light pink for cards
+  shadowColor: "#000",
+  shadowOffset: { width: 0, height: 2 },
+  shadowOpacity: 0.3,
+  shadowRadius: 2,
+  elevation: 3,
+},
+firstPlaceCard: {
+  backgroundColor: "#fce38a", // Gold for 1st place
+},
+otherPlaceCard: {
+  backgroundColor: "#f7cac9", // Light pink for others
+},
+emotionIcon: {
+  width: 50,
+  height: 50,
+  margin: 10,
+},
+
 });
 
 export default AnalysisStyles;
