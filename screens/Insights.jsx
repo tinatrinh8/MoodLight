@@ -1,43 +1,71 @@
-import React from 'react';
+import React, { useState, useEffect } from 'react';
 import { View, StyleSheet, Text, Image, TouchableOpacity } from 'react-native';
-import Header from "../components/Header";
+import Header from '../components/Header';
+import { useEntryDates } from '../components/EntryDatesContext'; // Access global state
+import { calculateStreaks } from '../utils/streaks'; // Utility to calculate streaks
 
 const InsightsScreen = () => {
-  const stats = [
-    {
-      title: 'Longest Streak',
-      value: '17',
-      icon: require('../assets/lightning-bolt-icon.png'),
-    },
-    {
-      title: 'Current Streak',
-      value: '12',
-      icon: require('../assets/fire-icon.png'),
-    },
-    {
-      title: 'Lifetime Days',
-      value: '75',
-      icon: require('../assets/calendar-icon.png'),
-    },
-  ];
+  const { journalEntries } = useEntryDates(); // Get journal entries from context
+  const [stats, setStats] = useState({
+    longestStreak: 0,
+    currentStreak: 0,
+    journalDays: 0,
+  });
 
   const emotions = ['Worry', 'Joy', 'Happiness'];
+
+  // Calculate streaks whenever journal entries are updated
+  useEffect(() => {
+    if (journalEntries?.length) {
+      const streakStats = calculateStreaks(journalEntries);
+      setStats({
+        ...streakStats,
+        journalDays: streakStats.journalDays,
+      });
+    }
+  }, [journalEntries]);
 
   return (
     <View style={styles.container}>
       <Header />
       <Text style={styles.insightsTitle}>Insights</Text>
-        <View style={styles.statsContainer}>
-          {stats.map((stat, index) => (
-            <View key={index} style={styles.statItem}>
-              <View style={styles.iconValueContainer}>
-                <Image source={stat.icon} style={styles.statIcon} resizeMode="contain" />
-                <Text style={styles.statValue}>{stat.value || '0'}</Text>
-              </View>
-              <Text style={styles.statTitle}>{stat.title || ''}</Text>
-            </View>
-          ))}
+      <View style={styles.statsContainer}>
+        {/* Streaks */}
+        <View style={styles.statItem}>
+          <View style={styles.iconValueContainer}>
+            <Image
+              source={require('../assets/lightning-bolt-icon.png')}
+              style={styles.statIcon}
+              resizeMode="contain"
+            />
+            <Text style={styles.statValue}>{stats.longestStreak}</Text>
+          </View>
+          <Text style={styles.statTitle}>Longest Streak</Text>
         </View>
+        <View style={styles.statItem}>
+          <View style={styles.iconValueContainer}>
+            <Image
+              source={require('../assets/fire-icon.png')}
+              style={styles.statIcon}
+              resizeMode="contain"
+            />
+            <Text style={styles.statValue}>{stats.currentStreak}</Text>
+          </View>
+          <Text style={styles.statTitle}>Current Streak</Text>
+        </View>
+        <View style={styles.statItem}>
+          <View style={styles.iconValueContainer}>
+            <Image
+              source={require('../assets/calendar-icon.png')}
+              style={styles.statIcon}
+              resizeMode="contain"
+            />
+            <Text style={styles.statValue}>{stats.journalDays}</Text>
+          </View>
+          <Text style={styles.statTitle}>Journal Days</Text>
+        </View>
+      </View>
+      {/* Mood Chart Section */}
       <View style={styles.moodChart}>
         <Text style={styles.title}>Mood Chart</Text>
         <View style={styles.filterContainer}>
@@ -80,9 +108,9 @@ const styles = StyleSheet.create({
   insightsTitle: {
     fontSize: 32,
     color: '#260101',
-    fontWeight: "700",
+    fontWeight: '700',
     textAlign: 'center',
-    fontFamily: "LexendDeca",
+    fontFamily: 'LexendDeca',
     marginVertical: 10,
   },
   statsContainer: {
