@@ -50,7 +50,7 @@ function EmotionsDetected({ emotions }) {
     <View style={styles.emotionsSection}>
       <Text style={styles.title}>Top Emotions Detected</Text>
       <View style={styles.emotionsContainer}>
-        {emotionsData.filter((emote => emotions.includes(emote))).map((emotion, index) => (
+        {emotionsData.filter((emote => emotions.includes(emote.toLowerCase()))).map((emotion, index) => (
           <EmotionCard key={index} {...emotion} />
         ))}
       </View>
@@ -122,7 +122,7 @@ export default function Analysis() {
     //     pipe(entryText).then(out => {
     //       // not sure what the raw respones from the model will be
     //       console.log(out)
-    //       setEmotion(out)
+    //       
     //     })
     //   }
     // )
@@ -135,8 +135,13 @@ export default function Analysis() {
           Authorization: `Bearer ${HUGGING_FACE_API_KEY}`,
         },
       }
-    );
-    console.log(response.data);
+    ).then(res => {
+      let sorted = res.data[0].sort(function(a, b) {
+        return b.score - a.score;
+      }).map(item => item.label.toLowerCase()).slice(0,3);
+
+      setEmotion(sorted)
+    })
   }
 
   useEffect(() => {
