@@ -69,7 +69,7 @@ const styles = StyleSheet.create({
   },
 
   searchBar: {
-    flexDirection: "row",
+    // flexDirection: "row",
     alignItems: "center",
     borderRadius: 10,
     paddingHorizontal: 10,

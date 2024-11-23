@@ -42,64 +42,9 @@ import { useEntryDates } from "../components/EntryDatesContext"; // Import conte
 import { utcToZonedTime, format } from "date-fns-tz";
 import { formatDateToTimezone } from "../utils/DateUtils";
 import EditJournalEntryModal from "../screens/EditJournalEntryModal";
-import LoadingFlower from "../components/LoadingFlower";
+import LoadingFlower from '../components/LoadingFlower';
 import { getSuggestedPrompts } from "../components/SuggestedPrompts";
-
-const SearchBar = () => {
-  const [allEntries, setAllEntries] = useState([]);
-  const [data, setData] = useState([]);
-  const [isLoading, setIsLoading] = useState(false);
-  const [searchQuery, setSearchQuery] = useState("");
-
-  useEffect(() => {
-    setIsLoading(true);
-    getJournalEntries()
-      .then((res) => {
-        setData(res);
-      })
-      .finally(() => setIsLoading(false));
-  }, []);
-
-  const handleSearch = (query) => {
-    setSearchQuery(query);
-  };
-  return (
-    <>
-      <SafeAreaView style={styles.searchBar}>
-        <TextInput
-          style={{
-            // should probably move this for reusability later
-            paddingHorizontal: 20,
-            paddingVertical: 10,
-            bordeColor: "#ccc",
-            borderWidth: 1,
-            borderRadius: 8,
-            flexGrow: 1,
-          }}
-          placeholder="Search Past Entries?"
-          placeholderTextColor="#555"
-          clearButtonMode="always"
-          autoCapitalize="none"
-          autoCorrect={false}
-          value={searchQuery}
-          onChangeText={(query) => handleSearch(query)}
-        />
-        <TouchableOpacity>
-          <Text style={styles.closeButton}>×</Text>
-        </TouchableOpacity>
-      </SafeAreaView>
-      <FlatList
-        data={data}
-        keyExtractor={(item) => item.entryTitle}
-        renderItem={({ item }) => (
-          <View>
-            <Text>{item.entryTitle} </Text>
-          </View>
-        )}
-      ></FlatList>
-    </>
-  );
-};
+import { SearchArea } from '../components/SearchArea'
 
 const getRandomQuote = () => {
   const randomIndex = Math.floor(Math.random() * quotes.length);
@@ -157,7 +102,7 @@ const ViewJournalEntryModal = ({
               onPress={() => {
                 setSelectedEntry(entry); // Set the entry to be analysed (just in case)
                 onClose(); // Close the view modal
-                navigation.navigate("Analysis", { ...entry }); // go to Analysis
+                navigation.navigate("Analysis", { ...entry  }); // go to Analysis
               }}
             >
               <Text style={styles.continueButtonText}>Analysis</Text>
@@ -420,7 +365,7 @@ const HomePage = () => {
         </View>
       ),
     },
-    { id: "search", component: <SearchBar /> },
+    { id: "search", component: <SearchArea handleOpenJournal={handleOpenJournal} /> },
     { id: "title", component: <Title quote={quote} /> },
     {
       id: "pastEntries",
@@ -616,12 +561,12 @@ const CreateJournalEntry = ({
       );
 
       // Save the journal entry with the "prompts" type
-      await addJournalEntry(
+      const added_entry = await addJournalEntry(
         promptsData,
         promptEntryTitle,
         displayedDate,
         "prompts"
-      );
+      )
 
       // Fetch updated entries and update the context
       const updatedEntries = await getJournalEntries();
@@ -639,7 +584,7 @@ const CreateJournalEntry = ({
       setPromptEntryTitle("");
       closeModal();
 
-      navigation.navigate("Home"); // Navigate back to Home
+      navigation.navigate("Analysis", { ...added_entry })
       console.log("Prompt-based journal entry saved successfully.");
     } catch (error) {
       console.error("Error saving prompt entry:", error.message);
@@ -661,13 +606,12 @@ const CreateJournalEntry = ({
         }
 
         // Proceed with saving the journal entry as "free"
-        await addJournalEntry(
+        const added_entry = await addJournalEntry(
           newEntryText,
           newEntryTitle,
           newEntryDate,
           "free"
-        );
-
+        )
         // Fetch updated entries and update context
         const updatedEntries = await getJournalEntries();
         setJournalEntries(updatedEntries);
@@ -684,7 +628,7 @@ const CreateJournalEntry = ({
         setNewEntryText("");
         closeModal();
 
-        navigation.navigate("Analysis"); // Navigate back to the analysis page
+        navigation.navigate("Analysis", { ...added_entry })
         console.log("Free-writing journal entry saved successfully.");
       } catch (error) {
         console.error("Error saving entry:", error.message);
