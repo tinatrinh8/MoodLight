@@ -4,8 +4,8 @@ import { useNavigation } from "@react-navigation/native"; // Import navigation h
 import styles from "../styles/AnalysisStyles";
 import Header from "../components/Header"; // Use existing Header component
 import { useRoute } from "@react-navigation/native";
-import { pipeline } from '@huggingface/transformers';
-
+import axios from 'axios';
+import { HUGGING_FACE_API_KEY } from "@env";
 // Emotion Card Component
 function EmotionCard({ rank, emotion, icon }) {
   return (
@@ -117,15 +117,26 @@ export default function Analysis() {
 
   const getEmotions = () => {
     // Allocate a pipeline for sentiment-analysis
-    pipeline('sentiment-analysis', 'borisn70/bert-43-multilabel-emotion-detection').then(
-      (pipe) => {
-        pipe(entryText).then(out => {
-          // not sure what the raw respones from the model will be
-          console.log(out)
-          setEmotion(out)
-        })
+    // pipeline('sentiment-analysis', 'borisn70/bert-43-multilabel-emotion-detection').then(
+    //   (pipe) => {
+    //     pipe(entryText).then(out => {
+    //       // not sure what the raw respones from the model will be
+    //       console.log(out)
+    //       setEmotion(out)
+    //     })
+    //   }
+    // )
+
+    const response = axios.post(
+      "https://api-inference.huggingface.co/models/borisn70/bert-43-multilabel-emotion-detection",
+      { inputs: entryText },
+      {
+        headers: {
+          Authorization: `Bearer ${HUGGING_FACE_API_KEY}`,
+        },
       }
-    )
+    );
+    console.log(response.data);
   }
 
   useEffect(() => {
