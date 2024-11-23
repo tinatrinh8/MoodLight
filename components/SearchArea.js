@@ -4,7 +4,8 @@ import {
     SafeAreaView, Text,
     TextInput,
     Button,
-    FlatList
+    FlatList,
+    TouchableOpacity
 } from "react-native";
 import styles from "../styles/HomePageStyles";
 import {
@@ -112,15 +113,9 @@ const SearchBar = ({ onSearch }) => {
                 value={searchValue}
                 onChangeText={(query) => handleSearchChange(query)}
             />
-            {/* <TouchableOpacity>
-                <Text style={styles.closeButton}>×</Text>
-            </TouchableOpacity> */}
-            <Button
-                // onPress={onPressLearnMore}
-                title="X"
-            // color="#841584"
-            // accessibilityLabel="Learn more about this purple button"
-            />
+            <TouchableOpacity>
+                <Text style={styles.closeButton} onPress={() => handleSearchChange("")}>×</Text>
+            </TouchableOpacity>
         </SafeAreaView >
     )
 
