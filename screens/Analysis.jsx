@@ -47,7 +47,7 @@ function EmotionsDetected({ emotions }) {
       icon: emotionData[emotions[1]],
     },
   ];
-  
+
   return (
     <View style={styles.emotionsSection}>
       <Text style={styles.title}>Top Emotions Detected</Text>
@@ -128,7 +128,6 @@ export default function Analysis() {
     //     })
     //   }
     // )
-    console.log('hello')
     setLoadingEmotions(true)
     const response = axios.post(
       "https://api-inference.huggingface.co/models/borisn70/bert-43-multilabel-emotion-detection",
@@ -142,7 +141,6 @@ export default function Analysis() {
       let sorted = res.data[0].sort(function (a, b) {
         return b.score - a.score;
       }).map(item => item.label.toLowerCase()).slice(0, 3);
-      console.log(sorted)
       setLoadingEmotions(false)
       setEmotion(sorted)
     })
