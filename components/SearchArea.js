@@ -7,6 +7,7 @@ import {
   FlatList,
   TouchableOpacity,
   ActivityIndicator,
+  Image,
 } from "react-native";
 import styles from "../styles/HomePageStyles";
 import { getJournalEntries } from "../functions/JournalFunctions";
@@ -94,10 +95,16 @@ const SearchBar = ({ onSearch }) => {
 
   return (
     <View style={styles.searchBar}>
+      {/* Search Icon */}
+      <Image
+        source={require("../assets/search.png")}
+        style={styles.searchIcon}
+        accessibilityLabel="Search Icon"
+      />
       <TextInput
         style={styles.searchInput}
         placeholder="Search Past Entries..."
-        placeholderTextColor="#aaa"
+        placeholderTextColor="#000"
         value={searchValue}
         onChangeText={handleSearchChange}
       />

@@ -69,7 +69,10 @@ const EditJournalEntryModal = ({
           style={styles.modalContent}
           behavior={Platform.OS === "ios" ? "padding" : "height"}
         >
-          <TouchableOpacity onPress={confirmDiscardChanges} style={styles.closeButton}>
+          <TouchableOpacity
+            onPress={confirmDiscardChanges}
+            style={styles.closeButton}
+          >
             <Text style={styles.closeButtonText}>×</Text>
           </TouchableOpacity>
 
@@ -88,9 +91,12 @@ const EditJournalEntryModal = ({
               <TextInput
                 style={styles.textInputBox}
                 value={entryText}
-                onChangeText={setEntryText}
-                multiline={true}
+                onChangeText={(text) => setEntryText(text)}
+                multiline={true} // Enable multiline
                 placeholder="Edit your journal content"
+                textAlignVertical="top" // Ensure text starts at the top
+                autoCorrect={true} // Optional: Enable auto-correct
+                autoCapitalize="sentences" // Capitalize sentences
               />
             ) : (
               <ScrollView>
@@ -113,6 +119,8 @@ const EditJournalEntryModal = ({
                         setEditedPrompts(updatedPrompts);
                       }}
                       placeholder="Edit your response"
+                      multiline={true} // Enable multiline for prompts too
+                      textAlignVertical="top" // Ensure text starts at the top
                     />
                   </View>
                 ))}
@@ -120,7 +128,10 @@ const EditJournalEntryModal = ({
             )}
           </ScrollView>
 
-          <TouchableOpacity style={styles.saveChangesButton} onPress={handleSaveChanges}>
+          <TouchableOpacity
+            style={styles.saveChangesButton}
+            onPress={handleSaveChanges}
+          >
             <Text style={styles.continueButtonText}>Save Changes</Text>
           </TouchableOpacity>
         </KeyboardAvoidingView>
