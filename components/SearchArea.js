@@ -12,7 +12,7 @@ import {
     getJournalEntries
 } from "../functions/JournalFunctions";
 
-export const SearchArea = () => {
+export const SearchArea = ({ handleOpenJournal }) => {
 
     const [searchTerm, setSearchTerm] = useState(null)
 
@@ -21,7 +21,7 @@ export const SearchArea = () => {
         <>
             <SafeAreaView style={styles.searchBar}>
                 <SearchBar onSearch={setSearchTerm} />
-                <SearchResults searchTerm={searchTerm} />
+                <SearchResults searchTerm={searchTerm} handleOpenJournal={handleOpenJournal} />
             </SafeAreaView>
         </>
     );
@@ -61,7 +61,7 @@ const SearchResults = ({ searchTerm }) => {
             keyExtractor={(item) => item.entryTitle}
             renderItem={({ item }) => (
                 <View>
-                    <Text>{item.entryTitle} </Text>
+                    <Text onPress={() => handleOpenJournal(item)}>{item.entryTitle} </Text>
                 </View>
             )}
             refreshing={isLoading}

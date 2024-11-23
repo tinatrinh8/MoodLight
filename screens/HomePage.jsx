@@ -365,7 +365,7 @@ const HomePage = () => {
         </View>
       ),
     },
-    { id: "search", component: <SearchArea /> },
+    { id: "search", component: <SearchArea handleOpenJournal={handleOpenJournal} /> },
     { id: "title", component: <Title quote={quote} /> },
     {
       id: "pastEntries",
