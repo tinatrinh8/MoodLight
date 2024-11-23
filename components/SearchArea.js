@@ -28,7 +28,7 @@ export const SearchArea = ({ handleOpenJournal }) => {
 
 }
 
-const SearchResults = ({ searchTerm }) => {
+const SearchResults = ({ searchTerm, handleOpenJournal}) => {
 
     const [allEntries, setAllEntries] = useState([]);
     const [isLoading, setIsLoading] = useState(false);
