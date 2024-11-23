@@ -1,15 +1,10 @@
 import React from "react";
 import prompts from "../assets/prompts"; // Import default prompts
-import Config from "react-native-config"; // For managing environment variables
 import { db } from "../components/firebase"; // Import Firestore (db) from Firebase configuration
 import { collection, getDocs } from "firebase/firestore"; // Import required Firestore functions
+import { OPENAI_API_KEY } from "@env"; // Import the OpenAI API key
 
-const apiKey = Config.OPENAI_API_KEY;
-
-/**
- * Fetch journal entries from Firestore.s
- * @returns {Promise<Array>} - List of journal entries
- */
+console.log("Loaded API Key:", OPENAI_API_KEY); // Log the API key to ensure it is loaded
 
 export const getJournalEntries = async () => {
   try {
@@ -17,7 +12,6 @@ export const getJournalEntries = async () => {
     const journalEntries = [];
 
     querySnapshot.forEach((doc) => {
-      // Assume each document has 'entryText' field
       journalEntries.push({ id: doc.id, ...doc.data() });
     });
 
@@ -29,6 +23,11 @@ export const getJournalEntries = async () => {
 };
 
 export const getSuggestedPrompts = async (pastEntries) => {
+  if (!OPENAI_API_KEY) {
+    console.error("API key is missing or not loaded!");
+    return prompts.slice(0, 5); // Fallback to default prompts
+  }
+
   if (!pastEntries || pastEntries.length === 0) {
     const shuffledPrompts = prompts.sort(() => 0.5 - Math.random());
     return shuffledPrompts.slice(0, 5);
@@ -40,20 +39,26 @@ export const getSuggestedPrompts = async (pastEntries) => {
       .map((entry) => entry.entryText)
       .join("\n");
 
-    // Ensure the API key is correctly included
-    console.log("Using API Key:", apiKey); // Log to confirm API key is not undefined
-
-    const response = await fetch("https://api.openai.com/v1/completions", {
+    const response = await fetch("https://api.openai.com/v1/chat/completions", {
       method: "POST",
       headers: {
         "Content-Type": "application/json",
-        Authorization: `Bearer ${apiKey}`,
+        Authorization: `Bearer ${OPENAI_API_KEY}`,
       },
       body: JSON.stringify({
-        model: "text-davinci-003",
-        prompt: `Generate 5 unique reflective and personal journaling prompts for the user based on their following past journal entries: ${contextText}`,
+        model: "gpt-4o-mini",
+        messages: [
+          {
+            role: "system",
+            content:
+              "You are a helpful assistant. Generate reflective journal prompts.",
+          },
+          {
+            role: "user",
+            content: `Based on these recent journal entries: ${contextText}, generate exactly 5 reflective and personal prompts. Do not include any introductions, explanations, or additional text—just the 5 prompts in list form. Full Complete Sentences`,
+          },
+        ],
         max_tokens: 150,
-        n: 1,
         temperature: 0.7,
       }),
     });
@@ -61,17 +66,16 @@ export const getSuggestedPrompts = async (pastEntries) => {
     const data = await response.json();
 
     if (response.ok && data.choices?.length > 0) {
-      const aiPrompts = data.choices[0].text
+      return data.choices[0].message.content
         .split("\n")
         .map((prompt) => prompt.trim())
         .filter((prompt) => prompt);
-      return aiPrompts.slice(0, 5);
     } else {
-      console.error("AI prompt generation failed:", data);
+      console.error("OpenAI API did not return valid choices:", data);
     }
   } catch (error) {
     console.error("Error fetching AI-generated prompts:", error);
   }
 
-  return prompts.slice(0, 5);
+  return prompts.slice(0, 5); // Fallback to default prompts
 };

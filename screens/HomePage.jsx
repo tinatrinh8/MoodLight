@@ -797,7 +797,15 @@ const CreateJournalEntry = ({
 
                 {/* ScrollView to hold 5 prompts with their respective text inputs */}
                 {loadingPrompts ? (
-                  <Text>Loading prompts...</Text>
+                  <View
+                    style={{
+                      flex: 1,
+                      justifyContent: "center",
+                      alignItems: "center",
+                    }}
+                  >
+                    <ActivityIndicator size="large" color="#FFFFFF" />
+                  </View>
                 ) : (
                   <ScrollView contentContainerStyle={styles.scrollContent}>
                     {suggestedPrompts.map((prompt, index) => (
@@ -807,6 +815,7 @@ const CreateJournalEntry = ({
                           style={styles.textInputBox}
                           placeholder="Write your answer here..."
                           multiline={true}
+                          scrollEnabled={true}
                           value={promptResponses[index]}
                           onChangeText={(text) => {
                             const updatedResponses = [...promptResponses];

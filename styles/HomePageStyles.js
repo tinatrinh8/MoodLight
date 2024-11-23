@@ -249,6 +249,7 @@ const styles = StyleSheet.create({
   },
 
   modalContent: {
+    flex: 1, // Allow it to grow to fill available space
     height: "90%", // Cover only about one-third of the screen
     backgroundColor: "rgba(1, 12, 75, 1)", // Darker background
     borderTopLeftRadius: 30,
@@ -451,7 +452,11 @@ const styles = StyleSheet.create({
     marginTop: 5,
     marginBottom: 5,
     alignSelf: "flex-start",
+    flexWrap: "wrap", // Ensures long text wraps
+    width: "100%", // Takes full width of container
+    lineHeight: 24, // Adjust for readability
   },
+
   titleInputBox: {
     height: 40, // Smaller height for title input
     borderWidth: 1,
@@ -512,17 +517,19 @@ const styles = StyleSheet.create({
   // Text Input Box
   textInputBox: {
     width: "100%",
-    height: 150, // Adjust height as needed
+    minHeight: 200, // Minimum height for the box
+    maxHeight: 200, // Optional: Maximum height for scrolling
     backgroundColor: "#FFFFFF", // White background
     borderRadius: 10,
     borderWidth: 2,
     borderColor: "#000000", // Black border
-    padding: 10, // Add padding for user input
-    fontSize: 16, // Font size for user text
-    color: "#000000", // Black text
+    padding: 10,
+    fontSize: 16,
+    color: "#000000",
     marginBottom: 20,
     textAlignVertical: "top", // Align text to the top-left
   },
+
   textBoxPlaceholder: {
     fontSize: 16,
     color: "#000000", // Black text
