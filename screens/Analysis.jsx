@@ -1,4 +1,4 @@
-import React, { useEffect, useContext, useRef, useState } from "react";
+import React, { useEffect, useState } from "react";
 import { ScrollView, View, Image, Text, TouchableOpacity } from "react-native";
 import { useNavigation } from "@react-navigation/native"; // Import navigation hook
 import styles from "../styles/AnalysisStyles";
@@ -30,23 +30,26 @@ function EmotionCard({ rank, emotion, icon }) {
 
 // Emotions Detected Component
 function EmotionsDetected({ emotions }) {
-  const emotionsMeta = [
-    {
-      rank: 1,
-      emotion: emotions[0],
-      icon: emotionData[emotions[0]],
-    },
-    {
-      rank: 2,
-      emotion: emotions[1],
-      icon: emotionData[emotions[1]],
-    },
-    {
-      rank: 3,
-      emotion: emotions[2],
-      icon: emotionData[emotions[1]],
-    },
-  ];
+  const [emotionsMeta, setEmotionMeta] = useState([])
+  useEffect(() => {
+    setEmotionMeta([
+      {
+        rank: 1,
+        emotion: emotions[0],
+        icon: emotionData[emotions[0]],
+      },
+      {
+        rank: 2,
+        emotion: emotions[1],
+        icon: emotionData[emotions[1]],
+      },
+      {
+        rank: 3,
+        emotion: emotions[2],
+        icon: emotionData[emotions[2]],
+      },
+    ])
+  }, [emotions])
 
   return (
     <View style={styles.emotionsSection}>
@@ -115,40 +118,47 @@ export default function Analysis() {
     navigation.navigate("MainTabs", { screen: "Home" }); // Navigate to MainTabs and ensure Home tab is active
   };
 
-  const [emotion, setEmotion] = useState("")
+  const [topEmotions, setTopEmotions] = useState([])
   const [loadingEmotions, setLoadingEmotions] = useState(true)
-  const getEmotions = () => {
-    // Allocate a pipeline for sentiment-analysis
-    // pipeline('sentiment-analysis', 'borisn70/bert-43-multilabel-emotion-detection').then(
-    //   (pipe) => {
-    //     pipe(entryText).then(out => {
-    //       // not sure what the raw respones from the model will be
-    //       console.log(out)
-    //       
-    //     })
-    //   }
-    // )
-    setLoadingEmotions(true)
-    const response = axios.post(
+
+  const getEmotion = (text) => {
+    return axios.post(
       "https://api-inference.huggingface.co/models/borisn70/bert-43-multilabel-emotion-detection",
-      { inputs: entryText },
+      { inputs: text },
       {
         headers: {
           Authorization: `Bearer ${HUGGING_FACE_API_KEY}`,
         },
       }
-    ).then(res => {
-      let sorted = res.data[0].sort(function (a, b) {
-        return b.score - a.score;
-      }).map(item => item.label.toLowerCase()).slice(0, 3);
-      setLoadingEmotions(false)
-      setEmotion(sorted)
-    })
+    ).then(res => res.data[0]).catch(e => console.error('Error fetching sentiment', e))
   }
 
+  const aggregateEmotions = (emotions) => {
+    return emotions.map(r => r.value).flat()
+  }
+
+  const filterEmotions = (emotions) => {
+    return emotions.sort(function (a, b) {
+      return b.score - a.score;
+    }).map(item => item.label.toLowerCase()).slice(0, 3);
+  }
+
+  const parseTopEmotions = (emotions) => {
+    let aggregatedEmotions = aggregateEmotions(emotions)
+    let filteredEmotions = filterEmotions(aggregatedEmotions)
+    setTopEmotions(filteredEmotions)
+  }
   useEffect(() => {
-    getEmotions()
-  }, [])
+    if (type === 'free') {
+      setLoadingEmotions(true)
+      Promise.allSettled([getEmotion(entryText)]).then(results => parseTopEmotions(results))
+      setLoadingEmotions(false)
+    } else {
+      setLoadingEmotions(true)
+      Promise.allSettled(entryText.map(text => getEmotion(text['response']))).then(results => parseTopEmotions(results))
+      setLoadingEmotions(false)
+    }
+  }, [entryText, entryText, journalDate, type])
 
   return (
     <ScrollView
@@ -192,7 +202,7 @@ export default function Analysis() {
 
         {/* Emotions Detected Section */}
         {
-          loadingEmotions ? (<></>) : (<EmotionsDetected emotions={emotion} />)
+          loadingEmotions ? (<></>) : (<EmotionsDetected emotions={topEmotions} />)
         }
         {/* Summary and Feedback Section */}
         <SummaryFeedback />
