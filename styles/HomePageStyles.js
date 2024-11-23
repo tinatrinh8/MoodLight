@@ -68,27 +68,79 @@ const styles = StyleSheet.create({
     fontFamily: "LexendDeca",
   },
 
-  searchBar: {
-    // flexDirection: "row",
-    alignItems: "center",
+  // Search Area Styles
+  searchContainer: {
+    margin: 10,
+    backgroundColor: "#F5F5F5", // Light gray background for the search container
     borderRadius: 10,
-    paddingHorizontal: 10,
-    paddingVertical: 5,
-    borderColor: "#ddd",
-    marginBottom: 20,
-    borderColor: "black", // Add black border color
-    borderWidth: 1, // Ensure consistent border
+    padding: 5,
   },
+
+  searchBar: {
+    flexDirection: "row",
+    alignItems: "center",
+    backgroundColor: "#FFFFFF", // White background for the search bar
+    borderRadius: 25,
+    borderWidth: 2,
+    borderColor: "#E5E5E5", // Light gray border
+    paddingHorizontal: 15,
+    paddingVertical: 8,
+    shadowColor: "#000", // Shadow for elevation effect
+    shadowOffset: { width: 0, height: 2 },
+    shadowOpacity: 0.1,
+    shadowRadius: 4,
+    elevation: 3,
+  },
+
   searchInput: {
     flex: 1,
     fontSize: 16,
-    color: "#000",
+    color: "#333", // Dark gray text color
+    paddingVertical: 5,
+    fontFamily: "LexendDeca",
   },
+  clearButton: {
+    fontSize: 18,
+    color: "#999", // Light gray for the clear button
+    marginLeft: 8,
+  },
+  resultsContainer: {
+    marginTop: 10,
+    backgroundColor: "#FFFFFF",
+    borderRadius: 10,
+    shadowColor: "#000", // Shadow for results container
+    shadowOffset: { width: 0, height: 2 },
+    shadowOpacity: 0.1,
+    shadowRadius: 4,
+    elevation: 3,
+    maxHeight: 250, // Limit the height of the results container
+    overflow: "hidden", // Prevent overflow of content
+  },
+  resultItem: {
+    padding: 12,
+    borderBottomWidth: 1,
+    borderBottomColor: "#E5E5E5", // Light gray divider between items
+    backgroundColor: "#F9F9F9", // Slightly gray background for each item
+  },
+  resultText: {
+    fontSize: 16,
+    color: "#333", // Dark gray text color
+    fontFamily: "LexendDeca",
+  },
+  noResultsText: {
+    padding: 15,
+    textAlign: "center",
+    color: "#999", // Light gray text for "No Results"
+    fontSize: 14,
+    fontFamily: "LexendDeca",
+  },
+
   closeButton: {
     fontSize: 18,
     color: "#999",
     padding: 10,
   },
+
   titleContainer: {
     alignItems: "center",
     marginBottom: 30,
@@ -537,7 +589,8 @@ const styles = StyleSheet.create({
   },
 
   scrollContent: {
-    paddingBottom: 20, // Adjust padding to prevent content from getting cut off
+    paddingBottom: 20,
+    flexGrow: 1,
   },
   readOnlyText: {
     fontSize: 16,
