@@ -217,13 +217,13 @@ const HomePage = () => {
   }, []);
 
   // Helper function to reset newEntryDate to today's date
-  const resetToTodayDate = () => {
-    const today = new Intl.DateTimeFormat("en-CA", {
-      timeZone: Intl.DateTimeFormat().resolvedOptions().timeZone,
-    }).format(new Date()); // Format to YYYY-MM-DD
-    setNewEntryDate(today); // Set today's date
-  };
-
+    const resetToTodayDate = () => {
+      const today = new Intl.DateTimeFormat("en-CA", {
+        timeZone: Intl.DateTimeFormat().resolvedOptions().timeZone,
+      }).format(new Date()); // Format to YYYY-MM-DD
+      setNewEntryDate(today); // Set today's date
+      console.log("New entry date set to:", today);
+    };
   const handleOpenJournal = (entry) => {
     setViewJournalEntry(entry); // Set the clicked journal entry
     setViewJournalModalVisible(true); // Open the modal
@@ -281,16 +281,20 @@ const HomePage = () => {
     });
 
     // Check if a journal entry is passed from navigation
-    if (route.params?.viewJournalEntry) {
-      setViewJournalEntry(route.params.viewJournalEntry); // Set the entry for the modal
-      setViewJournalModalVisible(true); // Open the modal
-    }
+  if (route.params?.viewJournalEntry) {
+    setViewJournalEntry(route.params.viewJournalEntry); // Set the entry for the modal
+    setViewJournalModalVisible(true); // Open the modal
+    navigation.setParams({ viewJournalEntry: null }); // Clear params
+  }
 
     // Check for creating a new entry date
-    if (route.params?.selectedDate) {
-      setNewEntryDate(route.params.selectedDate); // Set the selected date for the new entry
-      setCreateEntryModalVisible(true); // Open the modal for creating an entry
-    }
+if (route.params?.selectedDate) {
+  console.log("Creating entry for date:", route.params.selectedDate);
+  setNewEntryDate(route.params.selectedDate); // Set the selected date for the new entry
+  setCreateEntryModalVisible(true); // Open the modal for creating an entry
+  console.log("Modal visibility set to true");
+  navigation.setParams({ selectedDate: null }); // Clear params
+}
 
     // Fetch existing journal entries for the authenticated user
     fetchEntries();
@@ -612,8 +616,8 @@ const handleSaveEntry = async () => {
         <TouchableOpacity
           style={styles.addButton}
           onPress={() => {
-            onResetToTodayDate(); // Reset date to today using the parent-provided function
-            setModalVisible(true); // Open the modal
+            onResetToTodayDate();
+            setModalVisible(true);
           }}
         >
           <Text style={styles.addButtonText}>Add</Text>

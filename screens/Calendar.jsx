@@ -49,20 +49,27 @@ const CalendarScreen = () => {
     return chunks;
   };
 
-    const handleDayPress = (selectedDate) => {
-      // Check if the selected date is a journal entry
-      const journalEntry = journalEntries.find(
-        (entry) => entry.journalDate === selectedDate
-      );
+const handleDayPress = (selectedDate) => {
+  if (!selectedDate) {
+    console.log("Empty slot clicked");
+    return; // Ignore empty slots
+  }
 
-      if (journalEntry) {
-        // If it's a journal date, navigate to the homepage and pass the journal entry
-        navigation.navigate("Home", { viewJournalEntry: journalEntry });
-      } else {
-        // Handle normal days (e.g., creating a new journal entry)
-        navigation.navigate("Home", { selectedDate });
-      }
-    };
+  console.log("Selected Date:", selectedDate);
+
+  const journalEntry = journalEntries.find(
+    (entry) => entry.journalDate === selectedDate
+  );
+
+  if (journalEntry) {
+    console.log("Navigating to existing journal entry:", journalEntry);
+    navigation.navigate("Home", { viewJournalEntry: journalEntry });
+  } else {
+    console.log("Creating new journal entry for date:", selectedDate);
+    navigation.navigate("Home", { selectedDate });
+  }
+};
+
 
 
   return (

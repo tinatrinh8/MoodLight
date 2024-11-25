@@ -1,127 +1,150 @@
 import React, { useState, useEffect } from "react";
-import { View, Text, TouchableOpacity, Dimensions, Image, StyleSheet } from "react-native";
-import { LineChart, PieChart } from "react-native-chart-kit";
+import {
+  View,
+  Text,
+  TouchableOpacity,
+  Dimensions,
+  StyleSheet,
+} from "react-native";
+import { LineChart } from "react-native-chart-kit";
 import Header from "../components/Header";
 import { useEntryDates } from "../components/EntryDatesContext";
-import { calculateEmotionCounts } from "../utils/emotionUtils";
-import { getTopEmotions } from "../utils/emotionUtils";
-import { emotionData } from "../components/emotionData";
-import { format, startOfWeek, endOfWeek, startOfMonth, endOfMonth, startOfYear, endOfYear, isWithinInterval } from "date-fns";
-import { emotionColors } from "../utils/emotionColours"; // Correct path
+import {
+  getTopEmotions,
+  getStartOfWeek,
+  getEndOfWeek,
+  generateWeekDays,
+  groupDataByDay,
+  getStartOfYear,
+  getEndOfYear,
+  generateMonthLabels,
+  groupDataByMonth,
+} from "../utils/emotionUtils";
+import { emotionColors } from "../utils/emotionColours";
+import styles from "../styles/InsightsStyles";
+import { addDays } from "date-fns";
 
 const InsightsScreen = () => {
   const { journalEntries } = useEntryDates(); // Get journal entries from context
   const [timePeriod, setTimePeriod] = useState("Weekly"); // Default filter
-  const [filteredData, setFilteredData] = useState([]);
-  const [topEmotions, setTopEmotions] = useState([]);
   const [chartData, setChartData] = useState(null);
-  const [pieChartData, setPieChartData] = useState([]);
 
-  // Filter entries by selected time period
-  const filterEntriesByPeriod = (entries, period) => {
-    const now = new Date();
+  // State for Weekly View
+  const [currentWeekStart, setCurrentWeekStart] = useState(
+    getStartOfWeek(new Date())
+  );
+  const [currentWeekEnd, setCurrentWeekEnd] = useState(getEndOfWeek(new Date()));
 
-    const start = {
-      Weekly: startOfWeek(now),
-      Monthly: startOfMonth(now),
-      Yearly: startOfYear(now),
-    }[period];
+  // State for Monthly View
+  const [currentYear, setCurrentYear] = useState(new Date().getFullYear());
+  const [topEmotions, setTopEmotions] = useState([]); // Top emotions for the legend
 
-    const end = {
-      Weekly: endOfWeek(now),
-      Monthly: endOfMonth(now),
-      Yearly: endOfYear(now),
-    }[period];
+  const today = new Date(); // Today's date
+  const currentYearNumber = today.getFullYear(); // Current year
 
-    return entries.filter((entry) => {
-      const entryDate = new Date(entry.journalDate);
-      return isWithinInterval(entryDate, { start, end });
-    });
+  // Handle navigation to the next week
+  const handleNextWeek = () => {
+    setCurrentWeekStart((prev) => addDays(prev, 7));
+    setCurrentWeekEnd((prev) => addDays(prev, 7));
   };
 
-  // Fetch top emotions and calculate chart data whenever journal entries or timePeriod changes
+  // Handle navigation to the previous week
+  const handlePreviousWeek = () => {
+    setCurrentWeekStart((prev) => addDays(prev, -7));
+    setCurrentWeekEnd((prev) => addDays(prev, -7));
+  };
+
+  // Handle navigation to the next year
+  const handleNextYear = () => setCurrentYear((prev) => prev + 1);
+
+  // Handle navigation to the previous year
+  const handlePreviousYear = () => setCurrentYear((prev) => prev - 1);
+
+  // Check if viewing the current week
+  const isCurrentWeek = currentWeekStart <= today && currentWeekEnd >= today;
+
+  // Format data for the weekly line chart
+  const formatChartDataForWeek = (entries, emotions) => {
+    const weeklyData = groupDataByDay(
+      entries,
+      currentWeekStart,
+      currentWeekEnd,
+      emotions
+    );
+    const labels = generateWeekDays(currentWeekStart); // X-axis labels (weekdays)
+    const datasets = emotions.map((emotion) => ({
+      data: weeklyData.map((day) => day[emotion] || 0), // Y-axis values for each day
+      color: () => emotionColors[emotion] || "#808080", // Use emotion color or fallback to gray
+      strokeWidth: 2, // Line thickness
+    }));
+
+    const maxCount = Math.max(...datasets.flatMap((dataset) => dataset.data));
+
+    return { labels, datasets, maxCount };
+  };
+
+  // Format data for the yearly line chart
+  const formatChartDataForYear = (entries, emotions) => {
+    const startOfYear = getStartOfYear(new Date(currentYear, 0, 1));
+    const endOfYear = getEndOfYear(new Date(currentYear, 11, 31));
+
+    // Group data by month and emotion
+    const monthlyData = groupDataByMonth(entries, startOfYear, endOfYear, emotions);
+
+    const labels = generateMonthLabels();
+
+    const datasets = emotions.map((emotion) => ({
+      data: monthlyData.map((month) => month[emotion] || 0),
+      color: () => emotionColors[emotion] || "#808080",
+      strokeWidth: 2,
+    }));
+
+    const maxCount = Math.max(...datasets.flatMap((dataset) => dataset.data));
+
+    return { labels, datasets, maxCount };
+  };
+
+  // Update chart data whenever journalEntries, timePeriod, or navigation state changes
   useEffect(() => {
     if (journalEntries?.length) {
-      const filteredEntries = filterEntriesByPeriod(journalEntries, timePeriod);  // Filter based on time period
-      const top5 = getTopEmotions(filteredEntries, 5); // Get top 5 emotions
+      if (timePeriod === "Weekly") {
+        const filteredEntries = journalEntries.filter((entry) => {
+          const entryDate = new Date(entry.journalDate);
+          return entryDate >= currentWeekStart && entryDate <= currentWeekEnd;
+        });
 
-      if (top5.length) {
-        setTopEmotions(top5);
-        const counts = calculateEmotionCounts(filteredEntries, timePeriod, top5);
-        setFilteredData(counts);
+        const topEmotionsList = getTopEmotions(filteredEntries, 5);
+        setTopEmotions(topEmotionsList);
 
-        setChartData(formatChartData(counts, top5)); // Format data for line chart
-        setPieChartData(calculatePieChartData(filteredEntries, timePeriod)); // Calculate data for pie chart based on filtered data
-      } else {
-        // Handle the case where no emotions are found
-        setTopEmotions([]);
-        setChartData(null);
-        setPieChartData([]);
+        if (topEmotionsList.length > 0) {
+          const chartData = formatChartDataForWeek(filteredEntries, topEmotionsList);
+          setChartData(chartData);
+        } else {
+          setChartData(null);
+        }
+      } else if (timePeriod === "Monthly") {
+        const startOfYear = getStartOfYear(new Date(currentYear, 0, 1));
+        const endOfYear = getEndOfYear(new Date(currentYear, 11, 31));
+
+        const filteredEntries = journalEntries.filter((entry) => {
+          const entryDate = new Date(entry.journalDate);
+          return entryDate >= startOfYear && entryDate <= endOfYear;
+        });
+
+        const topEmotionsList = getTopEmotions(filteredEntries, 5);
+        setTopEmotions(topEmotionsList);
+
+        if (topEmotionsList.length > 0) {
+          const chartData = formatChartDataForYear(filteredEntries, topEmotionsList);
+          setChartData(chartData);
+        } else {
+          setChartData(null);
+        }
       }
     } else {
-      // Handle case where journalEntries is empty
-      setTopEmotions([]);
       setChartData(null);
-      setPieChartData([]);
     }
-  }, [journalEntries, timePeriod]);
-
-  // Format data for the line chart
-  const formatChartData = (data, emotions) => {
-    const labels = data.map((entry) => entry.date); // X-axis labels (dates)
-    const datasets = emotions.map((emotion) => {
-      const emoji = emotionData[emotion] || {}; // Safeguard for undefined emoji
-      return {
-        data: data.map((entry) => entry[emotion] || 0), // Y-axis counts for each emotion
-        color: () => `rgba(255, 255, 255, 1)`, // White lines
-        strokeWidth: 2, // Line thickness
-        emoji: emoji, // Emoji for each emotion
-      };
-    });
-
-    // Calculate the Y-axis dynamically based on max count
-    const maxCount = Math.max(...datasets.flatMap(dataset => dataset.data));
-    const yAxisLabels = Array.from({ length: maxCount + 1 }, (_, i) => i); // Create labels 0 to maxCount
-
-    return { labels, datasets, yAxisLabels };
-  };
-
-  // Calculate pie chart data (total occurrences of each emotion) based on selected time period
-  const calculatePieChartData = (entries, period) => {
-    const emotionCounts = {};
-
-    // Count the occurrences of each emotion
-    entries.forEach((entry) => {
-      if (entry.topEmotions) {
-        entry.topEmotions.forEach((emotion) => {
-          if (!emotionCounts[emotion]) {
-            emotionCounts[emotion] = 0;
-          }
-          emotionCounts[emotion] += 1; // Increment emotion count
-        });
-      }
-    });
-
-    // Format the data for the pie chart with the colors from emotionColours
-    return Object.entries(emotionCounts).map(([emotion, count]) => ({
-      name: emotion,
-      population: count,
-      color: emotionColors[emotion] || "#ccc", // Fallback to a default color if not found
-      emoji: emotionData[emotion] || { uri: "" }, // Fallback for undefined emoji
-    }));
-  };
-
-  // Helper function to generate date keys (Weekly, Monthly, Yearly)
-  const getDateKey = (date, period) => {
-    if (period === "Weekly") {
-      return format(startOfWeek(date), "yyyy-MM-dd"); // Use start of the week for the key
-    } else if (period === "Monthly") {
-      return format(date, "yyyy-MM"); // Use month for the key
-    } else if (period === "Yearly") {
-      return format(date, "yyyy"); // Use year for the key
-    }
-    return format(date, "yyyy-MM-dd"); // Default to daily key
-  };
+  }, [journalEntries, timePeriod, currentWeekStart, currentWeekEnd, currentYear]);
 
   return (
     <View style={styles.container}>
@@ -130,7 +153,7 @@ const InsightsScreen = () => {
 
       {/* Time Period Filter */}
       <View style={styles.filterContainer}>
-        {["Weekly", "Monthly", "Yearly"].map((period) => (
+        {["Weekly", "Monthly"].map((period) => (
           <TouchableOpacity
             key={period}
             style={[
@@ -144,143 +167,130 @@ const InsightsScreen = () => {
         ))}
       </View>
 
+      {/* Weekly Navigation */}
+      {timePeriod === "Weekly" && (
+        <View style={styles.filterContainer}>
+          <TouchableOpacity
+            style={styles.filterButton}
+            onPress={handlePreviousWeek}
+          >
+            <Text style={styles.filterButtonText}>&larr; Previous Week</Text>
+          </TouchableOpacity>
+          {!isCurrentWeek && (
+            <TouchableOpacity
+              style={styles.filterButton}
+              onPress={handleNextWeek}
+            >
+              <Text style={styles.filterButtonText}>Next Week &rarr;</Text>
+            </TouchableOpacity>
+          )}
+        </View>
+      )}
+
+      {/* Monthly Navigation */}
+      {timePeriod === "Monthly" && (
+        <View style={styles.filterContainer}>
+          <TouchableOpacity
+            style={styles.filterButton}
+            onPress={handlePreviousYear}
+          >
+            <Text style={styles.filterButtonText}>Previous Year</Text>
+          </TouchableOpacity>
+          {currentYear < currentYearNumber && ( // Only show "Next Year" if not viewing the current year
+            <TouchableOpacity
+              style={styles.filterButton}
+              onPress={handleNextYear}
+            >
+              <Text style={styles.filterButtonText}>Next Year</Text>
+            </TouchableOpacity>
+          )}
+        </View>
+      )}
+
       {/* Line Chart */}
       <View style={styles.chartContainer}>
         {chartData ? (
-          <LineChart
-            data={{
-              labels: chartData.labels,
-              datasets: chartData.datasets,
-            }}
-            width={Dimensions.get("window").width - 32} // Full screen width
-            height={220}
-            chartConfig={{
-              backgroundColor: "#260101",
-              backgroundGradientFrom: "#9E4F61",
-              backgroundGradientTo: "#260101",
-              decimalPlaces: 0, // No decimal points
-              color: (opacity = 1) => `rgba(255, 255, 255, ${opacity})`,
-              labelColor: (opacity = 1) => `rgba(255, 255, 255, ${opacity})`,
-              style: { borderRadius: 16 },
-              propsForDots: {
-                r: "6",
-                strokeWidth: "2",
-                stroke: "#9E4F61",
-                fill: "#FFFFFF", // White dots
-              },
-            }}
-            bezier
-            style={styles.chart}
-          />
-        ) : (
-          <Text style={styles.noDataText}>No data available for this period.</Text>
-        )}
-      </View>
+          (() => {
+            const maxYValue = Math.max(chartData.maxCount || 0, 1); // Ensure at least 1
+            const segments = Math.min(5, Math.ceil(maxYValue)); // Max 5 segments, rounded up
 
-      {/* Pie Chart */}
-      <View style={styles.pieChartAndLegend}>
-        {pieChartData.length > 0 ? (
-        <PieChart
-          data={pieChartData}
-          width={Dimensions.get("window").width * 0.5} // Shrink the width (50% of the screen width)
-          height={200} // Shrink the height to make it smaller
-          chartConfig={{
-            backgroundColor: "#260101",
-            color: (opacity = 1) => `rgba(255, 255, 255, ${opacity})`,
-            labelColor: (opacity = 1) => `rgba(255, 255, 255, ${opacity})`,
-            style: { borderRadius: 16 },
-            }}
-            accessor="population"
-            backgroundColor="transparent"
-            paddingLeft="15"
-            absolute
-            hasLegend={false} // Disable the default PieChart legend
-          />
+            return (
+              <LineChart
+                data={{
+                  labels: chartData.labels,
+                  datasets: chartData.datasets,
+                }}
+                width={Dimensions.get("window").width - 32} // Adjust for padding
+                height={220}
+                chartConfig={{
+                  backgroundColor: "#260101",
+                  backgroundGradientFrom: "#9E4F61",
+                  backgroundGradientTo: "#260101",
+                  decimalPlaces: 0, // No decimal points
+                  color: (opacity = 1) => `rgba(255, 255, 255, ${opacity})`,
+                  labelColor: (opacity = 1) => `rgba(255, 255, 255, ${opacity})`,
+                  style: { borderRadius: 16 },
+                  propsForDots: {
+                    r: "6",
+                    strokeWidth: "2",
+                    stroke: "#9E4F61",
+                    fill: "#FFFFFF",
+                  },
+                }}
+                bezier
+                fromZero={true} // Ensure Y-axis starts at 0
+                segments={segments} // Dynamically set segments
+                style={styles.chart}
+              />
+            );
+          })()
         ) : (
-          <Text style={styles.noDataText}>No data available for this period.</Text>
-        )}
-      </View>
-
-      {/* Custom Pie Chart Legend */}
-    <View style={styles.legendContainer}>
-      {pieChartData.map((item, index) => (
-        <View key={index} style={styles.legendItem}>
-          <Text style={styles.legendText}>
-            <View style={[styles.legendColorBox, { backgroundColor: item.color }]} />
-            {item.name}
+          <Text style={styles.noDataText}>
+            No data available for this period.
           </Text>
-          <Image source={item.emoji} style={styles.legendEmoji} />
-        </View>
+        )}
+      </View>
+
+      {/* Legend */}
+      <View style={legendStyles.legendContainer}>
+        {topEmotions.map((emotion) => (
+          <View key={emotion} style={legendStyles.legendItem}>
+            <View
+              style={[
+                legendStyles.colorBox,
+                { backgroundColor: emotionColors[emotion] || "#808080" },
+              ]}
+            />
+            <Text style={legendStyles.legendText}>{emotion}</Text>
+          </View>
         ))}
       </View>
     </View>
   );
 };
 
-const styles = StyleSheet.create({
-  container: {
-    flex: 1,
-    backgroundColor: "#E6C3CB", // Light pink background
-    padding: 16,
-  },
-  insightsTitle: {
-    fontSize: 32,
-    color: "#260101",
-    fontWeight: "700",
-    textAlign: "center",
-    marginVertical: 10,
-  },
-  filterContainer: {
-    flexDirection: "row",
-    justifyContent: "space-between",
-    marginBottom: 16,
-  },
-  filterButton: {
-    flex: 1,
-    backgroundColor: "#DC869A",
-    borderRadius: 10,
-    padding: 10,
-    marginHorizontal: 5,
-  },
-  activeFilterButton: {
-    backgroundColor: "#9E4F61",
-  },
-  filterButtonText: {
-    textAlign: "center",
-    color: "#FFF",
-    fontWeight: "bold",
-  },
-
-  chart: {
-    marginVertical: 8,
-    borderRadius: 16,
-  },
-
-  noDataText: {
-    color: "#FFF",
-    fontSize: 16,
-  },
+const legendStyles = StyleSheet.create({
   legendContainer: {
-    marginVertical: 20,
+    flexDirection: "row",
+    justifyContent: "center",
+    alignItems: "center",
+    flexWrap: "wrap",
+    marginTop: 10,
   },
   legendItem: {
     flexDirection: "row",
     alignItems: "center",
-    marginBottom: 8,
+    marginHorizontal: 10,
+    marginVertical: 5,
   },
-  legendColorBox: {
+  colorBox: {
     width: 20,
     height: 20,
-    marginRight: 8,
+    marginRight: 5,
   },
   legendText: {
     fontSize: 14,
     color: "#260101",
-    marginRight: 8,
-  },
-  legendEmoji: {
-    width: 20,
-    height: 20,
   },
 });
 
