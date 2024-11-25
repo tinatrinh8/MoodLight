@@ -158,6 +158,7 @@ const styles = StyleSheet.create({
     fontSize: 18,
     color: "#999",
     padding: 10,
+    fontWeight: "bold",
   },
 
   titleContainer: {

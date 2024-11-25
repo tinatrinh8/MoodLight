@@ -1,5 +1,5 @@
 import React from "react";
-import { View, Text, StyleSheet, ScrollView, Alert } from "react-native";
+import { View, Text, StyleSheet, ScrollView } from "react-native";
 import Header from "../components/Header";
 import CalendarRow from "../components/CalendarRow";
 import { useEntryDates } from "../components/EntryDatesContext";
@@ -19,26 +19,51 @@ const CalendarScreen = () => {
 
   const daysOfWeek = ["SUN", "MON", "TUE", "WED", "THU", "FRI", "SAT"];
 
+  // Define getEmotionColor function
+  const getEmotionColor = (emotion) => {
+    const normalizedEmotion = emotion.trim().toLowerCase();
+
+    // Check if the emotion exists in the emotionColours object
+    if (!emotionColours.hasOwnProperty(normalizedEmotion)) {
+      console.warn(`Emotion not found in emotionColours: ${normalizedEmotion}`);
+      return "#AAAAAA"; // Default gray for unknown emotions
+    }
+
+    return emotionColours[normalizedEmotion]; // Return the corresponding color
+  };
+
   const generateGrid = (month) => {
     const totalSlots = Math.ceil((month.days + month.startDay) / 7) * 7;
     const grid = [];
 
-    // Extract all days from journalEntries that match this month and year
     const highlightedDays = journalEntries
       .filter((entry) => {
         const [year, monthIndex, day] = entry.journalDate
           .split("-")
-          .map(Number); // Split journalDate into parts
+          .map(Number);
         return year === month.year && monthIndex - 1 === month.index; // Match year and month
       })
-      .map((entry) => parseInt(entry.journalDate.split("-")[2], 10)); // Extract the day part as a number
+      .map((entry) => {
+        const day = parseInt(entry.journalDate.split("-")[2], 10);
+        const emotion =
+          entry.topEmotions && entry.topEmotions.length > 0
+            ? entry.topEmotions[0]
+            : "neutral"; // Default to "neutral" if no emotion
+        const color = getEmotionColor(emotion); // Get color based on the emotion
+        return { day, color };
+      });
 
     for (let i = 0; i < totalSlots; i++) {
       if (i < month.startDay || i >= month.days + month.startDay) {
         grid.push(""); // Empty slot
       } else {
         const day = i - month.startDay + 1;
-        grid.push({ day, isJournalDate: highlightedDays.includes(day) });
+        const highlightedDay = highlightedDays.find((d) => d.day === day);
+        grid.push({
+          day,
+          isJournalDate: !!highlightedDay,
+          color: highlightedDay ? highlightedDay.color : null, // Set color only for journal dates
+        });
       }
     }
     return grid;

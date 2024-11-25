@@ -8,7 +8,6 @@ const CalendarRow = ({ days, month, entryDates, onDayPress }) => {
   return (
     <View style={styles.row}>
       {days.map((day, index) => {
-        // Create the current date for comparison
         const cellDate = new Date(month.year, month.index, day.day || 0);
         const isFutureDate = day.day && cellDate > today;
 
@@ -18,6 +17,7 @@ const CalendarRow = ({ days, month, entryDates, onDayPress }) => {
             style={[
               styles.dayContainer,
               day.isJournalDate && styles.highlightedContainer, // Highlight if it's a journal date
+              { backgroundColor: day.color }, // Apply emotion color as background color
             ]}
             onPress={() => {
               if (day.day && !isFutureDate) {
@@ -58,7 +58,6 @@ const styles = StyleSheet.create({
     alignItems: "center", // Center content horizontally
   },
   highlightedContainer: {
-    backgroundColor: "#DC869A", // Circle background color for highlighted dates
     borderRadius: 20, // Ensures circular shape
   },
   day: {
