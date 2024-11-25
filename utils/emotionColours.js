@@ -1,45 +1,44 @@
-// utils.js
 export const emotionColors = {
-  admiration: "#FFD700", // Gold
-  amusement: "#FF6347", // Tomato
-  anger: "#FF0000", // Red
-  annoyance: "#FF4500", // OrangeRed
-  approval: "#32CD32", // LimeGreen
-  autonomy: "#00BFFF", // DeepSkyBlue
-  boredom: "#B0C4DE", // LightSteelBlue
-  caring: "#98FB98", // PaleGreen
-  confusion: "#D3D3D3", // LightGray
-  creativity: "#FF1493", // DeepPink
-  curiosity: "#00FFFF", // Aqua
-  desire: "#DC143C", // Crimson
-  disappointment: "#A9A9A9", // DarkGray
-  disapproval: "#8B0000", // DarkRed
-  disgust: "#228B22", // ForestGreen
-  embarrassment: "#FFB6C1", // LightPink
-  empty: "#DCDCDC", // Gainsboro
-  enthusiasm: "#FFD700", // Gold
-  excitement: "#FF4500", // OrangeRed
-  fear: "#8B0000", // DarkRed
-  fun: "#FF69B4", // HotPink
-  gratitude: "#32CD32", // LimeGreen
-  grief: "#708090", // SlateGray
-  happiness: "#FFFF00", // Yellow
-  hate: "#800000", // Maroon
-  joy: "#FFFF00", // Yellow
-  love: "#FF69B4", // HotPink
-  meaning: "#800080", // Purple
-  nervousness: "#FFFF00", // Yellow
-  neutral: "#808080", // Gray
-  optimism: "#FFD700", // Gold
-  pride: "#8A2BE2", // BlueViolet
-  realization: "#FFD700", // Gold
-  recreation: "#32CD32", // LimeGreen
-  relief: "#4682B4", // SteelBlue
-  sadness: "#1E90FF", // DodgerBlue
-  safety: "#2E8B57", // SeaGreen
-  sense_of_belonging: "#FF6347", // Tomato
+  admiration: "#FFB7C5", // Soft Pink
+  amusement: "#FFA07A", // Light Salmon
+  anger: "#FF6F61", // Coral Red
+  annoyance: "#FF8C69", // Light Red Orange
+  approval: "#8FBC8F", // Sage Green
+  autonomy: "#7EC8E3", // Sky Blue
+  boredom: "#D3D3D3", // Light Gray
+  caring: "#DDA0DD", // Plum
+  confusion: "#DDAADD", // Light Purple
+  creativity: "#FFD1E0", // Pastel Pink
+  curiosity: "#87CEFA", // Light Sky Blue
+  desire: "#FF7256", // Sunset Orange
+  disappointment: "#C0C0C0", // Silver
+  disapproval: "#CBA3D3", // Lavender Purple
+  disgust: "#ADFF2F", // Green Yellow
+  embarrassment: "#FFB6C1", // Light Pink
+  empty: "#A9A9A9", // Dark Gray
+  enthusiasm: "#FFC300", // Bright Yellow Gold
+  excitement: "#FDFD96", // Lemon Yellow
+  fear: "#D8BFD8", // Thistle
+  fun: "#FF69B4", // Hot Pink
+  gratitude: "#98FB98", // Pale Green
+  grief: "#A0A0A0", // Medium Gray
+  happiness: "#FFD700", // Golden Yellow
+  hate: "#CD5C5C", // Indian Red
+  joy: "#FFFACD", // Lemon Chiffon
+  love: "#FF6F91", // Warm Pink
+  meaning: "#DA70D6", // Orchid
+  nervousness: "#FFB347", // Pastel Orange
+  neutral: "#B0B0B0", // Medium Gray
+  optimism: "#FFFF99", // Pale Yellow
+  pride: "#F49AC2", // Baby Pink
+  realization: "#FFC0CB", // Pink
+  recreation: "#ADD8E6", // Light Blue
+  relief: "#FFDEAD", // Navajo White
+  sadness: "#87CEEB", // Sky Blue
+  safety: "#7FFF00", // Chartreuse Green
+  sense_of_belonging: "#FFCC99", // Peach
   surprise: "#FFD700", // Gold
-  sustenance: "#8B4513", // SaddleBrown
-  understanding: "#20B2AA", // LightSeaGreen
-  worry: "#FF6347", // Tomato
+  sustenance: "#FFA07A", // Salmon
+  understanding: "#C9E4C5", // Pastel Green
+  worry: "#FFB347", // Apricot
 };
