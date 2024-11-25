@@ -4,10 +4,10 @@ import Header from "../components/Header";
 import CalendarRow from "../components/CalendarRow";
 import { useEntryDates } from "../components/EntryDatesContext";
 import { useNavigation } from "@react-navigation/native";
-import emotionColours from "../utils/emotionColours";
+import { emotionColours } from "../utils/emotionColours"; // Ensure the path is correct
 
 const CalendarScreen = () => {
-  const { entryDates = [], journalEntries = [] } = useEntryDates(); // Default to empty array if undefined
+  const { entryDates = [], journalEntries = [] } = useEntryDates() || {}; // Ensure fallback to empty object if undefined
   const navigation = useNavigation(); // For navigating to the homepage
 
   const months = [
@@ -19,8 +19,36 @@ const CalendarScreen = () => {
 
   const daysOfWeek = ["SUN", "MON", "TUE", "WED", "THU", "FRI", "SAT"];
 
-  // Function to generate calendar grid for a given month
+  const getEmotionColor = (emotion) => {
+    try {
+      if (!emotion || typeof emotion !== "string") {
+        console.warn("Invalid emotion value; using fallback color:", emotion);
+        return "#FFC0CB"; // Default pink
+      }
+
+      const normalizedEmotion = emotion.trim().toLowerCase(); // Trim and convert to lowercase
+
+      // Check if the emotion exists in the emotionColours object
+      if (!emotionColours.hasOwnProperty(normalizedEmotion)) {
+        console.warn(
+          `Emotion not found in emotionColours: ${normalizedEmotion}`
+        );
+        emotionColours[normalizedEmotion] = "#AAAAAA"; // Default grey for missing emotions
+      }
+
+      return emotionColours[normalizedEmotion]; // Return the corresponding color
+    } catch (error) {
+      console.error("Error in getEmotionColor:", error);
+      return "#FFC0CB"; // Fallback pink for unexpected errors
+    }
+  };
+
   const generateGrid = (month) => {
+    if (!month) {
+      console.error("Invalid month object provided to generateGrid:", month);
+      return [];
+    }
+
     const totalSlots = Math.ceil((month.days + month.startDay) / 7) * 7;
     const grid = [];
     const uniqueDays = new Map();
@@ -34,16 +62,14 @@ const CalendarScreen = () => {
       const [year, monthIndex, day] = entry.journalDate.split("-").map(Number);
 
       if (year === month.year && monthIndex === month.index + 1) {
-        const emotionColour =
+        // Assign a default emotion ("neutral") if topEmotions is empty or missing
+        const emotion =
           entry.topEmotions && entry.topEmotions.length > 0
-            ? emotionColours?.[entry.topEmotions[0]] || "#AAAAAA" // Default grey
-            : "#FFC0CB"; // Default pink for undefined emotions
+            ? entry.topEmotions[0]
+            : "neutral";
 
-        if (__DEV__ && !emotionColours?.[entry.topEmotions?.[0]]) {
-          console.warn(
-            `Emotion not found in emotionColours: ${entry.topEmotions?.[0]}`
-          );
-        }
+        // Get the color associated with the emotion
+        const emotionColour = getEmotionColor(emotion);
 
         if (!uniqueDays.has(day)) {
           uniqueDays.set(day, { day, emotionColour });
@@ -70,7 +96,7 @@ const CalendarScreen = () => {
     return grid;
   };
 
-  // Chunk an array into smaller arrays of a given size
+  // Function to chunk an array into smaller arrays of a given size
   const chunkArray = (array, size) => {
     const chunks = [];
     for (let i = 0; i < array.length; i += size) {
@@ -94,12 +120,25 @@ const CalendarScreen = () => {
     }
   };
 
+  // Log invalid or missing data for debugging
+  if (!Array.isArray(months) || months.length === 0) {
+    console.error("Invalid months data provided:", months);
+  }
+  if (!Array.isArray(journalEntries)) {
+    console.error("Invalid journalEntries data provided:", journalEntries);
+  }
+
   return (
     <View style={styles.container}>
       <Header />
       <Text style={styles.title}>Journal Entries</Text>
       <ScrollView>
         {months.map((month) => {
+          if (!month) {
+            console.error("Skipping invalid month:", month);
+            return null;
+          }
+
           const grid = generateGrid(month); // Pass the whole month object
           const rows = chunkArray(grid, 7);
 
@@ -120,7 +159,7 @@ const CalendarScreen = () => {
                   key={index}
                   days={week}
                   month={month}
-                  entryDates={entryDates}
+                  entryDates={entryDates || []} // Ensure fallback to empty array
                   onDayPress={handleDayPress} // Pass the click handler
                 />
               ))}

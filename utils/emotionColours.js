@@ -1,4 +1,4 @@
-export const emotionColors = {
+export const emotionColours = {
   admiration: "#FFB7C5", // Soft Pink
   amusement: "#FFA07A", // Light Salmon
   anger: "#FF6F61", // Coral Red
