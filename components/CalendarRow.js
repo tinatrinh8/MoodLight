@@ -1,5 +1,6 @@
 import React from "react";
 import { View, StyleSheet, TouchableOpacity, Text } from "react-native";
+import { emotionColours } from "../utils/emotionColours";
 
 const CalendarRow = ({ days, month, entryDates, onDayPress }) => {
   const today = new Date();
@@ -20,7 +21,9 @@ const CalendarRow = ({ days, month, entryDates, onDayPress }) => {
             ]}
             onPress={() => {
               if (day.day && !isFutureDate) {
-                const selectedDate = `${month.year}-${String(month.index + 1).padStart(2, "0")}-${String(day.day).padStart(2, "0")}`;
+                const selectedDate = `${month.year}-${String(
+                  month.index + 1
+                ).padStart(2, "0")}-${String(day.day).padStart(2, "0")}`;
                 onDayPress(selectedDate); // Pass the formatted date to the callback
               }
             }}

@@ -1,12 +1,13 @@
 import React from "react";
-import { View, Text, StyleSheet, ScrollView, Alert } from "react-native";
+import { View, Text, StyleSheet, ScrollView } from "react-native";
 import Header from "../components/Header";
 import CalendarRow from "../components/CalendarRow";
 import { useEntryDates } from "../components/EntryDatesContext";
 import { useNavigation } from "@react-navigation/native";
+import emotionColours from "../utils/emotionColours";
 
 const CalendarScreen = () => {
-  const { entryDates, journalEntries } = useEntryDates(); // Access global state
+  const { entryDates = [], journalEntries = [] } = useEntryDates(); // Default to empty array if undefined
   const navigation = useNavigation(); // For navigating to the homepage
 
   const months = [
@@ -18,29 +19,58 @@ const CalendarScreen = () => {
 
   const daysOfWeek = ["SUN", "MON", "TUE", "WED", "THU", "FRI", "SAT"];
 
+  // Function to generate calendar grid for a given month
   const generateGrid = (month) => {
     const totalSlots = Math.ceil((month.days + month.startDay) / 7) * 7;
     const grid = [];
+    const uniqueDays = new Map();
 
-    // Extract all days from journalEntries that match this month and year
-    const highlightedDays = journalEntries
-      .filter((entry) => {
-        const [year, monthIndex, day] = entry.journalDate.split("-").map(Number); // Split journalDate into parts
-        return year === month.year && monthIndex - 1 === month.index; // Match year and month
-      })
-      .map((entry) => parseInt(entry.journalDate.split("-")[2], 10)); // Extract the day part as a number
+    journalEntries.forEach((entry) => {
+      if (!entry?.journalDate) {
+        console.warn("Skipping entry due to missing journalDate:", entry);
+        return;
+      }
+
+      const [year, monthIndex, day] = entry.journalDate.split("-").map(Number);
+
+      if (year === month.year && monthIndex === month.index + 1) {
+        const emotionColour =
+          entry.topEmotions && entry.topEmotions.length > 0
+            ? emotionColours?.[entry.topEmotions[0]] || "#AAAAAA" // Default grey
+            : "#FFC0CB"; // Default pink for undefined emotions
+
+        if (__DEV__ && !emotionColours?.[entry.topEmotions?.[0]]) {
+          console.warn(
+            `Emotion not found in emotionColours: ${entry.topEmotions?.[0]}`
+          );
+        }
+
+        if (!uniqueDays.has(day)) {
+          uniqueDays.set(day, { day, emotionColour });
+        }
+      }
+    });
+
+    const highlightedDays = Array.from(uniqueDays.values());
 
     for (let i = 0; i < totalSlots; i++) {
       if (i < month.startDay || i >= month.days + month.startDay) {
         grid.push(""); // Empty slot
       } else {
         const day = i - month.startDay + 1;
-        grid.push({ day, isJournalDate: highlightedDays.includes(day) });
+        const highlightedDay = highlightedDays.find((d) => d.day === day);
+        grid.push({
+          day,
+          isJournalDate: !!highlightedDay,
+          color: highlightedDay ? highlightedDay.emotionColour : "#AAAAAA", // Default grey
+        });
       }
     }
+
     return grid;
   };
 
+  // Chunk an array into smaller arrays of a given size
   const chunkArray = (array, size) => {
     const chunks = [];
     for (let i = 0; i < array.length; i += size) {
@@ -49,28 +79,20 @@ const CalendarScreen = () => {
     return chunks;
   };
 
-const handleDayPress = (selectedDate) => {
-  if (!selectedDate) {
-    console.log("Empty slot clicked");
-    return; // Ignore empty slots
-  }
+  // Handle the click of a day on the calendar
+  const handleDayPress = (selectedDate) => {
+    if (!selectedDate) return; // Ignore empty slots
 
-  console.log("Selected Date:", selectedDate);
+    const journalEntry = journalEntries.find(
+      (entry) => entry.journalDate === selectedDate
+    );
 
-  const journalEntry = journalEntries.find(
-    (entry) => entry.journalDate === selectedDate
-  );
-
-  if (journalEntry) {
-    console.log("Navigating to existing journal entry:", journalEntry);
-    navigation.navigate("Home", { viewJournalEntry: journalEntry });
-  } else {
-    console.log("Creating new journal entry for date:", selectedDate);
-    navigation.navigate("Home", { selectedDate });
-  }
-};
-
-
+    if (journalEntry) {
+      navigation.navigate("Home", { viewJournalEntry: journalEntry });
+    } else {
+      navigation.navigate("Home", { selectedDate });
+    }
+  };
 
   return (
     <View style={styles.container}>

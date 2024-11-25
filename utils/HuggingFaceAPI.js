@@ -4,7 +4,9 @@ import { HUGGING_FACE_API_KEY } from "@env";
 export const getEmotion = async (text) => {
   if (!text || typeof text !== "string") {
     console.error("Invalid input for emotion analysis:", text);
-    throw new Error("Invalid input: Emotion analysis requires a non-empty string.");
+    throw new Error(
+      "Invalid input: Emotion analysis requires a non-empty string."
+    );
   }
 
   try {
@@ -28,7 +30,11 @@ export const getEmotion = async (text) => {
   } catch (error) {
     if (error.response) {
       console.error("API Error:", error.response.data);
-      throw new Error(`API Error: ${error.response.status} - ${error.response.data.error || error.response.data}`);
+      throw new Error(
+        `API Error: ${error.response.status} - ${
+          error.response.data.error || error.response.data
+        }`
+      );
     } else if (error.request) {
       console.error("No response from API:", error.request);
       throw new Error("No response received from API.");

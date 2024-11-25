@@ -75,77 +75,77 @@ const styles = StyleSheet.create({
     padding: 5,
   },
 
-searchBar: {
-  flexDirection: "row",
-  alignItems: "center",
-  backgroundColor: "#F5F0E8", // Match the container background color
-  borderRadius: 25,
-  borderWidth: 2,
-  borderColor: "#000", // Black border for the box
-  paddingHorizontal: 15,
-  paddingVertical: 8,
-  shadowColor: "transparent", // Remove shadow for seamless integration
-  shadowOffset: { width: 0, height: 0 },
-  shadowOpacity: 0,
-  shadowRadius: 0,
-  elevation: 0, // Remove elevation on Android
-},
+  searchBar: {
+    flexDirection: "row",
+    alignItems: "center",
+    backgroundColor: "#F5F0E8", // Match the container background color
+    borderRadius: 25,
+    borderWidth: 2,
+    borderColor: "#000", // Black border for the box
+    paddingHorizontal: 15,
+    paddingVertical: 8,
+    shadowColor: "transparent", // Remove shadow for seamless integration
+    shadowOffset: { width: 0, height: 0 },
+    shadowOpacity: 0,
+    shadowRadius: 0,
+    elevation: 0, // Remove elevation on Android
+  },
 
-searchInput: {
-  flex: 1,
-  fontSize: 16,
-  color: "#333", // Dark gray text color
-  paddingVertical: 5,
-  paddingHorizontal: 10,
-  fontFamily: "LexendDeca",
-},
+  searchInput: {
+    flex: 1,
+    fontSize: 16,
+    color: "#333", // Dark gray text color
+    paddingVertical: 5,
+    paddingHorizontal: 10,
+    fontFamily: "LexendDeca",
+  },
 
-searchIcon: {
-  width: 20, // Adjust width for the search icon
-  height: 20, // Adjust height for the search icon
-  marginRight: 10, // Add spacing between the icon and input field
-  tintColor: "#000", // Set the icon color to black
-},
+  searchIcon: {
+    width: 20, // Adjust width for the search icon
+    height: 20, // Adjust height for the search icon
+    marginRight: 10, // Add spacing between the icon and input field
+    tintColor: "#000", // Set the icon color to black
+  },
 
-clearButton: {
-  fontSize: 24, // Make the "×" larger
-  color: "#000", // Set color to black
-  marginLeft: 10, // Add spacing from the text input
-},
+  clearButton: {
+    fontSize: 24, // Make the "×" larger
+    color: "#000", // Set color to black
+    marginLeft: 10, // Add spacing from the text input
+  },
 
-// Styles for the dropdown container
-resultsContainer: {
-  marginTop: 10,
-  backgroundColor: "#F5F0E8", // Match the container background color
-  borderRadius: 15, // Rounded corners for the dropdown
-  maxHeight: 250, // Limit the height of the dropdown
-  overflow: "hidden", // Prevent overflow of items
-  paddingVertical: 10, // Add padding inside the dropdown
-},
+  // Styles for the dropdown container
+  resultsContainer: {
+    marginTop: 10,
+    backgroundColor: "#F5F0E8", // Match the container background color
+    borderRadius: 15, // Rounded corners for the dropdown
+    maxHeight: 250, // Limit the height of the dropdown
+    overflow: "hidden", // Prevent overflow of items
+    paddingVertical: 10, // Add padding inside the dropdown
+  },
 
-// Styles for each dropdown item
-resultItem: {
-  padding: 12, // Padding inside each item
-  marginHorizontal: 10, // Spacing on the sides
-  marginVertical: 5, // Space between items
-  borderRadius: 15, // Rounded corners for each item
-  borderColor: "#000",
-  backgroundColor: "#DC869A", // Light pink background for items
-  shadowColor: "#000", // Shadow for items
-  shadowOffset: { width: 0, height: 2 },
-  shadowOpacity: 0.15,
-  shadowRadius: 4,
-  elevation: 2, // Slight elevation for floating effect
-},
+  // Styles for each dropdown item
+  resultItem: {
+    padding: 12, // Padding inside each item
+    marginHorizontal: 10, // Spacing on the sides
+    marginVertical: 5, // Space between items
+    borderRadius: 15, // Rounded corners for each item
+    borderColor: "#000",
+    backgroundColor: "#DC869A", // Light pink background for items
+    shadowColor: "#000", // Shadow for items
+    shadowOffset: { width: 0, height: 2 },
+    shadowOpacity: 0.15,
+    shadowRadius: 4,
+    elevation: 2, // Slight elevation for floating effect
+  },
 
-// Styles for text inside each dropdown item
-resultText: {
-  fontSize: 16, // Font size for text
-  color: "#FFF", // White text
-  fontFamily: "LexendDeca", // Custom font for better aesthetics
-  fontWeight: "600", // Slightly bold for emphasis
-  textAlign: "left", // Center-align text
-},
+  // Styles for text inside each dropdown item
+  resultText: {
+    fontSize: 16, // Font size for text
+    color: "#FFF", // White text
+    fontFamily: "LexendDeca", // Custom font for better aesthetics
+    fontWeight: "600", // Slightly bold for emphasis
+    textAlign: "left", // Center-align text
+  },
   noResultsText: {
     padding: 15,
     textAlign: "center",
@@ -330,10 +330,11 @@ resultText: {
 
   closeButton: {
     alignSelf: "flex-end",
-    padding: 10,
+    padding: 20,
+    marginTop: 20,
   },
   closeButtonText: {
-    fontSize: 24,
+    fontSize: 30,
     color: "#FFF",
   },
 

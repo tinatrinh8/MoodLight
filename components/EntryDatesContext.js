@@ -1,4 +1,5 @@
 import React, { createContext, useState, useContext } from "react";
+import { emotionColours } from "../utils/emotionColours";
 
 const EntryDatesContext = createContext();
 
