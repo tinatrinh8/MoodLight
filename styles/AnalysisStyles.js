@@ -1,6 +1,28 @@
 import { StyleSheet } from "react-native";
 
 const AnalysisStyles = StyleSheet.create({
+  legendContainer: {
+    flexDirection: "row",
+    justifyContent: "center",
+    alignItems: "center",
+    flexWrap: "wrap",
+    marginTop: 10,
+  },
+  legendItem: {
+    flexDirection: "row",
+    alignItems: "center",
+    marginHorizontal: 10,
+    marginVertical: 5,
+  },
+  colorBox: {
+    width: 20,
+    height: 20,
+    marginRight: 5,
+  },
+  legendText: {
+    fontSize: 14,
+    color: "#260101",
+  },
   container: {
     flex: 1,
     backgroundColor: "#DC869A", // Pink background for the entire screen

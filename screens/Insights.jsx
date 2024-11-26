@@ -4,7 +4,6 @@ import {
   Text,
   TouchableOpacity,
   Dimensions,
-  StyleSheet,
 } from "react-native";
 import { LineChart } from "react-native-chart-kit";
 import Header from "../components/Header";
@@ -20,129 +19,103 @@ import {
   generateMonthLabels,
   groupDataByMonth,
 } from "../utils/emotionUtils";
-import { emotionColors } from "../utils/emotionColours";
-import styles from "../styles/InsightsStyles";
+import { emotionColours } from "../utils/emotionColours"; // Updated import to match changes
+import styles from "../styles/InsightsStyles"; // Main styles for the Insights page
+import analysisStyles from "../styles/AnalysisStyles"; // Legend styles
 import { addDays } from "date-fns";
 
 const InsightsScreen = () => {
-  const { journalEntries } = useEntryDates(); // Get journal entries from context
+  const { journalEntries = [] } = useEntryDates() || {}; // Ensure fallback to empty object
   const [timePeriod, setTimePeriod] = useState("Weekly"); // Default filter
   const [chartData, setChartData] = useState(null);
-
-  // State for Weekly View
-  const [currentWeekStart, setCurrentWeekStart] = useState(
-    getStartOfWeek(new Date())
-  );
+  const [currentWeekStart, setCurrentWeekStart] = useState(getStartOfWeek(new Date()));
   const [currentWeekEnd, setCurrentWeekEnd] = useState(getEndOfWeek(new Date()));
-
-  // State for Monthly View
   const [currentYear, setCurrentYear] = useState(new Date().getFullYear());
-  const [topEmotions, setTopEmotions] = useState([]); // Top emotions for the legend
+  const [topEmotions, setTopEmotions] = useState([]);
 
-  const today = new Date(); // Today's date
-  const currentYearNumber = today.getFullYear(); // Current year
+  const today = new Date();
 
-  // Handle navigation to the next week
+  // Weekly navigation handlers
   const handleNextWeek = () => {
     setCurrentWeekStart((prev) => addDays(prev, 7));
     setCurrentWeekEnd((prev) => addDays(prev, 7));
   };
 
-  // Handle navigation to the previous week
   const handlePreviousWeek = () => {
     setCurrentWeekStart((prev) => addDays(prev, -7));
     setCurrentWeekEnd((prev) => addDays(prev, -7));
   };
 
-  // Handle navigation to the next year
+  // Yearly navigation handlers
   const handleNextYear = () => setCurrentYear((prev) => prev + 1);
-
-  // Handle navigation to the previous year
   const handlePreviousYear = () => setCurrentYear((prev) => prev - 1);
 
-  // Check if viewing the current week
   const isCurrentWeek = currentWeekStart <= today && currentWeekEnd >= today;
 
-  // Format data for the weekly line chart
+  // Format chart data for weekly view
   const formatChartDataForWeek = (entries, emotions) => {
-    const weeklyData = groupDataByDay(
-      entries,
-      currentWeekStart,
-      currentWeekEnd,
-      emotions
-    );
-    const labels = generateWeekDays(currentWeekStart); // X-axis labels (weekdays)
+    const weeklyData = groupDataByDay(entries, currentWeekStart, currentWeekEnd, emotions);
+    const labels = generateWeekDays(currentWeekStart);
     const datasets = emotions.map((emotion) => ({
-      data: weeklyData.map((day) => day[emotion] || 0), // Y-axis values for each day
-      color: () => emotionColors[emotion] || "#808080", // Use emotion color or fallback to gray
-      strokeWidth: 2, // Line thickness
-    }));
-
-    const maxCount = Math.max(...datasets.flatMap((dataset) => dataset.data));
-
-    return { labels, datasets, maxCount };
-  };
-
-  // Format data for the yearly line chart
-  const formatChartDataForYear = (entries, emotions) => {
-    const startOfYear = getStartOfYear(new Date(currentYear, 0, 1));
-    const endOfYear = getEndOfYear(new Date(currentYear, 11, 31));
-
-    // Group data by month and emotion
-    const monthlyData = groupDataByMonth(entries, startOfYear, endOfYear, emotions);
-
-    const labels = generateMonthLabels();
-
-    const datasets = emotions.map((emotion) => ({
-      data: monthlyData.map((month) => month[emotion] || 0),
-      color: () => emotionColors[emotion] || "#808080",
+      data: weeklyData.map((day) => day[emotion] || 0),
+      color: () => emotionColours[emotion] || "#808080", // Use updated emotionColours
       strokeWidth: 2,
     }));
 
     const maxCount = Math.max(...datasets.flatMap((dataset) => dataset.data));
-
     return { labels, datasets, maxCount };
   };
 
-  // Update chart data whenever journalEntries, timePeriod, or navigation state changes
+  // Format chart data for yearly view
+  const formatChartDataForYear = (entries, emotions) => {
+    const startOfYear = getStartOfYear(new Date(currentYear, 0, 1));
+    const endOfYear = getEndOfYear(new Date(currentYear, 11, 31));
+    const monthlyData = groupDataByMonth(entries, startOfYear, endOfYear, emotions);
+    const labels = generateMonthLabels();
+    const datasets = emotions.map((emotion) => ({
+      data: monthlyData.map((month) => month[emotion] || 0),
+      color: () => emotionColours[emotion] || "#808080",
+      strokeWidth: 2,
+    }));
+
+    const maxCount = Math.max(...datasets.flatMap((dataset) => dataset.data));
+    return { labels, datasets, maxCount };
+  };
+
+  // Update chart data based on time period and navigation
   useEffect(() => {
     if (journalEntries?.length) {
+      let filteredEntries, newChartData, topEmotionsList;
+
       if (timePeriod === "Weekly") {
-        const filteredEntries = journalEntries.filter((entry) => {
+        filteredEntries = journalEntries.filter((entry) => {
           const entryDate = new Date(entry.journalDate);
           return entryDate >= currentWeekStart && entryDate <= currentWeekEnd;
         });
-
-        const topEmotionsList = getTopEmotions(filteredEntries, 5);
-        setTopEmotions(topEmotionsList);
-
-        if (topEmotionsList.length > 0) {
-          const chartData = formatChartDataForWeek(filteredEntries, topEmotionsList);
-          setChartData(chartData);
-        } else {
-          setChartData(null);
-        }
+        topEmotionsList = getTopEmotions(filteredEntries, 5);
+        newChartData =
+          topEmotionsList.length > 0
+            ? formatChartDataForWeek(filteredEntries, topEmotionsList)
+            : null;
       } else if (timePeriod === "Monthly") {
         const startOfYear = getStartOfYear(new Date(currentYear, 0, 1));
         const endOfYear = getEndOfYear(new Date(currentYear, 11, 31));
-
-        const filteredEntries = journalEntries.filter((entry) => {
+        filteredEntries = journalEntries.filter((entry) => {
           const entryDate = new Date(entry.journalDate);
           return entryDate >= startOfYear && entryDate <= endOfYear;
         });
-
-        const topEmotionsList = getTopEmotions(filteredEntries, 5);
-        setTopEmotions(topEmotionsList);
-
-        if (topEmotionsList.length > 0) {
-          const chartData = formatChartDataForYear(filteredEntries, topEmotionsList);
-          setChartData(chartData);
-        } else {
-          setChartData(null);
-        }
+        topEmotionsList = getTopEmotions(filteredEntries, 5);
+        newChartData =
+          topEmotionsList.length > 0
+            ? formatChartDataForYear(filteredEntries, topEmotionsList)
+            : null;
       }
+
+      setTopEmotions(topEmotionsList || []);
+      setChartData(newChartData);
     } else {
       setChartData(null);
+      setTopEmotions([]);
     }
   }, [journalEntries, timePeriod, currentWeekStart, currentWeekEnd, currentYear]);
 
@@ -170,17 +143,11 @@ const InsightsScreen = () => {
       {/* Weekly Navigation */}
       {timePeriod === "Weekly" && (
         <View style={styles.filterContainer}>
-          <TouchableOpacity
-            style={styles.filterButton}
-            onPress={handlePreviousWeek}
-          >
+          <TouchableOpacity style={styles.filterButton} onPress={handlePreviousWeek}>
             <Text style={styles.filterButtonText}>&larr; Previous Week</Text>
           </TouchableOpacity>
           {!isCurrentWeek && (
-            <TouchableOpacity
-              style={styles.filterButton}
-              onPress={handleNextWeek}
-            >
+            <TouchableOpacity style={styles.filterButton} onPress={handleNextWeek}>
               <Text style={styles.filterButtonText}>Next Week &rarr;</Text>
             </TouchableOpacity>
           )}
@@ -190,17 +157,11 @@ const InsightsScreen = () => {
       {/* Monthly Navigation */}
       {timePeriod === "Monthly" && (
         <View style={styles.filterContainer}>
-          <TouchableOpacity
-            style={styles.filterButton}
-            onPress={handlePreviousYear}
-          >
+          <TouchableOpacity style={styles.filterButton} onPress={handlePreviousYear}>
             <Text style={styles.filterButtonText}>Previous Year</Text>
           </TouchableOpacity>
-          {currentYear < currentYearNumber && ( // Only show "Next Year" if not viewing the current year
-            <TouchableOpacity
-              style={styles.filterButton}
-              onPress={handleNextYear}
-            >
+          {currentYear < today.getFullYear() && (
+            <TouchableOpacity style={styles.filterButton} onPress={handleNextYear}>
               <Text style={styles.filterButtonText}>Next Year</Text>
             </TouchableOpacity>
           )}
@@ -210,88 +171,53 @@ const InsightsScreen = () => {
       {/* Line Chart */}
       <View style={styles.chartContainer}>
         {chartData ? (
-          (() => {
-            const maxYValue = Math.max(chartData.maxCount || 0, 1); // Ensure at least 1
-            const segments = Math.min(5, Math.ceil(maxYValue)); // Max 5 segments, rounded up
-
-            return (
-              <LineChart
-                data={{
-                  labels: chartData.labels,
-                  datasets: chartData.datasets,
-                }}
-                width={Dimensions.get("window").width - 32} // Adjust for padding
-                height={220}
-                chartConfig={{
-                  backgroundColor: "#260101",
-                  backgroundGradientFrom: "#9E4F61",
-                  backgroundGradientTo: "#260101",
-                  decimalPlaces: 0, // No decimal points
-                  color: (opacity = 1) => `rgba(255, 255, 255, ${opacity})`,
-                  labelColor: (opacity = 1) => `rgba(255, 255, 255, ${opacity})`,
-                  style: { borderRadius: 16 },
-                  propsForDots: {
-                    r: "6",
-                    strokeWidth: "2",
-                    stroke: "#9E4F61",
-                    fill: "#FFFFFF",
-                  },
-                }}
-                bezier
-                fromZero={true} // Ensure Y-axis starts at 0
-                segments={segments} // Dynamically set segments
-                style={styles.chart}
-              />
-            );
-          })()
+          <LineChart
+            data={{
+              labels: chartData.labels || [],
+              datasets: chartData.datasets || [],
+            }}
+            width={Dimensions.get("window").width - 32}
+            height={220}
+            chartConfig={{
+              backgroundColor: "#260101",
+              backgroundGradientFrom: "#9E4F61",
+              backgroundGradientTo: "#260101",
+              decimalPlaces: 0,
+              color: (opacity = 1) => `rgba(255, 255, 255, ${opacity})`,
+              labelColor: (opacity = 1) => `rgba(255, 255, 255, ${opacity})`,
+              style: { borderRadius: 16 },
+              propsForDots: {
+                r: "6",
+                strokeWidth: "2",
+                stroke: "#9E4F61",
+                fill: "#FFFFFF",
+              },
+            }}
+            bezier
+            fromZero
+            style={styles.chart}
+          />
         ) : (
-          <Text style={styles.noDataText}>
-            No data available for this period.
-          </Text>
+          <Text style={styles.noDataText}>No data available for this period.</Text>
         )}
       </View>
 
       {/* Legend */}
-      <View style={legendStyles.legendContainer}>
+      <View style={analysisStyles.legendContainer}>
         {topEmotions.map((emotion) => (
-          <View key={emotion} style={legendStyles.legendItem}>
+          <View key={emotion} style={analysisStyles.legendItem}>
             <View
               style={[
-                legendStyles.colorBox,
-                { backgroundColor: emotionColors[emotion] || "#808080" },
+                analysisStyles.colorBox,
+                { backgroundColor: emotionColours[emotion] || "#808080" },
               ]}
             />
-            <Text style={legendStyles.legendText}>{emotion}</Text>
+            <Text style={analysisStyles.legendText}>{emotion}</Text>
           </View>
         ))}
       </View>
     </View>
   );
 };
-
-const legendStyles = StyleSheet.create({
-  legendContainer: {
-    flexDirection: "row",
-    justifyContent: "center",
-    alignItems: "center",
-    flexWrap: "wrap",
-    marginTop: 10,
-  },
-  legendItem: {
-    flexDirection: "row",
-    alignItems: "center",
-    marginHorizontal: 10,
-    marginVertical: 5,
-  },
-  colorBox: {
-    width: 20,
-    height: 20,
-    marginRight: 5,
-  },
-  legendText: {
-    fontSize: 14,
-    color: "#260101",
-  },
-});
 
 export default InsightsScreen;
