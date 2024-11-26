@@ -166,10 +166,9 @@ useEffect(() => {
         setTopEmotions(entry.topEmotions);
         return;
       }
-
-      if (entry.type === "prompts" && entry.promptsData) {
+      if (type === "prompts") {
         // Combine all prompt responses into a single string
-        textForAnalysis = entry.promptsData
+        textForAnalysis = entryText
           .map((item) => item.response)
           .join(". "); // Join all responses with a period and space
       } else if (entryText) {
