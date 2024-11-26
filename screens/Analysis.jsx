@@ -112,7 +112,7 @@ export default function Analysis() {
   };
 
   const entry = route.params || ENTRY_DEFAULTS;
-  const { id: entryId, entryTitle, entryText, journalDate, type } = entry;
+  const { entryId, entryTitle, entryText, journalDate, type } = entry;
 
   const [topEmotions, setTopEmotions] = useState([]);
   const [loadingEmotions, setLoadingEmotions] = useState(true);
@@ -166,7 +166,7 @@ useEffect(() => {
         setTopEmotions(entry.topEmotions);
         return;
       }
-      if (type === "prompts") {
+      if (type === "prompts" && Array.isArray(entryText)) {
         // Combine all prompt responses into a single string
         textForAnalysis = entryText
           .map((item) => item.response)
@@ -183,7 +183,6 @@ useEffect(() => {
       if (!detectedEmotions || !Array.isArray(detectedEmotions)) {
         throw new Error("Invalid response from emotion analysis API.");
       }
-
       await parseTopEmotions(detectedEmotions);
     } catch (error) {
       console.error("Error fetching emotions:", error.message || error);
