@@ -1,5 +1,6 @@
 import React from "react";
 import { View, StyleSheet, TouchableOpacity, Text } from "react-native";
+import { emotionColours } from "../utils/emotionColours";
 
 const CalendarRow = ({ days, month, entryDates, onDayPress }) => {
   const today = new Date();
@@ -7,7 +8,6 @@ const CalendarRow = ({ days, month, entryDates, onDayPress }) => {
   return (
     <View style={styles.row}>
       {days.map((day, index) => {
-        // Create the current date for comparison
         const cellDate = new Date(month.year, month.index, day.day || 0);
         const isFutureDate = day.day && cellDate > today;
 
@@ -17,10 +17,13 @@ const CalendarRow = ({ days, month, entryDates, onDayPress }) => {
             style={[
               styles.dayContainer,
               day.isJournalDate && styles.highlightedContainer, // Highlight if it's a journal date
+              { backgroundColor: day.color }, // Apply emotion color as background color
             ]}
             onPress={() => {
               if (day.day && !isFutureDate) {
-                const selectedDate = `${month.year}-${String(month.index + 1).padStart(2, "0")}-${String(day.day).padStart(2, "0")}`;
+                const selectedDate = `${month.year}-${String(
+                  month.index + 1
+                ).padStart(2, "0")}-${String(day.day).padStart(2, "0")}`;
                 onDayPress(selectedDate); // Pass the formatted date to the callback
               }
             }}
@@ -55,7 +58,6 @@ const styles = StyleSheet.create({
     alignItems: "center", // Center content horizontally
   },
   highlightedContainer: {
-    backgroundColor: "#DC869A", // Circle background color for highlighted dates
     borderRadius: 20, // Ensures circular shape
   },
   day: {

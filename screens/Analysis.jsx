@@ -112,7 +112,7 @@ export default function Analysis() {
   };
 
   const entry = route.params || ENTRY_DEFAULTS;
-  const { entryId, entryTitle, entryText, journalDate } = entry;
+  const { entryId, entryTitle, entryText, journalDate, type } = entry;
 
   const [topEmotions, setTopEmotions] = useState([]);
   const [loadingEmotions, setLoadingEmotions] = useState(true);
@@ -166,19 +166,14 @@ useEffect(() => {
         setTopEmotions(entry.topEmotions);
         return;
       }
-
-      if (entry.type === "prompts" && entry.promptsData) {
+      if (type === "prompts") {
         // Combine all prompt responses into a single string
-        textForAnalysis = entry.promptsData
+        textForAnalysis = entryText
           .map((item) => item.response)
           .join(". "); // Join all responses with a period and space
       } else if (entryText) {
         // Use free-writing text as-is
         textForAnalysis = entryText;
-      }
-
-      if (!textForAnalysis || typeof textForAnalysis !== "string") {
-        throw new Error("Invalid input: Emotion analysis requires a non-empty string.");
       }
 
       console.log("Text for emotion analysis:", textForAnalysis);

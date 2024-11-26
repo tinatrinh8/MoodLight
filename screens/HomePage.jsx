@@ -282,8 +282,7 @@ const HomePage = () => {
 
     // Check if a journal entry is passed from navigation
   if (route.params?.viewJournalEntry) {
-    setViewJournalEntry(route.params.viewJournalEntry); // Set the entry for the modal
-    setViewJournalModalVisible(true); // Open the modal
+    handleOpenJournal(route.params.viewJournalEntry)
     navigation.setParams({ viewJournalEntry: null }); // Clear params
   }
 
