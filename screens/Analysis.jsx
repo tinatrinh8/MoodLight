@@ -166,7 +166,7 @@ useEffect(() => {
         setTopEmotions(entry.topEmotions);
         return;
       }
-      if (type === "prompts") {
+      if (type === "prompts" && Array.isArray(entryText)) {
         // Combine all prompt responses into a single string
         textForAnalysis = entryText
           .map((item) => item.response)
