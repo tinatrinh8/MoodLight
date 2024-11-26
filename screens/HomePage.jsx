@@ -423,9 +423,9 @@ const handleSaveEntry = async () => {
       {editModalVisible && selectedEntry && (
         <EditJournalEntryModal
           entry={selectedEntry}
-          onClose={() => {
+          onClose={(entry) => {
             setEditModalVisible(false);
-            navigation.navigate("Analysis", { ...selectedEntry });
+            navigation.navigate("Analysis", { ...entry });
           }}
           onSave={updateJournalEntry} // Correctly pass the onSave function here
           setJournalEntries={setJournalEntries} // Pass the state updater

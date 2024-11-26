@@ -45,7 +45,7 @@ const EditJournalEntryModal = ({
 
     try {
       await onSave(updatedEntry.id, updatedEntry);
-      onClose();
+      onClose(updatedEntry);
     } catch (error) {
       console.error("Error saving changes:", error.message);
     }
