@@ -183,7 +183,6 @@ useEffect(() => {
       if (!detectedEmotions || !Array.isArray(detectedEmotions)) {
         throw new Error("Invalid response from emotion analysis API.");
       }
-      console.log(entry)
       await parseTopEmotions(detectedEmotions);
     } catch (error) {
       console.error("Error fetching emotions:", error.message || error);
