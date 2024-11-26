@@ -19,14 +19,14 @@ import {
   generateMonthLabels,
   groupDataByMonth,
 } from "../utils/emotionUtils";
-import { emotionColours } from "../utils/emotionColours"; // Updated import to match changes
-import styles from "../styles/InsightsStyles"; // Main styles for the Insights page
-import analysisStyles from "../styles/AnalysisStyles"; // Legend styles
+import { emotionColours } from "../utils/emotionColours";
+import styles from "../styles/InsightsStyles";
+import analysisStyles from "../styles/AnalysisStyles";
 import { addDays } from "date-fns";
 
 const InsightsScreen = () => {
-  const { journalEntries = [] } = useEntryDates() || {}; // Ensure fallback to empty object
-  const [timePeriod, setTimePeriod] = useState("Weekly"); // Default filter
+  const { journalEntries = [] } = useEntryDates() || {};
+  const [timePeriod, setTimePeriod] = useState("Weekly");
   const [chartData, setChartData] = useState(null);
   const [currentWeekStart, setCurrentWeekStart] = useState(getStartOfWeek(new Date()));
   const [currentWeekEnd, setCurrentWeekEnd] = useState(getEndOfWeek(new Date()));
@@ -35,7 +35,6 @@ const InsightsScreen = () => {
 
   const today = new Date();
 
-  // Weekly navigation handlers
   const handleNextWeek = () => {
     setCurrentWeekStart((prev) => addDays(prev, 7));
     setCurrentWeekEnd((prev) => addDays(prev, 7));
@@ -46,27 +45,31 @@ const InsightsScreen = () => {
     setCurrentWeekEnd((prev) => addDays(prev, -7));
   };
 
-  // Yearly navigation handlers
   const handleNextYear = () => setCurrentYear((prev) => prev + 1);
   const handlePreviousYear = () => setCurrentYear((prev) => prev - 1);
 
   const isCurrentWeek = currentWeekStart <= today && currentWeekEnd >= today;
 
-  // Format chart data for weekly view
   const formatChartDataForWeek = (entries, emotions) => {
     const weeklyData = groupDataByDay(entries, currentWeekStart, currentWeekEnd, emotions);
+
     const labels = generateWeekDays(currentWeekStart);
     const datasets = emotions.map((emotion) => ({
       data: weeklyData.map((day) => day[emotion] || 0),
-      color: () => emotionColours[emotion] || "#808080", // Use updated emotionColours
+      color: () => emotionColours[emotion] || "#808080",
       strokeWidth: 2,
     }));
 
-    const maxCount = Math.max(...datasets.flatMap((dataset) => dataset.data));
+    // **Force maxCount for weekly view to be 1**
+    const maxCount = timePeriod === "Weekly" ? 1 : Math.max(...datasets.flatMap((dataset) => dataset.data), 1);
+
+
+    console.log("Weekly Data Points:", datasets.flatMap((dataset) => dataset.data)); // Debugging
+    console.log("Hardcoded Max Count for Weekly:", maxCount); // Debugging
+
     return { labels, datasets, maxCount };
   };
 
-  // Format chart data for yearly view
   const formatChartDataForYear = (entries, emotions) => {
     const startOfYear = getStartOfYear(new Date(currentYear, 0, 1));
     const endOfYear = getEndOfYear(new Date(currentYear, 11, 31));
@@ -78,45 +81,43 @@ const InsightsScreen = () => {
       strokeWidth: 2,
     }));
 
-    const maxCount = Math.max(...datasets.flatMap((dataset) => dataset.data));
+    // Dynamically adjust Y-axis for monthly data
+    const maxCount = Math.max(1, ...datasets.flatMap((dataset) => dataset.data));
+
     return { labels, datasets, maxCount };
   };
 
-  // Update chart data based on time period and navigation
   useEffect(() => {
-    if (journalEntries?.length) {
-      let filteredEntries, newChartData, topEmotionsList;
+    let filteredEntries, newChartData, topEmotionsList;
 
-      if (timePeriod === "Weekly") {
-        filteredEntries = journalEntries.filter((entry) => {
-          const entryDate = new Date(entry.journalDate);
-          return entryDate >= currentWeekStart && entryDate <= currentWeekEnd;
-        });
-        topEmotionsList = getTopEmotions(filteredEntries, 5);
-        newChartData =
-          topEmotionsList.length > 0
-            ? formatChartDataForWeek(filteredEntries, topEmotionsList)
-            : null;
-      } else if (timePeriod === "Monthly") {
-        const startOfYear = getStartOfYear(new Date(currentYear, 0, 1));
-        const endOfYear = getEndOfYear(new Date(currentYear, 11, 31));
-        filteredEntries = journalEntries.filter((entry) => {
-          const entryDate = new Date(entry.journalDate);
-          return entryDate >= startOfYear && entryDate <= endOfYear;
-        });
-        topEmotionsList = getTopEmotions(filteredEntries, 5);
-        newChartData =
-          topEmotionsList.length > 0
-            ? formatChartDataForYear(filteredEntries, topEmotionsList)
-            : null;
-      }
+    if (timePeriod === "Weekly") {
+      filteredEntries = journalEntries.filter((entry) => {
+        const entryDate = new Date(entry.journalDate);
+        return entryDate >= currentWeekStart && entryDate <= currentWeekEnd;
+      });
 
-      setTopEmotions(topEmotionsList || []);
-      setChartData(newChartData);
-    } else {
-      setChartData(null);
-      setTopEmotions([]);
+      topEmotionsList = getTopEmotions(filteredEntries, 5);
+      newChartData =
+        topEmotionsList.length > 0
+          ? formatChartDataForWeek(filteredEntries, topEmotionsList)
+          : null;
+    } else if (timePeriod === "Monthly") {
+      const startOfYear = getStartOfYear(new Date(currentYear, 0, 1));
+      const endOfYear = getEndOfYear(new Date(currentYear, 11, 31));
+      filteredEntries = journalEntries.filter((entry) => {
+        const entryDate = new Date(entry.journalDate);
+        return entryDate >= startOfYear && entryDate <= endOfYear;
+      });
+
+      topEmotionsList = getTopEmotions(filteredEntries, 5);
+      newChartData =
+        topEmotionsList.length > 0
+          ? formatChartDataForYear(filteredEntries, topEmotionsList)
+          : null;
     }
+
+    setTopEmotions(topEmotionsList || []);
+    setChartData(newChartData);
   }, [journalEntries, timePeriod, currentWeekStart, currentWeekEnd, currentYear]);
 
   return (
@@ -171,32 +172,34 @@ const InsightsScreen = () => {
       {/* Line Chart */}
       <View style={styles.chartContainer}>
         {chartData ? (
-          <LineChart
-            data={{
-              labels: chartData.labels || [],
-              datasets: chartData.datasets || [],
-            }}
-            width={Dimensions.get("window").width - 32}
-            height={220}
-            chartConfig={{
-              backgroundColor: "#260101",
-              backgroundGradientFrom: "#9E4F61",
-              backgroundGradientTo: "#260101",
-              decimalPlaces: 0,
-              color: (opacity = 1) => `rgba(255, 255, 255, ${opacity})`,
-              labelColor: (opacity = 1) => `rgba(255, 255, 255, ${opacity})`,
-              style: { borderRadius: 16 },
-              propsForDots: {
-                r: "6",
-                strokeWidth: "2",
-                stroke: "#9E4F61",
-                fill: "#FFFFFF",
-              },
-            }}
-            bezier
-            fromZero
-            style={styles.chart}
-          />
+         <LineChart
+           data={{
+             labels: chartData.labels || [],
+             datasets: chartData.datasets || [],
+           }}
+           width={Dimensions.get("window").width - 32}
+           height={220}
+           chartConfig={{
+             backgroundColor: "#260101",
+             backgroundGradientFrom: "#9E4F61",
+             backgroundGradientTo: "#260101",
+             decimalPlaces: 0,
+             color: (opacity = 1) => `rgba(255, 255, 255, ${opacity})`,
+             labelColor: (opacity = 1) => `rgba(255, 255, 255, ${opacity})`,
+             style: { borderRadius: 16 },
+             propsForDots: {
+               r: "6",
+               strokeWidth: "2",
+               stroke: "#9E4F61",
+               fill: "#FFFFFF",
+             },
+           }}
+           bezier
+           fromZero
+           segments={timePeriod === "Weekly" ? 1 : chartData.maxCount} // Weekly fixed to 1, others dynamic
+           style={styles.chart}
+         />
+
         ) : (
           <Text style={styles.noDataText}>No data available for this period.</Text>
         )}

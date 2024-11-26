@@ -163,41 +163,41 @@ export const generateWeekDays = (startDate) => {
   return days;
 };
 
-/**
- * Group journal entries by day for a specific week.
- * @param {Array} entries - Array of journal entries.
- * @param {Date} startDate - Start date of the week.
- * @param {Date} endDate - End date of the week.
- * @param {Array<string>} emotions - List of emotions to track.
- * @returns {Array<Object>} - Array of objects with daily emotion counts.
- */
 export const groupDataByDay = (entries, startDate, endDate, emotions) => {
-  const groupedData = {};
+  const groupedData = [];
 
-  // Initialize groupedData with all days of the week
+  // Generate dates for all days in the week
   for (let i = 0; i < 7; i++) {
-    const day = format(addDays(startDate, i), "yyyy-MM-dd");
-    groupedData[day] = {};
+    const currentDate = format(addDays(startDate, i), "yyyy-MM-dd");
+    const dailyData = { date: currentDate };
+
+    // Initialize each emotion with a default count of 0
     emotions.forEach((emotion) => {
-      groupedData[day][emotion] = 0; // Initialize all emotions to 0
+      dailyData[emotion] = 0;
     });
+
+    groupedData.push(dailyData);
   }
 
-  // Populate groupedData with actual entry data
+  // Map actual journal entries to the corresponding days
   entries.forEach((entry) => {
     const entryDate = format(new Date(entry.journalDate), "yyyy-MM-dd");
-    if (groupedData[entryDate]) {
+    const matchingDay = groupedData.find((day) => day.date === entryDate);
+
+    if (matchingDay && entry.topEmotions) {
       entry.topEmotions.forEach((emotion) => {
-        if (groupedData[entryDate][emotion] !== undefined) {
-          groupedData[entryDate][emotion]++;
+        if (emotions.includes(emotion)) {
+          matchingDay[emotion] += 1; // Increment the count for the emotion
         }
       });
     }
   });
 
-  // Convert groupedData to array format suitable for charting
-  return Object.entries(groupedData).map(([date, emotionData]) => ({
-    date,
-    ...emotionData,
-  }));
+  // Ensure the return data matches the expected structure for the chart
+  return groupedData.map((day) => {
+    const { date, ...emotionsData } = day;
+    return emotionsData; // Return only the emotion counts for the chart
+  });
 };
+
+
