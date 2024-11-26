@@ -33,7 +33,7 @@ import {
   getJournalEntries,
   handleSavePromptEntry,
   deleteJournalEntry,
-  updateEntryInFirestore,
+  updateJournalEntry,
 } from "../functions/JournalFunctions";
 import prompts from "../assets/prompts";
 import quotes from "../assets/Quotes";
@@ -430,7 +430,7 @@ const handleSaveEntry = async () => {
             setEditModalVisible(false);
             navigation.navigate("Analysis", { ...selectedEntry });
           }}
-          onSave={updateEntryInFirestore} // Correctly pass the onSave function here
+          onSave={updateJournalEntry} // Correctly pass the onSave function here
           setJournalEntries={setJournalEntries} // Pass the state updater
         />
       )}

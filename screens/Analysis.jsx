@@ -112,7 +112,7 @@ export default function Analysis() {
   };
 
   const entry = route.params || ENTRY_DEFAULTS;
-  const { entryId, entryTitle, entryText, journalDate, type } = entry;
+  const { id: entryId, entryTitle, entryText, journalDate, type } = entry;
 
   const [topEmotions, setTopEmotions] = useState([]);
   const [loadingEmotions, setLoadingEmotions] = useState(true);
