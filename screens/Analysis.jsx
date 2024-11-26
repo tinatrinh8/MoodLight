@@ -18,7 +18,7 @@ function EmotionCard({ rank, emotion, icon }) {
         source={icon}
         style={styles.emotionIcon}
       />
-      <Text style={styles.emotionName}>{emotion}</Text>
+      <Text style={styles.emotionName}>{emotion.replace("_"," ")}</Text>
     </View>
   );
 }
