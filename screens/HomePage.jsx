@@ -284,19 +284,16 @@ const HomePage = () => {
   if (route.params?.viewJournalEntry) {
     handleOpenJournal(route.params.viewJournalEntry)
     navigation.setParams({ viewJournalEntry: null }); // Clear params
-  }
-
-    // Check for creating a new entry date
-if (route.params?.selectedDate) {
+  }else if (route.params?.selectedDate) {
   console.log("Creating entry for date:", route.params.selectedDate);
   setNewEntryDate(route.params.selectedDate); // Set the selected date for the new entry
   setCreateEntryModalVisible(true); // Open the modal for creating an entry
   console.log("Modal visibility set to true");
   navigation.setParams({ selectedDate: null }); // Clear params
-}
-
+  }else {
     // Fetch existing journal entries for the authenticated user
     fetchEntries();
+  }
 
     // Cleanup the authentication listener on component unmount
     return () => {
