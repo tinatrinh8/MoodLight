@@ -17,6 +17,7 @@ export const getEmotion = async (text) => {
       {
         headers: {
           Authorization: `Bearer ${HUGGING_FACE_API_KEY}`,
+          "x-wait-for-model": "true"
         },
       }
     );
