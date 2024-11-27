@@ -11,6 +11,14 @@ const CalendarScreen = () => {
   const navigation = useNavigation(); // For navigating to the homepage
 
   const months = [
+    { name: "January", days: 31, startDay: 6, year: 2024, index: 0 },
+    { name: "February", days: 29, startDay: 2, year: 2024, index: 1 }, // February 2024 (Leap Year)
+    { name: "March", days: 31, startDay: 5, year: 2024, index: 2 },
+    { name: "April", days: 30, startDay: 0, year: 2024, index: 3 },
+    { name: "May", days: 31, startDay: 3, year: 2024, index: 4 },
+    { name: "June", days: 30, startDay: 6, year: 2024, index: 5 },
+    { name: "July", days: 31, startDay: 1, year: 2024, index: 6 },
+    { name: "August", days: 31, startDay: 4, year: 2024, index: 7 },
     { name: "September", days: 30, startDay: 0, year: 2024, index: 8 },
     { name: "October", days: 31, startDay: 2, year: 2024, index: 9 },
     { name: "November", days: 30, startDay: 5, year: 2024, index: 10 },
