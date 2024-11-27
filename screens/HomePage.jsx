@@ -81,8 +81,8 @@ const ViewJournalEntryModal = ({
                   {entry.entryText || "No content available"}
                 </Text>
               </View>
-            ) : Array.isArray(entry.entryText) ? (
-              entry.entryText.map((item, index) => (
+            ) : entry.type === "prompts" ? (
+              entry.promptsData.map((item, index) => (
                 <View key={index} style={styles.promptContainer}>
                   {/* Prompt as a standalone title */}
                   <Text style={styles.textBoxTitle}>{item.prompt}</Text>
@@ -335,22 +335,22 @@ const HomePage = () => {
           topEmotions // Pass top emotions to Firestore
         );
 
-      console.log("Saved with emotions:", topEmotions);
-      navigation.navigate("Analysis", {
-        entryId: addedEntry.id,
-        entryTitle: addedEntry.entryTitle,
-        entryText: addedEntry.entryText,
-        type: addedEntry.type,
-        journalDate: addedEntry.journalDate,
-        topEmotions: addedEntry.topEmotions, // Pass to Analysis screen
-      });
-    } catch (error) {
-      console.error("Error saving entry:", error.message);
+        console.log("Saved with emotions:", topEmotions);
+        navigation.navigate("Analysis", {
+          entryId: addedEntry.id,
+          entryTitle: addedEntry.entryTitle,
+          entryText: addedEntry.entryText,
+          type: addedEntry.type,
+          journalDate: addedEntry.journalDate,
+          topEmotions: addedEntry.topEmotions, // Pass to Analysis screen
+        });
+      } catch (error) {
+        console.error("Error saving entry IN LINE 348:", error.message);
+      }
+    } else {
+      alert("Please provide both a title and content.");
     }
-  } else {
-    alert("Please provide both a title and content.");
-  }
-};
+  };
 
 
   const closeModal = () => {
@@ -388,29 +388,29 @@ const HomePage = () => {
       id: "dailyDosAndDonts",
       component:
         ((<getDailyDosAndDonts dailySuggestions={dailySuggestions} />),
-        (
-          <View style={styles.dosAndDontsContainer}>
-            {/* Do's Section */}
-            <View style={styles.dosColumn}>
-              <Text style={styles.dosHeader}>Today's Do's</Text>
-              {dailySuggestions.dos.map((item, index) => (
-                <Text key={index} style={styles.dosText}>
-                  {item}
-                </Text>
-              ))}
-            </View>
+          (
+            <View style={styles.dosAndDontsContainer}>
+              {/* Do's Section */}
+              <View style={styles.dosColumn}>
+                <Text style={styles.dosHeader}>Today's Do's</Text>
+                {dailySuggestions.dos.map((item, index) => (
+                  <Text key={index} style={styles.dosText}>
+                    {item}
+                  </Text>
+                ))}
+              </View>
 
-            {/* Don'ts Section */}
-            <View style={styles.dontsColumn}>
-              <Text style={styles.dontsHeader}>Today's Don'ts</Text>
-              {dailySuggestions.donts.map((item, index) => (
-                <Text key={index} style={styles.dontsText}>
-                  {item}
-                </Text>
-              ))}
+              {/* Don'ts Section */}
+              <View style={styles.dontsColumn}>
+                <Text style={styles.dontsHeader}>Today's Don'ts</Text>
+                {dailySuggestions.donts.map((item, index) => (
+                  <Text key={index} style={styles.dontsText}>
+                    {item}
+                  </Text>
+                ))}
+              </View>
             </View>
-          </View>
-        )),
+          )),
     },
 
     {
@@ -614,14 +614,14 @@ const CreateJournalEntry = ({
         promptsData, // Pass full prompts data if needed
       });
 
-    console.log("Prompt-based journal entry saved successfully.");
-  } catch (error) {
-    console.error("Error saving prompt entry:", error.message);
-    alert(
-      "An error occurred while saving the journal entry. Please try again."
-    );
-  }
-};
+      console.log("Prompt-based journal entry saved successfully.");
+    } catch (error) {
+      console.error("Error saving prompt entry:", error.message);
+      alert(
+        "An error occurred while saving the journal entry. Please try again."
+      );
+    }
+  };
 
 
 
@@ -644,15 +644,15 @@ const CreateJournalEntry = ({
           journalDate: addedEntry.journalDate,
         });
 
-      console.log("Free-writing journal entry saved successfully.");
-    } catch (error) {
-      console.error("Error saving entry:", error.message);
-      alert("An error occurred while saving the journal entry. Please try again.");
+        console.log("Free-writing journal entry saved successfully.");
+      } catch (error) {
+        console.error("Error saving entry IN LINE 649:", error.message);
+        alert("An error occurred while saving the journal entry. Please try again.");
+      }
+    } else {
+      alert("Please provide both a title and content before saving.");
     }
-  } else {
-    alert("Please provide both a title and content before saving.");
-  }
-};
+  };
 
   return (
     <View style={styles.createEntryContainer}>
@@ -737,61 +737,65 @@ const CreateJournalEntry = ({
             )}
             {/* Use Prompts Modal */}
             {currentModal === "usePrompts" && (
-              <ScrollView
-                contentContainerStyle={{
-                  flexGrow: 1,
-                  paddingBottom: 200,
-                }}
-              >
-                <TouchableOpacity
-                  onPress={closeModal}
-                  style={[styles.closeButton]}
-                ></TouchableOpacity>
+              <>
+                <ScrollView
+                  contentContainerStyle={{
+                    flexGrow: 1,
+                    paddingBottom: 200,
+                  }}
+                >
+                  <TouchableOpacity
+                    onPress={closeModal}
+                    style={[styles.closeButton]}
+                  ></TouchableOpacity>
 
-                <Text style={styles.modalTitle}>
-                  Need a little inspiration?
-                </Text>
+                  <Text style={styles.modalTitle}>
+                    Need a little inspiration?
+                  </Text>
 
-                <Text style={styles.dateText}>{displayedDate}</Text>
+                  <Text style={styles.dateText}>{displayedDate}</Text>
 
-                <Text style={styles.textBoxTitle}>Journal Title</Text>
-                <TextInput
-                  style={styles.titleInputBox}
-                  placeholder="Name your journal entry"
-                  value={promptEntryTitle}
-                  onChangeText={setPromptEntryTitle}
-                />
+                  <Text style={styles.textBoxTitle}>Journal Title</Text>
+                  <TextInput
+                    style={styles.titleInputBox}
+                    placeholder="Name your journal entry"
+                    value={promptEntryTitle}
+                    onChangeText={setPromptEntryTitle}
+                  />
 
-                {loadingPrompts ? (
-                  <View>
-                    <ActivityIndicator size="large" color="#FFFFFF" />
-                  </View>
-                ) : (
-                  suggestedPrompts.map((prompt, index) => (
-                    <View key={index} style={styles.promptContainer}>
-                      <Text style={styles.textBoxTitle}>{prompt}</Text>
-                      <TextInput
-                        style={styles.textInputBox}
-                        placeholder="Write your answer here..."
-                        multiline={true}
-                        value={promptResponses[index]}
-                        onChangeText={(text) => {
-                          const updatedResponses = [...promptResponses];
-                          updatedResponses[index] = text;
-                          setPromptResponses(updatedResponses);
-                        }}
-                      />
+                  {loadingPrompts ? (
+                    <View>
+                      <ActivityIndicator size="large" color="#FFFFFF" />
                     </View>
-                  ))
-                )}
-              </ScrollView>
+                  ) : (
+                    suggestedPrompts.map((prompt, index) => (
+                      <View key={index} style={styles.promptContainer}>
+                        <Text style={styles.textBoxTitle}>{prompt}</Text>
+                        <TextInput
+                          style={styles.textInputBox}
+                          placeholder="Write your answer here..."
+                          multiline={true}
+                          value={promptResponses[index]}
+                          onChangeText={(text) => {
+                            const updatedResponses = [...promptResponses];
+                            updatedResponses[index] = text;
+                            setPromptResponses(updatedResponses);
+                          }}
+                        />
+                      </View>
+                    ))
+                  )}
+                </ScrollView>
+
+                <TouchableOpacity
+                  style={styles.continueButton}
+                  onPress={savePromptEntry}
+                >
+                  <Text style={styles.continueButtonText}>Save Entry</Text>
+                </TouchableOpacity>
+              </>
             )}
-            <TouchableOpacity
-              style={styles.continueButton}
-              onPress={savePromptEntry}
-            >
-              <Text style={styles.continueButtonText}>Save Entry</Text>
-            </TouchableOpacity>
+
           </Animated.View>
         </KeyboardAvoidingView>
       </Modal>

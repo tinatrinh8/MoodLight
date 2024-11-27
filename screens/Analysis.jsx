@@ -315,7 +315,6 @@ export default function Analysis() {
     type: "general",
     journalDate: "MM/YYYY",
   };
-
   const entry = route.params || ENTRY_DEFAULTS;
   const { entryId, entryTitle, entryText, journalDate, type } = entry;
 
