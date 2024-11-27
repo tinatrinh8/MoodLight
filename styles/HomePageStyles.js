@@ -136,6 +136,8 @@ const styles = StyleSheet.create({
     shadowOpacity: 0.15,
     shadowRadius: 4,
     elevation: 2, // Slight elevation for floating effect
+    borderWidth: 2,
+    borderColor: "#000", // Black border for the box
   },
 
   // Styles for text inside each dropdown item
@@ -187,9 +189,67 @@ const styles = StyleSheet.create({
   quote: {
     fontSize: 18,
     fontStyle: "italic",
-    color: "#A8DADC",
+    color: "#DB71AA",
     textAlign: "center",
     fontFamily: "GentiumPlus-Italic",
+  },
+
+  // Dos and Donts
+  dosAndDontsContainer: {
+    flexDirection: "row",
+    justifyContent: "space-between",
+    marginVertical: 10,
+    width: "100%", // Adjust the width to match the page
+    alignSelf: "center", // Ensure it stays centered
+  },
+
+  dosColumn: {
+    flex: 1,
+    marginRight: 10,
+  },
+  dontsColumn: {
+    flex: 1,
+    marginLeft: 10,
+  },
+  dosHeader: {
+    fontFamily: "LexendDeca", // Modern aesthetic font for headers
+    fontSize: 20,
+    color: "#1FACF1", // for positive
+    marginBottom: 10,
+    textAlign: "center",
+    fontWeight: "bold",
+  },
+  dontsHeader: {
+    fontFamily: "LexendDeca", // Same font for consistency
+    fontSize: 20,
+    color: "#D25E21", // for negative
+    marginBottom: 10,
+    textAlign: "center",
+    fontWeight: "bold",
+  },
+  dosText: {
+    fontFamily: "LexendDeca", // Clean sans-serif for modern, readable text
+    fontSize: 16,
+    color: "#1FACF1", // Darker for items
+    marginVertical: 5,
+    padding: 15,
+    backgroundColor: "#9AD6F4", // Light background
+    borderRadius: 30,
+    textAlign: "center",
+    borderWidth: 2, // Add border width
+    borderColor: "#000", // Set border color to black
+  },
+  dontsText: {
+    fontFamily: "LexendDeca", // Same clean font for text
+    fontSize: 16,
+    color: "#D25E21", // Darker for items
+    marginVertical: 5,
+    padding: 15,
+    backgroundColor: "#EAA987", // Light background
+    borderRadius: 30,
+    textAlign: "center",
+    borderWidth: 2, // Add border width
+    borderColor: "#000", // Set border color to black
   },
   pastEntries: {
     marginTop: 20,
@@ -211,7 +271,7 @@ const styles = StyleSheet.create({
   },
 
   entryButton: {
-    backgroundColor: "#DC869A", // Pink button color
+    backgroundColor: "#A4A4E0",
     borderRadius: 10, // Rounded corners
     padding: 15,
     marginBottom: 10,
@@ -246,16 +306,15 @@ const styles = StyleSheet.create({
 
   createEntryContainer: {
     marginTop: 40,
-    width: "90%",
+    width: "100%", // Increase the width to make it wider
     backgroundColor: "#FFCA6E",
     borderRadius: 15,
     paddingVertical: 5, // Reduce padding to make it shorter
     marginBottom: 70,
-    shadowColor: "#000",
-    shadowOffset: { width: 4, height: 4 },
-    shadowOpacity: 0.99,
-    shadowRadius: 6,
-    elevation: 10,
+    shadowOffset: { width: 0, height: 4 },
+    shadowOpacity: 0.1,
+    shadowRadius: 4,
+    elevation: 5, // Adds shadow for Android
     alignItems: "center",
     justifyContent: "center",
     alignSelf: "center",

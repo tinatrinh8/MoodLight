@@ -66,6 +66,8 @@ const SettingsStyles = StyleSheet.create({
     shadowOpacity: 0.1,
     shadowRadius: 5,
     elevation: 2,
+    borderWidth: 2,
+    borderColor: "#000000", // Black border
   },
   settingLabel: {
     fontSize: 16,
@@ -89,8 +91,8 @@ const SettingsStyles = StyleSheet.create({
     width: 223,
     borderRadius: 20,
     backgroundColor: "#FFFFFF", // White button
-    borderColor: "#000", // Black border
-    borderWidth: 1,
+    borderWidth: 2,
+    borderColor: "#000000", // Black border
     paddingVertical: 10,
     alignItems: "center",
   },

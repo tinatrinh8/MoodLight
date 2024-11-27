@@ -57,7 +57,7 @@ const styles = StyleSheet.create({
     gap: 10,
   },
   moodLightText: {
-    fontFamily: "Belgan Aesthetic",
+    fontFamily: "LexendDeca",
     fontSize: 64,
     color: "#FFF",
     fontWeight: "400",

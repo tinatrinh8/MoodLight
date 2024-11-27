@@ -46,6 +46,7 @@ import LoadingFlower from "../components/LoadingFlower";
 import { getSuggestedPrompts } from "../components/SuggestedPrompts";
 import { SearchArea } from "../components/SearchArea";
 import { getEmotion } from "../utils/HuggingFaceAPI";
+import { getDailyDosAndDonts } from "../components/RandomDosAndDonts.js";
 
 const getRandomQuote = () => {
   const randomIndex = Math.floor(Math.random() * quotes.length);
@@ -192,6 +193,16 @@ const HomePage = () => {
   const opacity = useRef(new Animated.Value(0)).current; // Start with transparent flowers
   const [suggestedPrompts, setSuggestedPrompts] = useState([]);
   const [loadingPrompts, setLoadingPrompts] = useState(true); // State for loading prompts
+  const [dailySuggestions, setDailySuggestions] = useState({
+    dos: [],
+    donts: [],
+  });
+
+  // Dos and Donts
+  useEffect(() => {
+    const suggestions = getDailyDosAndDonts();
+    setDailySuggestions(suggestions);
+  }, []);
 
   // Fetch prompts when the component mounts
   useEffect(() => {
@@ -367,6 +378,36 @@ const HomePage = () => {
       component: <SearchArea handleOpenJournal={handleOpenJournal} />,
     },
     { id: "title", component: <Title quote={quote} /> },
+
+    {
+      id: "dailyDosAndDonts",
+      component:
+        ((<getDailyDosAndDonts dailySuggestions={dailySuggestions} />),
+        (
+          <View style={styles.dosAndDontsContainer}>
+            {/* Do's Section */}
+            <View style={styles.dosColumn}>
+              <Text style={styles.dosHeader}>Today's Do's</Text>
+              {dailySuggestions.dos.map((item, index) => (
+                <Text key={index} style={styles.dosText}>
+                  {item}
+                </Text>
+              ))}
+            </View>
+
+            {/* Don'ts Section */}
+            <View style={styles.dontsColumn}>
+              <Text style={styles.dontsHeader}>Today's Don'ts</Text>
+              {dailySuggestions.donts.map((item, index) => (
+                <Text key={index} style={styles.dontsText}>
+                  {item}
+                </Text>
+              ))}
+            </View>
+          </View>
+        )),
+    },
+
     {
       id: "pastEntries",
       component: (
@@ -776,7 +817,7 @@ const PastEntries = ({ openViewJournalModal, journalEntries, loading }) => {
 
   return (
     <View style={styles.pastEntries}>
-      <Text style={styles.pastEntriesTitle}>Past Entries</Text>
+      <Text style={styles.pastEntriesTitle}>Recent Past Entries</Text>
       <View style={styles.entryContainer}>
         {recentEntries.map((entry) => (
           <TouchableOpacity
