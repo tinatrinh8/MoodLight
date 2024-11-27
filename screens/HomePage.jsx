@@ -292,19 +292,19 @@ const HomePage = () => {
     });
 
     // Check if a journal entry is passed from navigation
-    if (route.params?.viewJournalEntry) {
-      handleOpenJournal(route.params.viewJournalEntry);
-      navigation.setParams({ viewJournalEntry: null }); // Clear params
-    } else if (route.params?.selectedDate) {
-      console.log("Creating entry for date:", route.params.selectedDate);
-      setNewEntryDate(route.params.selectedDate); // Set the selected date for the new entry
-      setCreateEntryModalVisible(true); // Open the modal for creating an entry
-      console.log("Modal visibility set to true");
-      navigation.setParams({ selectedDate: null }); // Clear params
-    } else {
-      // Fetch existing journal entries for the authenticated user
-      fetchEntries();
-    }
+  if (route.params?.viewJournalEntry) {
+    handleOpenJournal(route.params.viewJournalEntry)
+    navigation.setParams({ viewJournalEntry: null }); // Clear params
+  }else if (route.params?.selectedDate) {
+  console.log("Creating entry for date:", route.params.selectedDate);
+  setNewEntryDate(route.params.selectedDate); // Set the selected date for the new entry
+  setCreateEntryModalVisible(true); // Open the modal for creating an entry
+  console.log("Modal visibility set to true");
+  navigation.setParams({ selectedDate: null }); // Clear params
+  }else {
+    // Fetch existing journal entries for the authenticated user
+    fetchEntries();
+  }
 
     // Cleanup the authentication listener on component unmount
     return () => {
@@ -331,22 +331,23 @@ const HomePage = () => {
           topEmotions // Pass top emotions to Firestore
         );
 
-        console.log("Saved with emotions:", topEmotions);
-        navigation.navigate("Analysis", {
-          entryId: addedEntry.id,
-          entryTitle: addedEntry.entryTitle,
-          entryText: addedEntry.entryText,
-          type: addedEntry.type,
-          journalDate: addedEntry.journalDate,
-          topEmotions: addedEntry.topEmotions, // Pass to Analysis screen
-        });
-      } catch (error) {
-        console.error("Error saving entry:", error.message);
-      }
-    } else {
-      alert("Please provide both a title and content.");
+      console.log("Saved with emotions:", topEmotions);
+      navigation.navigate("Analysis", {
+        entryId: addedEntry.id,
+        entryTitle: addedEntry.entryTitle,
+        entryText: addedEntry.entryText,
+        type: addedEntry.type,
+        journalDate: addedEntry.journalDate,
+        topEmotions: addedEntry.topEmotions, // Pass to Analysis screen
+      });
+    } catch (error) {
+      console.error("Error saving entry:", error.message);
     }
-  };
+  } else {
+    alert("Please provide both a title and content.");
+  }
+};
+
 
   const closeModal = () => {
     setCreateEntryModalVisible(false);
@@ -608,14 +609,16 @@ const CreateJournalEntry = ({
         promptsData, // Pass full prompts data if needed
       });
 
-      console.log("Prompt-based journal entry saved successfully.");
-    } catch (error) {
-      console.error("Error saving prompt entry:", error.message);
-      alert(
-        "An error occurred while saving the journal entry. Please try again."
-      );
-    }
-  };
+    console.log("Prompt-based journal entry saved successfully.");
+  } catch (error) {
+    console.error("Error saving prompt entry:", error.message);
+    alert(
+      "An error occurred while saving the journal entry. Please try again."
+    );
+  }
+};
+
+
 
   const handleSaveEntry = async () => {
     if (newEntryTitle.trim() && newEntryText.trim()) {
@@ -635,17 +638,15 @@ const CreateJournalEntry = ({
           journalDate: addedEntry.journalDate,
         });
 
-        console.log("Free-writing journal entry saved successfully.");
-      } catch (error) {
-        console.error("Error saving entry:", error.message);
-        alert(
-          "An error occurred while saving the journal entry. Please try again."
-        );
-      }
-    } else {
-      alert("Please provide both a title and content before saving.");
+      console.log("Free-writing journal entry saved successfully.");
+    } catch (error) {
+      console.error("Error saving entry:", error.message);
+      alert("An error occurred while saving the journal entry. Please try again.");
     }
-  };
+  } else {
+    alert("Please provide both a title and content before saving.");
+  }
+};
 
   return (
     <View style={styles.createEntryContainer}>
