@@ -182,24 +182,34 @@ function SummaryFeedback({ entry, topEmotions }) {
   // Generate feedback
   const generateFeedback = async () => {
     try {
-      if (
-        !entry ||
-        !entry.entryText ||
-        !topEmotions ||
-        topEmotions.length === 0
+      // Handle both string and array types for entryText
+      let textForAnalysis = "";
+
+      if (Array.isArray(entry.entryText)) {
+        textForAnalysis = entry.entryText
+          .map((item) => item.response)
+          .join(". "); // Combine responses for prompts
+      } else if (
+        typeof entry.entryText === "string" &&
+        entry.entryText.trim()
       ) {
-        setFeedback(
-          "No feedback available. Please ensure the entry has sufficient content and emotions are detected."
+        textForAnalysis = entry.entryText.trim(); // Use free-writing text as-is
+      }
+
+      if (!textForAnalysis) {
+        console.log(
+          "Skipping feedback generation: No valid text for analysis."
         );
+        setFeedback("Feedback not generated for this entry.");
         setLoadingFeedback(false);
         return;
       }
 
       setLoadingFeedback(true);
-      const feedbackResult = await getFeedback(entry.entryText, topEmotions);
+      const feedbackResult = await getFeedback(textForAnalysis, topEmotions);
       setFeedback(feedbackResult);
     } catch (error) {
-      console.error("Error generating feedback:", error.message);
+      console.error("Error generating feedback:", error.message || error);
       setFeedback("Error generating feedback. Please try again.");
     } finally {
       setLoadingFeedback(false);
@@ -413,10 +423,7 @@ export default function Analysis() {
   }, [entry, entryId, entryText]);
 
   return (
-    <ScrollView
-      style={styles.scrollContainer}
-      contentContainerStyle={styles.scrollContent}
-    >
+    <ScrollView style={styles.scrollContainer}>
       <View style={styles.container}>
         <Header />
 

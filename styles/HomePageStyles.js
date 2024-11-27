@@ -331,7 +331,7 @@ const styles = StyleSheet.create({
 
   closeButton: {
     alignSelf: "flex-end",
-    padding: 20,
+    padding: 10,
     marginTop: 20,
   },
   closeButtonText: {
@@ -421,7 +421,7 @@ const styles = StyleSheet.create({
     borderRadius: 50,
     paddingVertical: 15,
     paddingHorizontal: 30,
-    marginTop: 50,
+    marginTop: 30,
     width: "100%",
     alignItems: "center",
     shadowColor: "#00000",
@@ -439,7 +439,7 @@ const styles = StyleSheet.create({
     borderRadius: 50,
     paddingVertical: 15,
     paddingHorizontal: 30,
-    marginTop: 50,
+    marginTop: 40,
     width: "100%",
     alignItems: "center",
     shadowColor: "#00000",
