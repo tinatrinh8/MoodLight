@@ -419,8 +419,11 @@ export default function Analysis() {
       }
     };
 
-    fetchEmotions();
-  }, [entry, entryId, entryText]);
+  fetchEmotions();
+}, [entry, entryId, entryText]);
+
+
+
 
   return (
     <ScrollView style={styles.scrollContainer}>
