@@ -176,7 +176,7 @@ const InsightsScreen = () => {
           <Text style={styles.periodText}>Showing year of {currentYear}</Text>
         )}
         {timePeriod === "Weekly" && (
-          <Text style={styles.periodText}>Showing year of {currentWeekStart.toDateString()} to {currentWeekEnd.toDateString()}</Text>
+          <Text style={styles.periodText}>Showing week of {currentWeekStart.toDateString()} to {currentWeekEnd.toDateString()}</Text>
         )}
       </View>
 
