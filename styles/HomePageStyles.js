@@ -201,16 +201,23 @@ const styles = StyleSheet.create({
     marginVertical: 10,
     width: "100%", // Adjust the width to match the page
     alignSelf: "center", // Ensure it stays centered
+    marginBottom: 80,
   },
 
   dosColumn: {
     flex: 1,
     marginRight: 10,
+    height: 200, // Set explicit height for consistent size
+    alignItems: "center", // Center align items
   },
+
   dontsColumn: {
     flex: 1,
     marginLeft: 10,
+    height: 200, // Match height of dosColumn
+    alignItems: "center", // Center align items
   },
+
   dosHeader: {
     fontFamily: "LexendDeca", // Modern aesthetic font for headers
     fontSize: 20,
@@ -219,6 +226,7 @@ const styles = StyleSheet.create({
     textAlign: "center",
     fontWeight: "bold",
   },
+
   dontsHeader: {
     fontFamily: "LexendDeca", // Same font for consistency
     fontSize: 20,
@@ -227,6 +235,7 @@ const styles = StyleSheet.create({
     textAlign: "center",
     fontWeight: "bold",
   },
+
   dosText: {
     fontFamily: "LexendDeca", // Clean sans-serif for modern, readable text
     fontSize: 16,
@@ -238,7 +247,9 @@ const styles = StyleSheet.create({
     textAlign: "center",
     borderWidth: 2, // Add border width
     borderColor: "#000", // Set border color to black
+    width: "90%", // Set consistent width for bubbles
   },
+
   dontsText: {
     fontFamily: "LexendDeca", // Same clean font for text
     fontSize: 16,
@@ -250,9 +261,11 @@ const styles = StyleSheet.create({
     textAlign: "center",
     borderWidth: 2, // Add border width
     borderColor: "#000", // Set border color to black
+    width: "90%", // Set consistent width for bubbles
   },
+
   pastEntries: {
-    marginTop: 20,
+    marginTop: 40,
   },
   pastEntriesTitle: {
     fontSize: 20,
