@@ -248,7 +248,8 @@ const InsightsScreen = () => {
           data={emotionCounts}
           accessor={"count"}
           width={Dimensions.get("window").width - 50} // from react-native
-          height={220}
+          height={275}
+          absolute={false}
           chartConfig={{
             color: (opacity = 1) => `white`,
             labelColor: (opacity = 1) => `white`,
