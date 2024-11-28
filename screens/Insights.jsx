@@ -256,7 +256,7 @@ const InsightsScreen = () => {
               borderRadius: 16
             }
           }}
-          backgroundColor="blue"
+          backgroundColor="#E6C3CB"
           paddingLeft="15"
           absolute
           style={{
