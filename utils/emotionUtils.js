@@ -33,6 +33,20 @@ export const getTopEmotions = (entries, count) => {
     .map(([emotion]) => emotion);
 };
 
+export const getEmotionCounts = (entries) => {
+  const emotionCounts = {};
+
+  entries.forEach((entry) => {
+    if (entry.topEmotions) {
+      entry.topEmotions.forEach((emotion) => {
+        emotionCounts[emotion] = (emotionCounts[emotion] || 0) + 1;
+      });
+    }
+  });
+
+  return emotionCounts;
+}
+
 /**
  * Get the start date of the week.
  * @param {Date} referenceDate - A reference date.

@@ -5,11 +5,12 @@ import {
   TouchableOpacity,
   Dimensions,
 } from "react-native";
-import { LineChart } from "react-native-chart-kit";
+import { LineChart, PieChart } from "react-native-chart-kit";
 import Header from "../components/Header";
 import { useEntryDates } from "../components/EntryDatesContext";
 import {
   getTopEmotions,
+  getEmotionCounts,
   getStartOfWeek,
   getEndOfWeek,
   generateWeekDays,
@@ -31,6 +32,7 @@ const InsightsScreen = () => {
   const [currentWeekStart, setCurrentWeekStart] = useState(getStartOfWeek(new Date()));
   const [currentWeekEnd, setCurrentWeekEnd] = useState(getEndOfWeek(new Date()));
   const [currentYear, setCurrentYear] = useState(new Date().getFullYear());
+  const [emotionCounts, setEmotionCounts] = useState([])
   const [topEmotions, setTopEmotions] = useState([]);
 
   const today = new Date();
@@ -52,7 +54,6 @@ const InsightsScreen = () => {
 
   const formatChartDataForWeek = (entries, emotions) => {
     const weeklyData = groupDataByDay(entries, currentWeekStart, currentWeekEnd, emotions);
-
     const labels = generateWeekDays(currentWeekStart);
     const datasets = emotions.map((emotion) => ({
       data: weeklyData.map((day) => day[emotion] || 0),
@@ -88,7 +89,7 @@ const InsightsScreen = () => {
   };
 
   useEffect(() => {
-    let filteredEntries, newChartData, topEmotionsList;
+    let filteredEntries, newChartData, initialCounts, topEmotionsList;
 
     if (timePeriod === "Weekly") {
       filteredEntries = journalEntries.filter((entry) => {
@@ -97,6 +98,7 @@ const InsightsScreen = () => {
       });
 
       topEmotionsList = getTopEmotions(filteredEntries, 5);
+      initialCounts = getEmotionCounts(filteredEntries);
       newChartData =
         topEmotionsList.length > 0
           ? formatChartDataForWeek(filteredEntries, topEmotionsList)
@@ -108,7 +110,7 @@ const InsightsScreen = () => {
         const entryDate = new Date(entry.journalDate);
         return entryDate >= startOfYear && entryDate <= endOfYear;
       });
-
+      initialCounts = getEmotionCounts(filteredEntries);
       topEmotionsList = getTopEmotions(filteredEntries, 5);
       newChartData =
         topEmotionsList.length > 0
@@ -116,6 +118,15 @@ const InsightsScreen = () => {
           : null;
     }
 
+    setEmotionCounts(Object.keys(initialCounts).map(
+      (emotionName) => {
+        return {
+          "name": emotionName,
+          "count": initialCounts[emotionName],
+          "color": emotionColours[emotionName]
+        }
+      }
+    ) || []);
     setTopEmotions(topEmotionsList || []);
     setChartData(newChartData);
   }, [journalEntries, timePeriod, currentWeekStart, currentWeekEnd, currentYear]);
@@ -144,16 +155,16 @@ const InsightsScreen = () => {
       {/* Weekly Navigation */}
       {timePeriod === "Weekly" && (
         <View style={styles.filterContainer}>
-            <TouchableOpacity style={styles.filterButton} onPress={handlePreviousWeek}>
-              <Text style={styles.filterButtonText}>&larr; Previous Week</Text>
+          <TouchableOpacity style={styles.filterButton} onPress={handlePreviousWeek}>
+            <Text style={styles.filterButtonText}>&larr; Previous Week</Text>
+          </TouchableOpacity>
+          {!isCurrentWeek && (
+            <TouchableOpacity style={styles.filterButton} onPress={handleNextWeek}>
+              <Text style={styles.filterButtonText}>Next Week &rarr;</Text>
             </TouchableOpacity>
-            {!isCurrentWeek && (
-              <TouchableOpacity style={styles.filterButton} onPress={handleNextWeek}>
-                <Text style={styles.filterButtonText}>Next Week &rarr;</Text>
-              </TouchableOpacity>
-            )}
+          )}
         </View>
-        
+
       )}
 
       {/* Monthly Navigation */}
@@ -183,33 +194,33 @@ const InsightsScreen = () => {
       {/* Line Chart */}
       <View style={styles.chartContainer}>
         {chartData ? (
-         <LineChart
-           data={{
-             labels: chartData.labels || [],
-             datasets: chartData.datasets || [],
-           }}
-           width={Dimensions.get("window").width - 32}
-           height={220}
-           chartConfig={{
-             backgroundColor: "#260101",
-             backgroundGradientFrom: "#9E4F61",
-             backgroundGradientTo: "#260101",
-             decimalPlaces: 0,
-             color: (opacity = 1) => `rgba(255, 255, 255, ${opacity})`,
-             labelColor: (opacity = 1) => `rgba(255, 255, 255, ${opacity})`,
-             style: { borderRadius: 16 },
-             propsForDots: {
-               r: "6",
-               strokeWidth: "2",
-               stroke: "#9E4F61",
-               fill: "#FFFFFF",
-             },
-           }}
-           bezier
-           fromZero
-           segments={timePeriod === "Weekly" ? 1 : chartData.maxCount} // Weekly fixed to 1, others dynamic
-           style={styles.chart}
-         />
+          <LineChart
+            data={{
+              labels: chartData.labels || [],
+              datasets: chartData.datasets || [],
+            }}
+            width={Dimensions.get("window").width - 32}
+            height={220}
+            chartConfig={{
+              backgroundColor: "#260101",
+              backgroundGradientFrom: "#9E4F61",
+              backgroundGradientTo: "#260101",
+              decimalPlaces: 0,
+              color: (opacity = 1) => `rgba(255, 255, 255, ${opacity})`,
+              labelColor: (opacity = 1) => `rgba(255, 255, 255, ${opacity})`,
+              style: { borderRadius: 16 },
+              propsForDots: {
+                r: "6",
+                strokeWidth: "2",
+                stroke: "#9E4F61",
+                fill: "#FFFFFF",
+              },
+            }}
+            bezier
+            fromZero
+            segments={timePeriod === "Weekly" ? 1 : chartData.maxCount} // Weekly fixed to 1, others dynamic
+            style={styles.chart}
+          />
 
         ) : (
           <Text style={styles.noDataText}>No data available for this period.</Text>
@@ -229,6 +240,32 @@ const InsightsScreen = () => {
             <Text style={analysisStyles.legendText}>{emotion}</Text>
           </View>
         ))}
+      </View>
+
+      { /* Pie Chart */}
+      <View style={styles.chartContainer}>
+        {emotionCounts.length > 0 ? <PieChart
+          data={emotionCounts}
+          accessor={"count"}
+          width={Dimensions.get("window").width - 50} // from react-native
+          height={220}
+          chartConfig={{
+            color: (opacity = 1) => `white`,
+            labelColor: (opacity = 1) => `white`,
+            style: {
+              borderRadius: 16
+            }
+          }}
+          backgroundColor="blue"
+          paddingLeft="15"
+          absolute
+          style={{
+            marginVertical: 8,
+            borderRadius: 16
+          }}
+        /> : (
+          <Text style={styles.noDataText}>No data available for this period.</Text>
+        )}
       </View>
     </View>
   );
