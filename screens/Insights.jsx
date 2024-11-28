@@ -144,15 +144,16 @@ const InsightsScreen = () => {
       {/* Weekly Navigation */}
       {timePeriod === "Weekly" && (
         <View style={styles.filterContainer}>
-          <TouchableOpacity style={styles.filterButton} onPress={handlePreviousWeek}>
-            <Text style={styles.filterButtonText}>&larr; Previous Week</Text>
-          </TouchableOpacity>
-          {!isCurrentWeek && (
-            <TouchableOpacity style={styles.filterButton} onPress={handleNextWeek}>
-              <Text style={styles.filterButtonText}>Next Week &rarr;</Text>
+            <TouchableOpacity style={styles.filterButton} onPress={handlePreviousWeek}>
+              <Text style={styles.filterButtonText}>&larr; Previous Week</Text>
             </TouchableOpacity>
-          )}
+            {!isCurrentWeek && (
+              <TouchableOpacity style={styles.filterButton} onPress={handleNextWeek}>
+                <Text style={styles.filterButtonText}>Next Week &rarr;</Text>
+              </TouchableOpacity>
+            )}
         </View>
+        
       )}
 
       {/* Monthly Navigation */}
@@ -168,6 +169,16 @@ const InsightsScreen = () => {
           )}
         </View>
       )}
+
+      {/* Filter Label */}
+      <View style={styles.filterContainer}>
+        {timePeriod === "Monthly" && (
+          <Text style={styles.periodText}>Showing year of {currentYear}</Text>
+        )}
+        {timePeriod === "Weekly" && (
+          <Text style={styles.periodText}>Showing year of {currentWeekStart.toDateString()} to {currentWeekEnd.toDateString()}</Text>
+        )}
+      </View>
 
       {/* Line Chart */}
       <View style={styles.chartContainer}>

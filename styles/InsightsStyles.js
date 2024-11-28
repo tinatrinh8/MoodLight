@@ -71,6 +71,11 @@ const InsightsStyles = StyleSheet.create({
     color: "#FFF",
     fontWeight: "bold",
   },
+  periodText: {
+    textAlign: "center",
+    color: "#000",
+    fontWeight: "bold",
+  },
 
   chart: {
     marginVertical: 8,
