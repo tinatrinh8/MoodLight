@@ -25,7 +25,7 @@ const AnalysisStyles = StyleSheet.create({
   },
   container: {
     flex: 1,
-    backgroundColor: "#DC869A", // Pink background for the entire screen
+    backgroundColor: "#FFFFF", // Pink background for the entire screen
   },
   scrollContainer: {
     flex: 1,
@@ -65,8 +65,24 @@ const AnalysisStyles = StyleSheet.create({
     fontWeight: "bold",
     color: "#FFFFFF",
   },
+
+  loadingContainer: {
+    flex: 1, // Take up available space
+    justifyContent: "center", // Center vertically
+    alignItems: "center", // Center horizontally
+    marginVertical: 20,
+  },
+
+  loadingText: {
+    fontSize: 18, // Adjust font size for readability
+    color: "#DC869A", // Match the spinner color
+    textAlign: "center", // Center the text
+    marginTop: 10, // Add spacing below the spinner
+    fontFamily: "LexendDeca", // Optional: Custom font for consistency
+  },
+
   resultsContainer: {
-    marginTop: 0, // Reduce the top margin for less space
+    marginTop: 30, // Reduce the top margin for less space
     flexDirection: "row", // Keep text and sofa in a row
     alignItems: "center", // Vertically align the text and sofa
     justifyContent: "flex-start", // Align items to the left
@@ -122,6 +138,12 @@ const AnalysisStyles = StyleSheet.create({
   },
 
   // Emotions Section
+
+  emotionsSection: {
+    marginTop: 20,
+    fontWeight: "bold",
+  },
+
   emotionsContainer: {
     marginTop: 20,
     flexDirection: "row", // Arrange cards in a row
@@ -181,12 +203,12 @@ const AnalysisStyles = StyleSheet.create({
     color: "#000", // Black text
     textAlign: "center", // Center the title
     marginBottom: 10, // Add spacing between title and box
-    marginTop: 10,
+    marginTop: 30,
   },
 
   // Summary Container
   summaryContainer: {
-    marginVertical: 20,
+    marginVertical: 10,
     padding: 15,
     backgroundColor: "#F5F0E8", // Light beige background
     borderRadius: 15, // Rounded corners
@@ -212,7 +234,7 @@ const AnalysisStyles = StyleSheet.create({
   },
 
   feedbackContainer: {
-    marginVertical: 20,
+    marginVertical: 10,
     padding: 15,
     backgroundColor: "#F5F0E8", // Light beige background
     borderRadius: 15, // Rounded corners
@@ -247,11 +269,12 @@ const AnalysisStyles = StyleSheet.create({
   viewPromptButton: {
     backgroundColor: "#000",
     padding: 15,
-    borderRadius: 10,
+    borderRadius: 30,
     alignItems: "center",
     width: "90%",
     alignSelf: "center",
     marginTop: 20,
+    marginBottom: 30,
   },
   viewPromptText: {
     fontSize: 16,

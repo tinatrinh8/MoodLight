@@ -1,7 +1,6 @@
 import { StyleSheet, Dimensions } from "react-native";
 
 const InsightsStyles = StyleSheet.create({
-
   container: {
     flex: 1,
     backgroundColor: "#E6C3CB", // Light pink background
@@ -14,42 +13,35 @@ const InsightsStyles = StyleSheet.create({
     textAlign: "center",
     marginVertical: 10,
   },
-  pieChartAndLegend: {
-    flexDirection: 'row', // Align Pie Chart and Legend side by side
-    justifyContent: 'flex-start', // Align items to the left
-    alignItems: 'flex-start', // Align them at the top
-    marginVertical: 20,
-  },
   chartContainer: {
-    marginBottom: 20, // Add spacing between the charts
+    marginBottom: 20,
   },
   pieChartContainer: {
-    width: Dimensions.get("window").width * 0.4, // Set Pie Chart width to 40% of the screen width
-    height: 200, // Set fixed height
-    justifyContent: 'center', // Center the chart inside the container
-    alignItems: 'center', // Align center horizontally
+    width: Dimensions.get("window").width * 0.7, // Adjusted pie chart width
+    alignSelf: "center", // Center the pie chart horizontally
+    paddingHorizontal: 16,
+    marginVertical: 20,
   },
   legendContainer: {
-    marginLeft: 20, // Add space between Pie Chart and Legend
+    flexDirection: "column",
+    alignItems: "flex-start", // Align items in the container to the start
+    position: "absolute", // Position the legend absolutely
+    right: 16, // Move the legend to the right with padding
+    top: 300, // Adjust the vertical positioning
   },
   legendItem: {
-    flexDirection: "row", // Side by side for each legend item
-    alignItems: "center", // Align items vertically
+    flexDirection: "row",
+    alignItems: "center",
     marginBottom: 8,
   },
   legendColorBox: {
     width: 20,
     height: 20,
-    marginRight: 8, // Space between color box and text
+    marginRight: 8,
   },
   legendText: {
     fontSize: 14,
     color: "#260101",
-    marginRight: 8, // Space between text and emoji
-  },
-  legendEmoji: {
-    width: 20,
-    height: 20,
   },
   filterContainer: {
     flexDirection: "row",
@@ -76,15 +68,14 @@ const InsightsStyles = StyleSheet.create({
     color: "#000",
     fontWeight: "bold",
   },
-
   chart: {
     marginVertical: 8,
     borderRadius: 16,
   },
-
   noDataText: {
     color: "#FFF",
     fontSize: 16,
+    textAlign: "center",
   },
 });
 

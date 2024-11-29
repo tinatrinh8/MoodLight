@@ -21,7 +21,7 @@ import {
   Animated,
   Alert,
   ActivityIndicator,
-  InteractionManager
+  InteractionManager,
 } from "react-native";
 import { onAuthStateChanged } from "firebase/auth";
 import { auth } from "../components/firebase";
@@ -81,8 +81,8 @@ const ViewJournalEntryModal = ({
                   {entry.entryText || "No content available"}
                 </Text>
               </View>
-            ) : entry.type === "prompts" ? (
-              entry.promptsData.map((item, index) => (
+            ) : Array.isArray(entry.entryText) ? (
+              entry.entryText.map((item, index) => (
                 <View key={index} style={styles.promptContainer}>
                   {/* Prompt as a standalone title */}
                   <Text style={styles.textBoxTitle}>{item.prompt}</Text>
@@ -224,7 +224,6 @@ const HomePage = () => {
     }
   };
 
-
   const fetchEntries = useCallback(async () => {
     try {
       setLoading(true);
@@ -262,7 +261,7 @@ const HomePage = () => {
 
   // Trigger background animation
   useEffect(() => {
-    fetchPrompts()
+    fetchPrompts();
     fetchEntries();
 
     Animated.sequence([
@@ -280,7 +279,6 @@ const HomePage = () => {
   }, [fetchEntries]);
 
   useEffect(() => {
-
     const unsubscribeAuth = onAuthStateChanged(auth, (currentUser) => {
       if (currentUser) {
         setUser(currentUser); // Set the authenticated user
@@ -292,10 +290,9 @@ const HomePage = () => {
     });
 
     const interactionPromise = InteractionManager.runAfterInteractions(() => {
-
       // Check if a journal entry is passed from navigation
       if (route.params?.viewJournalEntry) {
-        handleOpenJournal(route.params.viewJournalEntry)
+        handleOpenJournal(route.params.viewJournalEntry);
         navigation.setParams({ viewJournalEntry: null }); // Clear params
       }
 
@@ -306,14 +303,12 @@ const HomePage = () => {
         console.log("Modal visibility set to true");
         navigation.setParams({ selectedDate: null }); // Clear params
       }
-    },
-    );
+    });
 
     return () => {
-      interactionPromise.cancel()
-      unsubscribeAuth()
+      interactionPromise.cancel();
+      unsubscribeAuth();
     };
-
   }, [fetchEntries, route.params]);
 
   const handleSaveEntry = async () => {
@@ -345,13 +340,12 @@ const HomePage = () => {
           topEmotions: addedEntry.topEmotions, // Pass to Analysis screen
         });
       } catch (error) {
-        console.error("Error saving entry IN LINE 348:", error.message);
+        console.error("Error saving entry:", error.message);
       }
     } else {
       alert("Please provide both a title and content.");
     }
   };
-
 
   const closeModal = () => {
     setCreateEntryModalVisible(false);
@@ -388,29 +382,29 @@ const HomePage = () => {
       id: "dailyDosAndDonts",
       component:
         ((<getDailyDosAndDonts dailySuggestions={dailySuggestions} />),
-          (
-            <View style={styles.dosAndDontsContainer}>
-              {/* Do's Section */}
-              <View style={styles.dosColumn}>
-                <Text style={styles.dosHeader}>Today's Do's</Text>
-                {dailySuggestions.dos.map((item, index) => (
-                  <Text key={index} style={styles.dosText}>
-                    {item}
-                  </Text>
-                ))}
-              </View>
-
-              {/* Don'ts Section */}
-              <View style={styles.dontsColumn}>
-                <Text style={styles.dontsHeader}>Today's Don'ts</Text>
-                {dailySuggestions.donts.map((item, index) => (
-                  <Text key={index} style={styles.dontsText}>
-                    {item}
-                  </Text>
-                ))}
-              </View>
+        (
+          <View style={styles.dosAndDontsContainer}>
+            {/* Do's Section */}
+            <View style={styles.dosColumn}>
+              <Text style={styles.dosHeader}>Today's Do's</Text>
+              {dailySuggestions.dos.map((item, index) => (
+                <Text key={index} style={styles.dosText}>
+                  {item}
+                </Text>
+              ))}
             </View>
-          )),
+
+            {/* Don'ts Section */}
+            <View style={styles.dontsColumn}>
+              <Text style={styles.dontsHeader}>Today's Don'ts</Text>
+              {dailySuggestions.donts.map((item, index) => (
+                <Text key={index} style={styles.dontsText}>
+                  {item}
+                </Text>
+              ))}
+            </View>
+          </View>
+        )),
     },
 
     {
@@ -604,7 +598,7 @@ const CreateJournalEntry = ({
         .map((item) => item.response)
         .join(". ");
 
-      closeModal()
+      closeModal();
       navigation.navigate("Analysis", {
         entryId: addedEntry.id,
         entryTitle: addedEntry.entryTitle,
@@ -623,8 +617,6 @@ const CreateJournalEntry = ({
     }
   };
 
-
-
   const handleSaveEntry = async () => {
     if (newEntryTitle.trim() && newEntryText.trim()) {
       try {
@@ -635,7 +627,7 @@ const CreateJournalEntry = ({
           "free"
         );
 
-        closeModal()
+        closeModal();
         navigation.navigate("Analysis", {
           entryId: addedEntry.id,
           entryTitle: addedEntry.entryTitle,
@@ -646,8 +638,10 @@ const CreateJournalEntry = ({
 
         console.log("Free-writing journal entry saved successfully.");
       } catch (error) {
-        console.error("Error saving entry IN LINE 649:", error.message);
-        alert("An error occurred while saving the journal entry. Please try again.");
+        console.error("Error saving entry:", error.message);
+        alert(
+          "An error occurred while saving the journal entry. Please try again."
+        );
       }
     } else {
       alert("Please provide both a title and content before saving.");
@@ -737,65 +731,61 @@ const CreateJournalEntry = ({
             )}
             {/* Use Prompts Modal */}
             {currentModal === "usePrompts" && (
-              <>
-                <ScrollView
-                  contentContainerStyle={{
-                    flexGrow: 1,
-                    paddingBottom: 200,
-                  }}
-                >
-                  <TouchableOpacity
-                    onPress={closeModal}
-                    style={[styles.closeButton]}
-                  ></TouchableOpacity>
-
-                  <Text style={styles.modalTitle}>
-                    Need a little inspiration?
-                  </Text>
-
-                  <Text style={styles.dateText}>{displayedDate}</Text>
-
-                  <Text style={styles.textBoxTitle}>Journal Title</Text>
-                  <TextInput
-                    style={styles.titleInputBox}
-                    placeholder="Name your journal entry"
-                    value={promptEntryTitle}
-                    onChangeText={setPromptEntryTitle}
-                  />
-
-                  {loadingPrompts ? (
-                    <View>
-                      <ActivityIndicator size="large" color="#FFFFFF" />
-                    </View>
-                  ) : (
-                    suggestedPrompts.map((prompt, index) => (
-                      <View key={index} style={styles.promptContainer}>
-                        <Text style={styles.textBoxTitle}>{prompt}</Text>
-                        <TextInput
-                          style={styles.textInputBox}
-                          placeholder="Write your answer here..."
-                          multiline={true}
-                          value={promptResponses[index]}
-                          onChangeText={(text) => {
-                            const updatedResponses = [...promptResponses];
-                            updatedResponses[index] = text;
-                            setPromptResponses(updatedResponses);
-                          }}
-                        />
-                      </View>
-                    ))
-                  )}
-                </ScrollView>
-
+              <ScrollView
+                contentContainerStyle={{
+                  flexGrow: 1,
+                  paddingBottom: 200,
+                }}
+              >
                 <TouchableOpacity
-                  style={styles.continueButton}
-                  onPress={savePromptEntry}
-                >
-                  <Text style={styles.continueButtonText}>Save Entry</Text>
-                </TouchableOpacity>
-              </>
-            )}
+                  onPress={closeModal}
+                  style={[styles.closeButton]}
+                ></TouchableOpacity>
 
+                <Text style={styles.modalTitle}>
+                  Need a little inspiration?
+                </Text>
+
+                <Text style={styles.dateText}>{displayedDate}</Text>
+
+                <Text style={styles.textBoxTitle}>Journal Title</Text>
+                <TextInput
+                  style={styles.titleInputBox}
+                  placeholder="Name your journal entry"
+                  value={promptEntryTitle}
+                  onChangeText={setPromptEntryTitle}
+                />
+
+                {loadingPrompts ? (
+                  <View>
+                    <ActivityIndicator size="large" color="#FFFFFF" />
+                  </View>
+                ) : (
+                  suggestedPrompts.map((prompt, index) => (
+                    <View key={index} style={styles.promptContainer}>
+                      <Text style={styles.textBoxTitle}>{prompt}</Text>
+                      <TextInput
+                        style={styles.textInputBox}
+                        placeholder="Write your answer here..."
+                        multiline={true}
+                        value={promptResponses[index]}
+                        onChangeText={(text) => {
+                          const updatedResponses = [...promptResponses];
+                          updatedResponses[index] = text;
+                          setPromptResponses(updatedResponses);
+                        }}
+                      />
+                    </View>
+                  ))
+                )}
+              </ScrollView>
+            )}
+            <TouchableOpacity
+              style={styles.continueButton}
+              onPress={savePromptEntry}
+            >
+              <Text style={styles.continueButtonText}>Save Entry</Text>
+            </TouchableOpacity>
           </Animated.View>
         </KeyboardAvoidingView>
       </Modal>
