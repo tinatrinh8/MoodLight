@@ -662,7 +662,7 @@ const styles = StyleSheet.create({
   // Text Input Box
   textInputBox: {
     width: "100%",
-    minHeight: 200, // Minimum height for the box
+    minHeight: 300, // Minimum height for the box
     maxHeight: 200, // Optional: Maximum height for scrolling
     backgroundColor: "#FFFFFF", // White background
     borderRadius: 10,
@@ -672,6 +672,21 @@ const styles = StyleSheet.create({
     fontSize: 16,
     color: "#000000",
     marginBottom: 20,
+    textAlignVertical: "top", // Align text to the top-left
+  },
+
+  textInputBoxWriteFreely: {
+    width: "100%",
+    minHeight: 500, // Minimum height for the box
+    maxHeight: 200, // Optional: Maximum height for scrolling
+    backgroundColor: "#FFFFFF", // White background
+    borderRadius: 10,
+    borderWidth: 2,
+    borderColor: "#000000", // Black border
+    padding: 10,
+    fontSize: 16,
+    color: "#000000",
+    marginBottom: 60,
     textAlignVertical: "top", // Align text to the top-left
   },
 

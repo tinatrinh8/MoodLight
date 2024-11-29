@@ -700,12 +700,11 @@ const CreateJournalEntry = ({
                 </TouchableOpacity>
               </>
             )}
+
             {/* Write Freely Modal */}
             {currentModal === "writeFreely" && (
               <>
                 <Text style={styles.modalTitle}>Dear diary...</Text>
-
-                {/* Display Selected or Today's Date */}
                 <Text style={styles.dateText}>{displayedDate}</Text>
 
                 <TextInput
@@ -721,6 +720,7 @@ const CreateJournalEntry = ({
                   value={newEntryText}
                   onChangeText={setNewEntryText}
                 />
+                {/* Save Entry for Write Freely */}
                 <TouchableOpacity
                   style={styles.continueButton}
                   onPress={handleSaveEntry}
@@ -729,6 +729,7 @@ const CreateJournalEntry = ({
                 </TouchableOpacity>
               </>
             )}
+
             {/* Use Prompts Modal */}
             {currentModal === "usePrompts" && (
               <ScrollView
@@ -737,15 +738,9 @@ const CreateJournalEntry = ({
                   paddingBottom: 200,
                 }}
               >
-                <TouchableOpacity
-                  onPress={closeModal}
-                  style={[styles.closeButton]}
-                ></TouchableOpacity>
-
                 <Text style={styles.modalTitle}>
                   Need a little inspiration?
                 </Text>
-
                 <Text style={styles.dateText}>{displayedDate}</Text>
 
                 <Text style={styles.textBoxTitle}>Journal Title</Text>
@@ -778,14 +773,15 @@ const CreateJournalEntry = ({
                     </View>
                   ))
                 )}
+                {/* Save Entry for Use Prompts */}
+                <TouchableOpacity
+                  style={styles.continueButton}
+                  onPress={savePromptEntry}
+                >
+                  <Text style={styles.continueButtonText}>Save Entry</Text>
+                </TouchableOpacity>
               </ScrollView>
             )}
-            <TouchableOpacity
-              style={styles.continueButton}
-              onPress={savePromptEntry}
-            >
-              <Text style={styles.continueButtonText}>Save Entry</Text>
-            </TouchableOpacity>
           </Animated.View>
         </KeyboardAvoidingView>
       </Modal>
