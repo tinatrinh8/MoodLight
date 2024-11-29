@@ -300,6 +300,7 @@ const AnalysisStyles = StyleSheet.create({
     fontSize: 16,
     color: "#FFF",
     fontWeight: "bold",
+    fontFamily: "LexendDeca",
   },
 
   exitButton: {
@@ -314,6 +315,49 @@ const AnalysisStyles = StyleSheet.create({
     color: "#FFF", // Keep it white for visibility
     fontWeight: "bold",
   },
-});
+  tagsContainer: {
+    marginTop: 20, // Add spacing above the tag container
+    paddingHorizontal: 15, // Add horizontal padding for the container
+    overflow: "visible",
+    marginLeft: 10, // Add spacing above the tag container
+  },
+  tagTitle: {
+    fontSize: 18,
+    fontWeight: "bold",
+    marginBottom: 10, // Space between title and tags
+    color: "#00000", // Dark text color
+    fontFamily: "LexendDeca",
+  },
+  tagScrollContainer: {
+    flexDirection: "row",
+    flexWrap: "wrap", // Allow wrapping
+    justifyContent: "flex-start", // Align tags to the left
+    overflow: "visible", // Allow shadows to render properly
+  },
 
+  tag: {
+    backgroundColor: "#E6E6E6", // Default background color
+    borderRadius: 20, // Rounded corners for tags
+    paddingVertical: 10, // Vertical padding inside the tag
+    paddingHorizontal: 18, // Horizontal padding inside the tag
+    margin: 10, // Uniform margin around each tag
+    elevation: 3, // Increased shadow depth for Android
+    shadowColor: "#000", // Shadow color for iOS
+    shadowOffset: { width: 0, height: 3 }, // Deeper shadow for better visibility
+    shadowOpacity: 0.3, // Enhanced shadow opacity
+    shadowRadius: 5, // Increased shadow blur
+  },
+
+  tagText: {
+    fontSize: 16, // Font size for tag text
+    color: "#FFFFFF", // Dark text color
+    textAlign: "center", // Center align text
+    fontFamily: "LexendDeca",
+  },
+  noTagsText: {
+    fontSize: 14,
+    color: "#888", // Grey color for "No related words" text
+    fontStyle: "italic",
+  },
+});
 export default AnalysisStyles;

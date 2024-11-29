@@ -10,6 +10,52 @@ import {
   addDays,
 } from "date-fns";
 
+import nlp from "compromise";
+
+export const getEmotionTags = (emotions, text) => {
+  if (!text || typeof text !== "string") {
+    throw new Error("Text input is invalid or empty.");
+  }
+
+  const doc = nlp(text);
+  const emotionTags = {};
+
+  emotions.forEach((emotion) => {
+    const emotionLabel = emotion.toLowerCase();
+    emotionTags[emotionLabel] = [];
+
+    // Find nouns, verbs, and adjectives in the text
+    doc
+      .nouns()
+      .json()
+      .forEach((word) => {
+        if (word.text.includes(emotionLabel.slice(0, 3))) {
+          emotionTags[emotionLabel].push(word.text);
+        }
+      });
+    doc
+      .verbs()
+      .json()
+      .forEach((word) => {
+        if (word.text.includes(emotionLabel.slice(0, 3))) {
+          emotionTags[emotionLabel].push(word.text);
+        }
+      });
+    doc
+      .adjectives()
+      .json()
+      .forEach((word) => {
+        if (word.text.includes(emotionLabel.slice(0, 3))) {
+          emotionTags[emotionLabel].push(word.text);
+        }
+      });
+
+    emotionTags[emotionLabel] = [...new Set(emotionTags[emotionLabel])];
+  });
+
+  return emotionTags;
+};
+
 /**
  * Get the top N emotions across all journal entries.
  * @param {Array} entries - Array of journal entries.
@@ -45,7 +91,7 @@ export const getEmotionCounts = (entries) => {
   });
 
   return emotionCounts;
-}
+};
 
 /**
  * Get the start date of the week.
@@ -213,5 +259,3 @@ export const groupDataByDay = (entries, startDate, endDate, emotions) => {
     return emotionsData; // Return only the emotion counts for the chart
   });
 };
-
-

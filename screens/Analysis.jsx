@@ -9,7 +9,9 @@ import {
   getFeedback,
 } from "../utils/HuggingFaceAPI";
 import { updateJournalEntry } from "../functions/JournalFunctions";
-import { emotionData } from "../components/emotionData"; // Emotion icons and metadata
+import { emotionData } from "../components/emotionData";
+import { getEmotionTags } from "../utils/emotionUtils";
+import { emotionColours } from "../utils/emotionColours";
 
 // EmotionCard Component
 function EmotionCard({ rank, emotion, icon }) {
@@ -290,6 +292,8 @@ function SummaryFeedback({ entry, topEmotions }) {
         )}
       </View>
 
+      <Tags emotions={topEmotions} entryText={entry.entryText || ""} />
+
       {/* View Journal Button */}
       <TouchableOpacity
         style={styles.viewPromptButton}
@@ -428,11 +432,9 @@ export default function Analysis() {
     <ScrollView style={styles.scrollContainer}>
       <View style={styles.container}>
         <Header />
-
         <TouchableOpacity onPress={closeModal} style={styles.exitButton}>
           <Text style={styles.exitButtonText}>×</Text>
         </TouchableOpacity>
-
         <View style={styles.analysisHeader}>
           <Text style={styles.resultsText}>Analysis Results</Text>
           <Image source={require("../assets/sofa.png")} style={styles.sofa} />
@@ -441,7 +443,6 @@ export default function Analysis() {
             <Text style={styles.journalEntryTitle}>{entryTitle}</Text>
           </View>
         </View>
-
         {loadingEmotions ? (
           <View style={styles.emotionsLoadingContainer}>
             <Text style={styles.emotionsLoadingText}>
@@ -451,9 +452,76 @@ export default function Analysis() {
         ) : (
           <EmotionsDetected emotions={topEmotions} />
         )}
-
         <SummaryFeedback entry={entry} topEmotions={topEmotions} />
       </View>
     </ScrollView>
+  );
+}
+
+function Tags({ emotions, entryText }) {
+  console.log("Emotions passed to Tags:", emotions);
+
+  if (!emotions || !Array.isArray(emotions) || emotions.length === 0) {
+    return (
+      <View style={styles.tagsContainer}>
+        <Text style={styles.tagTitle}>Tags Related to Emotions</Text>
+        <Text style={styles.noTagsText}>
+          No emotions detected from the journal entry.
+        </Text>
+      </View>
+    );
+  }
+
+  // Preprocess the entryText and combine it into a single string
+  const processedText = (() => {
+    if (Array.isArray(entryText)) {
+      // Combine array responses into one string
+      return entryText.map((item) => item.response).join(" ");
+    } else if (typeof entryText === "string" && entryText.trim()) {
+      // Use free-writing text as-is
+      return entryText.trim();
+    } else {
+      console.warn("Invalid or empty journal entry text.");
+      return ""; // Return an empty string if entryText is invalid
+    }
+  })();
+
+  // Dynamically generate tags using getEmotionTags
+  const emotionTags = getEmotionTags(emotions, processedText);
+
+  console.log("Processed Journal Entry Text:", processedText);
+  console.log("Generated Emotion Tags with NLP:", emotionTags);
+
+  return (
+    <View style={styles.tagsContainer}>
+      <Text style={styles.tagTitle}>Related Tags</Text>
+      <ScrollView
+        horizontal
+        showsHorizontalScrollIndicator={true}
+        contentContainerStyle={styles.tagScrollContainer}
+      >
+        {emotions.map((emotion, index) => {
+          const emotionLabel = emotion.toLowerCase();
+          const tags = emotionTags[emotionLabel] || [];
+          const tagColor = emotionColours[emotionLabel] || "#E6E6E6"; // Default color if emotion not mapped
+
+          return tags.length > 0
+            ? tags.map((tag, idx) => (
+                <View
+                  key={`${emotion}-${idx}`}
+                  style={[
+                    styles.tag,
+                    {
+                      backgroundColor: tagColor, // Use emotionColours for color
+                    },
+                  ]}
+                >
+                  <Text style={styles.tagText}>{tag}</Text>
+                </View>
+              ))
+            : null;
+        })}
+      </ScrollView>
+    </View>
   );
 }
