@@ -8,8 +8,9 @@ const retryRequest = async (fn, retries = 3, delay = 2000) => {
       return await fn();
     } catch (err) {
       if (i === retries - 1) throw err;
+      const randomizedDelay = delay * Math.pow(2, i) + Math.random() * 1000;
       console.warn(`Retrying request (${i + 1}/${retries})...`);
-      await new Promise((resolve) => setTimeout(resolve, delay));
+      await new Promise((resolve) => setTimeout(resolve, randomizedDelay));
     }
   }
 };
@@ -118,10 +119,6 @@ export const getFeedback = async (text, topEmotions) => {
     console.warn("No top emotions provided. Defaulting to 'neutral'.");
     topEmotions = ["neutral"]; // Fallback emotion
   }
-
-  const emotionHints = topEmotions
-    .map((emotion) => emotion.charAt(0).toUpperCase() + emotion.slice(1)) // Capitalize
-    .join(", ");
 
   const prompt = `
   Based on the following journal entry, provide personalized feedback/suggestions that is encouraging and constructive.

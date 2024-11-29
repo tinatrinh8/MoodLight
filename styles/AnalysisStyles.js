@@ -81,6 +81,26 @@ const AnalysisStyles = StyleSheet.create({
     fontFamily: "LexendDeca", // Optional: Custom font for consistency
   },
 
+  // Styles specifically for the emotions loading screen
+  emotionsLoadingContainer: {
+    flex: 1, // Take up the full screen
+    justifyContent: "center", // Center the content vertically
+    alignItems: "center", // Center the content horizontally
+    backgroundColor: "#DC869A", // Match the app's background theme
+    padding: 20, // Add some padding for spacing
+  },
+  emotionsLoadingText: {
+    fontSize: 18, // Readable font size
+    fontWeight: "600", // Semi-bold for emphasis
+    color: "#FFFFF", // Neutral text color
+    textAlign: "center", // Center-align the text
+    marginTop: 10, // Spacing between the spinner (if used) and text
+    fontFamily: "LexendDeca", // Optional: Ensure consistent font
+  },
+  emotionsLoadingSpinner: {
+    marginBottom: 20, // Add spacing below the spinner
+  },
+
   resultsContainer: {
     marginTop: 30, // Reduce the top margin for less space
     flexDirection: "row", // Keep text and sofa in a row

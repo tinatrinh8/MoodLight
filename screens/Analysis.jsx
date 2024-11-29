@@ -329,6 +329,8 @@ export default function Analysis() {
 
   // Animate loading text for emotions
   useEffect(() => {
+    let interval;
+
     if (loadingEmotions) {
       const loadingTexts = [
         "Loading emotions.",
@@ -337,13 +339,14 @@ export default function Analysis() {
       ];
       let index = 0;
 
-      const interval = setInterval(() => {
-        setLoadingEmotionsText(loadingTexts[index]);
-        index = (index + 1) % loadingTexts.length;
-      }, 500); // Change every 500ms
-
-      return () => clearInterval(interval); // Cleanup interval on component unmount
+      interval = setInterval(() => {
+        setLoadingEmotionsText(loadingTexts[index]); // Update the text
+        index = (index + 1) % loadingTexts.length; // Loop through the texts
+      }, 500);
     }
+
+    // Cleanup the interval
+    return () => clearInterval(interval);
   }, [loadingEmotions]);
 
   // Filter and sort emotions
@@ -418,11 +421,8 @@ export default function Analysis() {
       }
     };
 
-  fetchEmotions();
-}, [entry, entryId, entryText]);
-
-
-
+    fetchEmotions();
+  }, [entry, entryId, entryText]);
 
   return (
     <ScrollView style={styles.scrollContainer}>
@@ -443,7 +443,11 @@ export default function Analysis() {
         </View>
 
         {loadingEmotions ? (
-          <Text>Loading emotions...</Text>
+          <View style={styles.emotionsLoadingContainer}>
+            <Text style={styles.emotionsLoadingText}>
+              {loadingEmotionsText}
+            </Text>
+          </View>
         ) : (
           <EmotionsDetected emotions={topEmotions} />
         )}
