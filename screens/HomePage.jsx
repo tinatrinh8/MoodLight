@@ -714,7 +714,7 @@ const CreateJournalEntry = ({
                   onChangeText={setNewEntryTitle}
                 />
                 <TextInput
-                  style={styles.textInputBox}
+                  style={styles.textInputBoxWriteFreely}
                   placeholder="Write your thoughts here..."
                   multiline={true}
                   value={newEntryText}
