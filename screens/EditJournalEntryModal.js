@@ -11,6 +11,7 @@ import {
   Alert,
 } from "react-native";
 import styles from "../styles/HomePageStyles";
+import { getEmotion } from '../utils/HuggingFaceAPI'
 
 const EditJournalEntryModal = ({
   entry,
@@ -23,6 +24,48 @@ const EditJournalEntryModal = ({
   const [editedPrompts, setEditedPrompts] = useState(
     entry?.type === "prompts" ? entry.entryText : []
   );
+
+  const filterEmotions = (emotions) => {
+    const sortedEmotions = emotions.sort((a, b) => b.score - a.score);
+    const uniqueEmotions = [];
+    const seen = new Set();
+
+    for (const emotion of sortedEmotions) {
+      if (!seen.has(emotion.label.toLowerCase())) {
+        uniqueEmotions.push(emotion.label.toLowerCase());
+        seen.add(emotion.label.toLowerCase());
+      }
+      if (uniqueEmotions.length === 3) break;
+    }
+    return uniqueEmotions;
+  };
+
+
+  const refetchEmotions = async (entry) => {
+    try {
+      let textForAnalysis = "";
+
+      if (entry.type === "prompts" && Array.isArray(entry.entryText)) {
+        // Combine all prompt responses into a single string
+        textForAnalysis = entry.entryText.map((item) => item.response).join(". "); // Join all responses with a period and space
+      } else if (entry.entryText) {
+        // Use free-writing text as-is
+        textForAnalysis = entry.entryText;
+      }
+
+      console.log("Text for emotion analysis:", textForAnalysis);
+
+      const detectedEmotions = await getEmotion(textForAnalysis);
+
+      if (!detectedEmotions || !Array.isArray(detectedEmotions)) {
+        throw new Error("Invalid response from emotion analysis API.");
+      }
+      return filterEmotions(detectedEmotions);
+
+    } catch (error) {
+      console.error("Error fetching emotions:", error.message || error);
+    }
+  }
 
   const handleSaveChanges = async () => {
     if (entry.type === "free") {
@@ -42,6 +85,9 @@ const EditJournalEntryModal = ({
       entryTitle,
       entryText: entry.type === "prompts" ? editedPrompts : entryText,
     };
+    
+    const updatedEmotions = await refetchEmotions(updatedEntry)
+    updatedEntry['topEmotions'] = updatedEmotions
 
     try {
       await onSave(updatedEntry.id, updatedEntry);
