@@ -227,70 +227,53 @@ function SummaryFeedback({ entry, topEmotions }) {
   }, [entry, topEmotions]);
 
   return (
-    <View>
-      {/* Summary Section */}
-      <Text style={styles.sectionTitleCentered}>Summary</Text>
-      <View style={styles.summaryContainer}>
-        {loadingSummary ? (
-          <Text style={styles.summaryContent}>{loadingText}</Text>
-        ) : (
-          <View style={styles.scrollWrapper}>
-            <ScrollView
-              style={styles.summaryScrollContainer}
-              onScroll={
-                (event) => handleScroll(event, setScrollSummaryIndicator, 200) // Ensure the 200 matches `maxHeight`
-              }
-              scrollEventThrottle={16}
-              showsVerticalScrollIndicator={false}
-            >
-              <Text style={styles.summaryContent}>{summary}</Text>
-            </ScrollView>
-            {scrollSummaryIndicator.height > 0 && (
-              <View
-                style={[
-                  styles.scrollIndicator,
-                  {
-                    top: scrollSummaryIndicator.top,
-                    height: scrollSummaryIndicator.height,
-                  },
-                ]}
-              />
-            )}
-          </View>
-        )}
+<View>
+  {/* Summary Section */}
+  <Text style={styles.sectionTitleCentered}>Summary</Text>
+  <View style={styles.summaryContainer}>
+    {loadingSummary ? (
+      <Text style={styles.summaryContent}>{loadingText}</Text>
+    ) : (
+      <View style={{ height: 200 }}>
+        <ScrollView
+            contentContainerStyle={{
+              flexGrow: 1,
+              paddingBottom: 20, // Add padding to the bottom to prevent content cutoff
+            }}
+          style={styles.summaryScrollContainer}
+          scrollEventThrottle={16}
+          showsVerticalScrollIndicator={true}
+          nestedScrollEnabled={true} // Enable nested scrolling
+        >
+          <Text style={styles.summaryContent}>{summary}</Text>
+        </ScrollView>
       </View>
+    )}
+  </View>
 
-      {/* Feedback Section */}
-      <Text style={styles.sectionTitleCentered}>Feedback</Text>
-      <View style={styles.feedbackContainer}>
-        {loadingFeedback ? (
-          <Text style={styles.feedbackContent}>{loadingFeedbackText}</Text>
-        ) : (
-          <View style={styles.scrollWrapper}>
-            <ScrollView
-              style={styles.feedbackScrollContainer}
-              onScroll={(event) =>
-                handleScroll(event, setScrollFeedbackIndicator, 200)
-              } // 200 matches maxHeight
-              scrollEventThrottle={16}
-              showsVerticalScrollIndicator={false}
-            >
-              <Text style={styles.feedbackContent}>{feedback}</Text>
-            </ScrollView>
-            {scrollFeedbackIndicator.height > 0 && (
-              <View
-                style={[
-                  styles.scrollIndicator,
-                  {
-                    top: scrollFeedbackIndicator.top,
-                    height: scrollFeedbackIndicator.height,
-                  },
-                ]}
-              />
-            )}
-          </View>
-        )}
+  {/* Feedback Section */}
+  <Text style={styles.sectionTitleCentered}>Feedback</Text>
+  <View style={styles.feedbackContainer}>
+    {loadingFeedback ? (
+      <Text style={styles.feedbackContent}>{loadingFeedbackText}</Text>
+    ) : (
+      <View style={{ height: 200 }}>
+        <ScrollView
+            contentContainerStyle={{
+              flexGrow: 1,
+              paddingBottom: 20, // Add padding to the bottom to prevent content cutoff
+            }}
+          style={styles.feedbackScrollContainer}
+          scrollEventThrottle={16}
+          showsVerticalScrollIndicator={true}
+          nestedScrollEnabled={true} // Enable nested scrolling
+        >
+          <Text style={styles.feedbackContent}>{feedback}</Text>
+        </ScrollView>
       </View>
+    )}
+  </View>
+
 
       <Tags emotions={topEmotions} entryText={entry.entryText || ""} />
 
@@ -407,8 +390,6 @@ export default function Analysis() {
           textForAnalysis = entryText;
         }
 
-        console.log("Text for emotion analysis:", textForAnalysis);
-
         const detectedEmotions = await getEmotion(textForAnalysis);
 
         if (!detectedEmotions || !Array.isArray(detectedEmotions)) {
@@ -459,7 +440,6 @@ export default function Analysis() {
 }
 
 function Tags({ emotions, entryText }) {
-  console.log("Emotions passed to Tags:", emotions);
 
   if (!emotions || !Array.isArray(emotions) || emotions.length === 0) {
     return (
@@ -488,9 +468,6 @@ function Tags({ emotions, entryText }) {
 
   // Dynamically generate tags using getEmotionTags
   const emotionTags = getEmotionTags(emotions, processedText);
-
-  console.log("Processed Journal Entry Text:", processedText);
-  console.log("Generated Emotion Tags with NLP:", emotionTags);
 
   return (
     <View style={styles.tagsContainer}>

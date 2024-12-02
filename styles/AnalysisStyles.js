@@ -36,16 +36,15 @@ const AnalysisStyles = StyleSheet.create({
   },
 
   scrollWrapper: {
-    position: "relative", // Ensure scroll indicator is positioned relative to container
-    flex: 1,
+    maxHeight: 200, // Restrict outer container height
+    overflow: 'hidden', // Ensure scrollable content remains within bounds
   },
   scrollIndicator: {
-    position: "absolute",
-    right: 2, // Align it close to the scrollable edge
-    width: 3, // Set a clear and visible width
-    backgroundColor: "#000000", // Black scrollbar
-    borderRadius: 2, // Slight rounding for aesthetic
-    zIndex: 5, // Ensure it appears on top of the content
+    position: 'absolute',
+    right: 5,
+    width: 3,
+    backgroundColor: '#000',
+    borderRadius: 3,
   },
   // Header
   analysisHeader: {
@@ -248,10 +247,10 @@ const AnalysisStyles = StyleSheet.create({
     textAlign: "left", // Align text to the left
   },
 
-  summaryScrollContainer: {
-    maxHeight: 200, // Set a maximum height to ensure the box is scrollable
-    padding: 5, // Add padding for better readability
-  },
+summaryScrollContainer: {
+  flex: 1, // Let the ScrollView take up all available space within the fixed height
+  padding: 10, // Padding for better readability
+},
 
   feedbackContainer: {
     marginVertical: 10,
@@ -282,7 +281,7 @@ const AnalysisStyles = StyleSheet.create({
   },
 
   feedbackScrollContainer: {
-    maxHeight: 200, // Set a maximum height to ensure scrollability
+    flex: 1, // Allow the scroll area to grow with content
     padding: 5, // Add padding for better readability
   },
 
@@ -350,7 +349,7 @@ const AnalysisStyles = StyleSheet.create({
 
   tagText: {
     fontSize: 16, // Font size for tag text
-    color: "#FFFFFF", // Dark text color
+    color: "#000000", // Dark text color
     textAlign: "center", // Center align text
     fontFamily: "LexendDeca",
   },

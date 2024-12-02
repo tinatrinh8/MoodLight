@@ -65,6 +65,7 @@ const styles = StyleSheet.create({
   emptyText: {
     fontSize: 16,
     marginBottom: 50,
+    marginTop:30,
     fontFamily: "LexendDeca",
   },
 
@@ -686,7 +687,6 @@ const styles = StyleSheet.create({
     padding: 10,
     fontSize: 16,
     color: "#000000",
-    marginBottom: 60,
     textAlignVertical: "top", // Align text to the top-left
   },
 
