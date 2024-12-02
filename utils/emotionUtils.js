@@ -1,14 +1,9 @@
 import {
   format,
-  isWithinInterval,
-  startOfWeek,
-  endOfWeek,
   startOfMonth,
   endOfMonth,
   startOfYear,
   endOfYear,
-  startOfDay,
-  addDays,
 } from "date-fns";
 
 import nlp from "compromise";
@@ -81,14 +76,6 @@ export const getEmotionCounts = (entries) => {
   return emotionCounts;
 };
 
-// Get the start date of the week
-export const getStartOfWeek = (referenceDate) =>
-  startOfWeek(referenceDate, { weekStartsOn: 1 });
-
-// Get the end date of the week
-export const getEndOfWeek = (referenceDate) =>
-  endOfWeek(referenceDate, { weekStartsOn: 1 });
-
 // Get the start date of the year
 export const getStartOfYear = (referenceDate) => startOfYear(referenceDate);
 
@@ -150,13 +137,11 @@ export const filterEntriesByPeriod = (entries, period) => {
   const now = new Date();
 
   const start = {
-    Weekly: getStartOfWeek(now),
     Monthly: startOfMonth(now),
     Yearly: startOfYear(now),
   }[period];
 
   const end = {
-    Weekly: getEndOfWeek(now),
     Monthly: endOfMonth(now),
     Yearly: endOfYear(now),
   }[period];
@@ -165,57 +150,4 @@ export const filterEntriesByPeriod = (entries, period) => {
     const entryDate = entry.journalDate; // journalDate is a string in YYYY-MM-DD format
     return entryDate >= format(start, "yyyy-MM-dd") && entryDate <= format(end, "yyyy-MM-dd");
   });
-};
-
-
-// Generate weekday labels for a specific week (Starting from Monday)
-export const generateWeekDays = (startDate) => {
-  const days = [];
-  const normalizedStartDate = startOfWeek(startDate, { weekStartsOn: 1 });
-  for (let i = 0; i < 7; i++) {
-    const day = addDays(normalizedStartDate, i);
-    days.push(format(day, "EEE")); // Short weekday names
-  }
-  return days;
-};
-
-
-
-// Group data by day using journalDate as strings for comparison
-export const groupDataByDay = (entries, startDate, endDate, emotions) => {
-  const groupedData = [];
-
-  // Normalize the start date to Monday
-  const mondayStart = startOfWeek(startDate, { weekStartsOn: 1 }); // Explicitly start from Monday
-  console.log("Normalized Start of Week (Monday):", mondayStart);
-
-  // Generate days for the week, starting on Monday
-  for (let i = 0; i < 7; i++) {
-    const currentDate = format(addDays(mondayStart, i), "yyyy-MM-dd");
-    const dailyData = { date: currentDate };
-
-    // Initialize emotion counts
-    emotions.forEach((emotion) => {
-      dailyData[emotion] = 0;
-    });
-
-    groupedData.push(dailyData);
-  }
-
-  // Map entries to the correct day
-  entries.forEach((entry) => {
-    const entryDate = entry.journalDate; // journalDate is in "YYYY-MM-DD" format
-    const matchingDay = groupedData.find((day) => day.date === entryDate);
-
-    if (matchingDay && entry.topEmotions) {
-      entry.topEmotions.forEach((emotion) => {
-        if (emotions.includes(emotion)) {
-          matchingDay[emotion] += 1; // Increment the count for that emotion
-        }
-      });
-    }
-  });
-
-  console.log("Grouped Data Days:", groupedData.map((day) => day.date));
-  return groupedData;
 };

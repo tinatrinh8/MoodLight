@@ -14,10 +14,6 @@ import { useEntryDates } from "../components/EntryDatesContext";
 import {
   getTopEmotions,
   getEmotionCounts,
-  getStartOfWeek,
-  getEndOfWeek,
-  generateWeekDays,
-  groupDataByDay,
   getStartOfYear,
   getEndOfYear,
   generateMonthLabels,
@@ -26,30 +22,30 @@ import {
 import { emotionColours } from "../utils/emotionColours";
 import styles from "../styles/InsightsStyles";
 import analysisStyles from "../styles/AnalysisStyles";
-import { addDays } from "date-fns";
 
-const LineChart = ({ labels, datasets, isWeekly }) => {
+const LineChart = ({ labels, datasets }) => {
   const chartWidth = Dimensions.get("window").width - 32;
   const chartHeight = 250;
   const padding = 20;
 
-  // Determine the max value for scaling
-  const maxValue = isWeekly ? 1 : Math.max(...datasets.flatMap((dataset) => dataset.data));
+  // Find max value in datasets for scaling
+  const maxValue = Math.max(...datasets.flatMap((dataset) => dataset.data));
+
+  // Ensure the max value for Y-axis doesn't show decimals
+  const yAxisMax = Math.ceil(maxValue);
 
   // Calculate points for the chart
   const points = datasets.map((dataset) => ({
     points: dataset.data.map((value, index) => ({
       x: padding + (index * (chartWidth - 2 * padding)) / (labels.length - 1),
       y:
-        chartHeight -
-        padding -
-        (value / maxValue) * (chartHeight - 2 * padding),
+        chartHeight - padding - (value / yAxisMax) * (chartHeight - 2 * padding),
     })),
     color: dataset.color(),
   }));
 
-  // Limit Y-axis ticks to 0 and maxValue for weekly, or more for monthly
-  const yAxisTicks = isWeekly ? [0, 1] : [0, maxValue / 2, maxValue];
+  // Set Y-axis ticks (1, 2, 3, ...)
+  const yAxisTicks = Array.from({ length: yAxisMax }, (_, i) => i + 1);
 
   return (
     <Svg width={chartWidth} height={chartHeight}>
@@ -75,17 +71,9 @@ const LineChart = ({ labels, datasets, isWeekly }) => {
         <Line
           key={`horizontal-${index}`}
           x1={padding}
-          y1={
-            chartHeight -
-            padding -
-            (value / maxValue) * (chartHeight - 2 * padding)
-          }
+          y1={chartHeight - padding - (value / yAxisMax) * (chartHeight - 2 * padding)}
           x2={chartWidth - padding}
-          y2={
-            chartHeight -
-            padding -
-            (value / maxValue) * (chartHeight - 2 * padding)
-          }
+          y2={chartHeight - padding - (value / yAxisMax) * (chartHeight - 2 * padding)}
           stroke="white"
           strokeWidth="0.5"
           strokeDasharray="4 2" // Dotted line
@@ -111,16 +99,12 @@ const LineChart = ({ labels, datasets, isWeekly }) => {
         <SvgText
           key={`y-label-${index}`}
           x={padding / 2}
-          y={
-            chartHeight -
-            padding -
-            (value / maxValue) * (chartHeight - 2 * padding)
-          }
+          y={chartHeight - padding - (value / yAxisMax) * (chartHeight - 2 * padding)}
           fontSize={10}
           fill="white"
           textAnchor="middle"
         >
-          {Math.round(value)}
+          {value}
         </SvgText>
       ))}
 
@@ -128,9 +112,7 @@ const LineChart = ({ labels, datasets, isWeekly }) => {
       {labels.map((label, index) => (
         <SvgText
           key={`x-label-${label}`}
-          x={
-            padding + (index * (chartWidth - 2 * padding)) / (labels.length - 1)
-          }
+          x={padding + (index * (chartWidth - 2 * padding)) / (labels.length - 1)}
           y={chartHeight - padding / 6} // Increased space for labels
           fontSize={12} // Ensure labels are large enough
           fontWeight="bold" // Make labels bold
@@ -170,27 +152,10 @@ const LineChart = ({ labels, datasets, isWeekly }) => {
 
 const InsightsScreen = () => {
   const { journalEntries = [] } = useEntryDates() || {};
-  const [timePeriod, setTimePeriod] = useState("Weekly");
-  const [currentWeekStart, setCurrentWeekStart] = useState(
-    getStartOfWeek(new Date())
-  );
-  const [currentWeekEnd, setCurrentWeekEnd] = useState(
-    getEndOfWeek(new Date())
-  );
   const [currentYear, setCurrentYear] = useState(new Date().getFullYear());
   const [chartData, setChartData] = useState(null);
   const [topEmotions, setTopEmotions] = useState([]);
   const [emotionCounts, setEmotionCounts] = useState([]);
-
-  const handleNextWeek = () => {
-    setCurrentWeekStart((prev) => addDays(prev, 7));
-    setCurrentWeekEnd((prev) => addDays(prev, 7));
-  };
-
-  const handlePreviousWeek = () => {
-    setCurrentWeekStart((prev) => addDays(prev, -7));
-    setCurrentWeekEnd((prev) => addDays(prev, -7));
-  };
 
   const handleNextYear = () => setCurrentYear((prev) => prev + 1);
   const handlePreviousYear = () => setCurrentYear((prev) => prev - 1);
@@ -198,51 +163,34 @@ const InsightsScreen = () => {
   useEffect(() => {
     let filteredEntries;
 
-    // Filter entries based on the selected time period
-    if (timePeriod === "Weekly") {
-      filteredEntries = journalEntries.filter((entry) => {
-        const entryDate = new Date(entry.journalDate);
-        return entryDate >= currentWeekStart && entryDate <= currentWeekEnd;
-      });
-    } else if (timePeriod === "Monthly") {
-      const startOfYear = getStartOfYear(new Date(currentYear, 0, 1));
-      const endOfYear = getEndOfYear(new Date(currentYear, 11, 31));
-      filteredEntries = journalEntries.filter((entry) => {
-        const entryDate = new Date(entry.journalDate);
-        return entryDate >= startOfYear && entryDate <= endOfYear;
-      });
-    }
+    const startOfYear = getStartOfYear(new Date(currentYear, 0, 1));
+    const endOfYear = getEndOfYear(new Date(currentYear, 11, 31));
+    filteredEntries = journalEntries.filter((entry) => {
+      const entryDate = new Date(entry.journalDate);
+      return entryDate >= startOfYear && entryDate <= endOfYear;
+    });
 
     // Get top emotions and format chart data
     const topEmotionsList = getTopEmotions(filteredEntries, 5); // Top 5 emotions
-    const groupedData =
-      timePeriod === "Weekly"
-        ? groupDataByDay(
-            filteredEntries,
-            currentWeekStart,
-            currentWeekEnd,
-            topEmotionsList
-          )
-        : groupDataByMonth(
-            filteredEntries,
-            getStartOfYear(new Date(currentYear, 0, 1)),
-            getEndOfYear(new Date(currentYear, 11, 31)),
-            topEmotionsList
-          );
+    const groupedData = groupDataByMonth(
+      filteredEntries,
+      startOfYear,
+      endOfYear,
+      topEmotionsList
+    );
 
     const chartData = {
-      labels:
-        timePeriod === "Weekly"
-          ? generateWeekDays(currentWeekStart)
-          : generateMonthLabels(),
+      labels: generateMonthLabels(),
       datasets: topEmotionsList.map((emotion) => ({
-        data: groupedData.map((day) => day[emotion] || 0),
+        data: groupedData.map((month) => month[emotion] || 0),
         color: () => emotionColours[emotion] || "#000", // Default to black if no color found
       })),
     };
 
     setTopEmotions(topEmotionsList);
     setChartData(chartData);
+
+    // Set emotion counts for PieChart
     setEmotionCounts(
       Object.keys(getEmotionCounts(filteredEntries)).map((emotionName) => ({
         name: emotionName,
@@ -250,7 +198,7 @@ const InsightsScreen = () => {
         color: emotionColours[emotionName],
       }))
     );
-  }, [journalEntries, timePeriod, currentWeekStart, currentWeekEnd, currentYear]);
+  }, [journalEntries, currentYear]);
 
   return (
     <ScrollView contentContainerStyle={{ flexGrow: 1 }}>
@@ -258,94 +206,30 @@ const InsightsScreen = () => {
         <Header />
         <Text style={styles.insightsTitle}>Insights</Text>
 
-        {/* Time Period Filter */}
-        <View style={styles.filterContainer}>
-          {["Weekly", "Monthly"].map((period) => (
-            <TouchableOpacity
-              key={period}
-              style={[
-                styles.filterButton,
-                timePeriod === period && styles.activeFilterButton,
-              ]}
-              onPress={() => setTimePeriod(period)}
-            >
-              <Text style={styles.filterButtonText}>{period}</Text>
-            </TouchableOpacity>
-          ))}
-        </View>
-
-        {/* Weekly Navigation */}
-        {timePeriod === "Weekly" && (
-          <>
-            <View style={styles.filterContainer}>
-              <TouchableOpacity
-                style={styles.filterButton}
-                onPress={handlePreviousWeek}
-              >
-                <Text style={styles.filterButtonText}>&larr; Previous Week</Text>
-              </TouchableOpacity>
-              <TouchableOpacity
-                style={styles.filterButton}
-                onPress={handleNextWeek}
-              >
-                <Text style={styles.filterButtonText}>Next Week &rarr;</Text>
-              </TouchableOpacity>
-            </View>
-            <View style={styles.weekDisplay}>
-              <Text style={styles.weekText}>
-                {`Showing week of: ${currentWeekStart.toLocaleDateString(
-                  "en-US",
-                  {
-                    weekday: "short",
-                    month: "short",
-                    day: "numeric",
-                    year: "numeric",
-                  }
-                )} - ${currentWeekEnd.toLocaleDateString("en-US", {
-                  weekday: "short",
-                  month: "short",
-                  day: "numeric",
-                  year: "numeric",
-                })}`}
-              </Text>
-            </View>
-          </>
-        )}
-
         {/* Monthly Navigation */}
-        {timePeriod === "Monthly" && (
-          <>
-            <View style={styles.filterContainer}>
-              <TouchableOpacity
-                style={styles.filterButton}
-                onPress={handlePreviousYear}
-              >
-                <Text style={styles.filterButtonText}>Previous Year</Text>
-              </TouchableOpacity>
-              <TouchableOpacity
-                style={styles.filterButton}
-                onPress={handleNextYear}
-              >
-                <Text style={styles.filterButtonText}>Next Year</Text>
-              </TouchableOpacity>
-            </View>
-            <View style={styles.weekDisplay}>
-              <Text style={styles.weekText}>
-                {`Showing Year: ${currentYear}`}
-              </Text>
-            </View>
-          </>
-        )}
+        <View style={styles.filterContainer}>
+          <TouchableOpacity
+            style={styles.filterButton}
+            onPress={handlePreviousYear}
+          >
+            <Text style={styles.filterButtonText}>Previous Year</Text>
+          </TouchableOpacity>
+          <TouchableOpacity
+            style={styles.filterButton}
+            onPress={handleNextYear}
+          >
+            <Text style={styles.filterButtonText}>Next Year</Text>
+          </TouchableOpacity>
+        </View>
+        <View style={styles.weekDisplay}>
+          <Text style={styles.weekText}>{`Showing Year: ${currentYear}`}</Text>
+        </View>
 
         {/* Line Chart */}
         <View style={styles.chartContainer}>
-          {chartData ? (
+          {chartData && chartData.datasets.some(dataset => dataset.data.some(value => value > 0)) ? (
             <>
-              <LineChart
-                labels={chartData.labels}
-                datasets={chartData.datasets}
-                isWeekly={timePeriod === "Weekly"} // Pass this to fix max Y-axis to 1 for weekly
-              />
+              <LineChart labels={chartData.labels} datasets={chartData.datasets} />
 
               {/* Legend */}
               <View style={styles.legendContainer}>
@@ -369,35 +253,31 @@ const InsightsScreen = () => {
           )}
         </View>
 
-        {/* Pie Chart */}
-        <View style={styles.pieChartContainer}>
-          {emotionCounts.length > 0 ? (
-            <PieChart
-              data={emotionCounts}
-              accessor={"count"}
-              width={Dimensions.get("window").width - 20}
-              height={250}
-              absolute={false}
-              chartConfig={{
-                color: (opacity = 1) => `white`,
-                labelColor: (opacity = 1) => `white`,
-                style: {
-                  borderRadius: 16,
-                },
-              }}
-              backgroundColor="#E6C3CB"
-              paddingLeft="15"
-              style={{
-                marginVertical: 8,
-                borderRadius: 16,
-              }}
-            />
-          ) : (
-            <Text style={styles.noDataText}>
-              No data available for this period.
-            </Text>
-          )}
-        </View>
+    {/* Pie Chart */}
+    <View style={styles.pieChartContainer}>
+      {emotionCounts.length > 0 && (
+        <PieChart
+          data={emotionCounts}
+          accessor={"count"}
+          width={Dimensions.get("window").width - 20}
+          height={250}
+          absolute={false}
+          chartConfig={{
+            color: (opacity = 1) => `white`,
+            labelColor: (opacity = 1) => `white`,
+            style: {
+              borderRadius: 16,
+            },
+          }}
+          backgroundColor="#E6C3CB"
+          paddingLeft="15"
+          style={{
+            marginVertical: 8,
+            borderRadius: 16,
+          }}
+        />
+      )}
+    </View>
       </View>
     </ScrollView>
   );
