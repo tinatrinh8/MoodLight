@@ -17,10 +17,8 @@ const InsightsStyles = StyleSheet.create({
     marginBottom: 20,
   },
   pieChartContainer: {
-    width: Dimensions.get("window").width * 0.7, // Adjusted pie chart width
-    alignSelf: "center", // Center the pie chart horizontally
-    paddingHorizontal: 16,
-    marginVertical: 20,
+    marginBottom: 20,
+    paddingBottom: 40,    // Add extra padding at the bottom
   },
   legendContainer: {
     flexDirection: "column",
