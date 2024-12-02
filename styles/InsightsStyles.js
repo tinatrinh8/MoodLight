@@ -13,6 +13,17 @@ const InsightsStyles = StyleSheet.create({
     textAlign: "center",
     marginVertical: 10,
   },
+  weekDisplay: {
+    marginVertical: 10,
+    alignItems: "center", // Centers the text horizontally
+    justifyContent: "center", // Centers the content vertically
+  },
+  weekText: {
+    fontSize: 16,
+    fontWeight: "bold",
+    color: "#260101", // Matches your theme
+    textAlign: "center", // Centers the text
+  },
   chartContainer: {
     marginBottom: 20,
   },

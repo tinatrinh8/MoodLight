@@ -266,30 +266,31 @@ const InsightsScreen = () => {
     );
   }, [journalEntries, timePeriod, currentWeekStart, currentWeekEnd, currentYear]);
 
-  return (
-    <ScrollView contentContainerStyle={{ flexGrow: 1 }}>
-      <View style={styles.container}>
-        <Header />
-        <Text style={styles.insightsTitle}>Insights</Text>
+return (
+  <ScrollView contentContainerStyle={{ flexGrow: 1 }}>
+    <View style={styles.container}>
+      <Header />
+      <Text style={styles.insightsTitle}>Insights</Text>
 
-        {/* Time Period Filter */}
-        <View style={styles.filterContainer}>
-          {["Weekly", "Monthly"].map((period) => (
-            <TouchableOpacity
-              key={period}
-              style={[
-                styles.filterButton,
-                timePeriod === period && styles.activeFilterButton,
-              ]}
-              onPress={() => setTimePeriod(period)}
-            >
-              <Text style={styles.filterButtonText}>{period}</Text>
-            </TouchableOpacity>
-          ))}
-        </View>
+      {/* Time Period Filter */}
+      <View style={styles.filterContainer}>
+        {["Weekly", "Monthly"].map((period) => (
+          <TouchableOpacity
+            key={period}
+            style={[
+              styles.filterButton,
+              timePeriod === period && styles.activeFilterButton,
+            ]}
+            onPress={() => setTimePeriod(period)}
+          >
+            <Text style={styles.filterButtonText}>{period}</Text>
+          </TouchableOpacity>
+        ))}
+      </View>
 
-        {/* Weekly/Monthly Navigation */}
-        {timePeriod === "Weekly" && (
+      {/* Weekly Navigation */}
+      {timePeriod === "Weekly" && (
+        <>
           <View style={styles.filterContainer}>
             <TouchableOpacity
               style={styles.filterButton}
@@ -304,8 +305,27 @@ const InsightsScreen = () => {
               <Text style={styles.filterButtonText}>Next Week &rarr;</Text>
             </TouchableOpacity>
           </View>
-        )}
-        {timePeriod === "Monthly" && (
+          <View style={styles.weekDisplay}>
+            <Text style={styles.weekText}>
+              {`Showing week of: ${currentWeekStart.toLocaleDateString("en-US", {
+                weekday: "short",
+                month: "short",
+                day: "numeric",
+                year: "numeric",
+              })} - ${currentWeekEnd.toLocaleDateString("en-US", {
+                weekday: "short",
+                month: "short",
+                day: "numeric",
+                year: "numeric",
+              })}`}
+            </Text>
+          </View>
+        </>
+      )}
+
+      {/* Monthly Navigation */}
+      {timePeriod === "Monthly" && (
+        <>
           <View style={styles.filterContainer}>
             <TouchableOpacity
               style={styles.filterButton}
@@ -320,55 +340,62 @@ const InsightsScreen = () => {
               <Text style={styles.filterButtonText}>Next Year</Text>
             </TouchableOpacity>
           </View>
+          <View style={styles.weekDisplay}>
+            <Text style={styles.weekText}>
+              {`Showing Year: ${currentYear}`}
+            </Text>
+          </View>
+        </>
+      )}
+
+      {/* Line Chart */}
+      <View style={styles.chartContainer}>
+        {chartData ? (
+          <LineChart
+            labels={chartData.labels}
+            datasets={chartData.datasets}
+            isWeekly={timePeriod === "Weekly"} // Pass this to fix max Y-axis to 1 for weekly
+          />
+        ) : (
+          <Text style={styles.noDataText}>
+            No data available for this period.
+          </Text>
         )}
-
-        {/* Line Chart */}
-        <View style={styles.chartContainer}>
-          {chartData ? (
-            <LineChart
-              labels={chartData.labels}
-              datasets={chartData.datasets}
-              isWeekly={timePeriod === "Weekly"} // Pass this to fix max Y-axis to 1 for weekly
-            />
-          ) : (
-            <Text style={styles.noDataText}>
-              No data available for this period.
-            </Text>
-          )}
-        </View>
-
-        {/* Pie Chart */}
-        <View style={styles.pieChartContainer}>
-          {emotionCounts.length > 0 ? (
-            <PieChart
-              data={emotionCounts}
-              accessor={"count"}
-              width={Dimensions.get("window").width - 20}
-              height={250}
-              absolute={false}
-              chartConfig={{
-                color: (opacity = 1) => `white`,
-                labelColor: (opacity = 1) => `white`,
-                style: {
-                  borderRadius: 16,
-                },
-              }}
-              backgroundColor="#E6C3CB"
-              paddingLeft="15"
-              style={{
-                marginVertical: 8,
-                borderRadius: 16,
-              }}
-            />
-          ) : (
-            <Text style={styles.noDataText}>
-              No data available for this period.
-            </Text>
-          )}
-        </View>
       </View>
-    </ScrollView>
-  );
+
+      {/* Pie Chart */}
+      <View style={styles.pieChartContainer}>
+        {emotionCounts.length > 0 ? (
+          <PieChart
+            data={emotionCounts}
+            accessor={"count"}
+            width={Dimensions.get("window").width - 20}
+            height={250}
+            absolute={false}
+            chartConfig={{
+              color: (opacity = 1) => `white`,
+              labelColor: (opacity = 1) => `white`,
+              style: {
+                borderRadius: 16,
+              },
+            }}
+            backgroundColor="#E6C3CB"
+            paddingLeft="15"
+            style={{
+              marginVertical: 8,
+              borderRadius: 16,
+            }}
+          />
+        ) : (
+          <Text style={styles.noDataText}>
+            No data available for this period.
+          </Text>
+        )}
+      </View>
+    </View>
+  </ScrollView>
+);
+
 };
 
 export default InsightsScreen;

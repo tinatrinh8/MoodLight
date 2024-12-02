@@ -218,7 +218,7 @@ export const generateWeekDays = (startDate) => {
   const days = [];
   for (let i = 0; i < 7; i++) {
     const day = addDays(startDate, i);
-    days.push(format(day, "EEE")); // Short weekday format (e.g., "Mon")
+    days.push(format(day, "EEE")); // Generates short weekday names (e.g., "Mon")
   }
   return days;
 };
@@ -226,12 +226,12 @@ export const generateWeekDays = (startDate) => {
 export const groupDataByDay = (entries, startDate, endDate, emotions) => {
   const groupedData = [];
 
-  // Generate dates for all days in the week
+  // Generate dates for the week
   for (let i = 0; i < 7; i++) {
     const currentDate = format(addDays(startDate, i), "yyyy-MM-dd");
     const dailyData = { date: currentDate };
 
-    // Initialize each emotion with a default count of 0
+    // Initialize emotion counts
     emotions.forEach((emotion) => {
       dailyData[emotion] = 0;
     });
@@ -239,7 +239,7 @@ export const groupDataByDay = (entries, startDate, endDate, emotions) => {
     groupedData.push(dailyData);
   }
 
-  // Map actual journal entries to the corresponding days
+  // Map entries to the corresponding days
   entries.forEach((entry) => {
     const entryDate = format(new Date(entry.journalDate), "yyyy-MM-dd");
     const matchingDay = groupedData.find((day) => day.date === entryDate);
@@ -247,15 +247,15 @@ export const groupDataByDay = (entries, startDate, endDate, emotions) => {
     if (matchingDay && entry.topEmotions) {
       entry.topEmotions.forEach((emotion) => {
         if (emotions.includes(emotion)) {
-          matchingDay[emotion] += 1; // Increment the count for the emotion
+          matchingDay[emotion] += 1; // Increment emotion count
         }
       });
     }
   });
 
-  // Ensure the return data matches the expected structure for the chart
+  // Return only emotion counts in order
   return groupedData.map((day) => {
     const { date, ...emotionsData } = day;
-    return emotionsData; // Return only the emotion counts for the chart
+    return emotionsData; // Return counts for each emotion
   });
 };
