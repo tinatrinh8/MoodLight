@@ -234,37 +234,62 @@ const InsightsScreen = () => {
     return { labels: [], datasets: [] };
   };
 
-  useEffect(() => {
-    let filteredEntries;
+ useEffect(() => {
+   let filteredEntries;
 
-    if (timePeriod === "Weekly") {
-      filteredEntries = journalEntries.filter((entry) => {
-        const entryDate = new Date(entry.journalDate);
-        return entryDate >= currentWeekStart && entryDate <= currentWeekEnd;
-      });
-    } else if (timePeriod === "Monthly") {
-      const startOfYear = getStartOfYear(new Date(currentYear, 0, 1));
-      const endOfYear = getEndOfYear(new Date(currentYear, 11, 31));
-      filteredEntries = journalEntries.filter((entry) => {
-        const entryDate = new Date(entry.journalDate);
-        return entryDate >= startOfYear && entryDate <= endOfYear;
-      });
-    }
+   // Filter entries based on the selected time period
+   if (timePeriod === "Weekly") {
+     filteredEntries = journalEntries.filter((entry) => {
+       const entryDate = new Date(entry.journalDate);
+       return entryDate >= currentWeekStart && entryDate <= currentWeekEnd;
+     });
+   } else if (timePeriod === "Monthly") {
+     const startOfYear = getStartOfYear(new Date(currentYear, 0, 1));
+     const endOfYear = getEndOfYear(new Date(currentYear, 11, 31));
+     filteredEntries = journalEntries.filter((entry) => {
+       const entryDate = new Date(entry.journalDate);
+       return entryDate >= startOfYear && entryDate <= endOfYear;
+     });
+   }
 
-    const topEmotionsList = getTopEmotions(filteredEntries, 5);
-    const newChartData = formatChartDataForPeriod(filteredEntries, topEmotionsList);
-    const initialCounts = getEmotionCounts(filteredEntries);
+   // Get top emotions and format chart data
+   const topEmotionsList = getTopEmotions(filteredEntries, 5); // Top 5 emotions
+   const groupedData =
+     timePeriod === "Weekly"
+       ? groupDataByDay(filteredEntries, currentWeekStart, currentWeekEnd, topEmotionsList)
+       : groupDataByMonth(
+           filteredEntries,
+           getStartOfYear(new Date(currentYear, 0, 1)),
+           getEndOfYear(new Date(currentYear, 11, 31)),
+           topEmotionsList
+         );
 
-    setTopEmotions(topEmotionsList);
-    setChartData(newChartData);
-    setEmotionCounts(
-      Object.keys(initialCounts).map((emotionName) => ({
-        name: emotionName,
-        count: initialCounts[emotionName],
-        color: emotionColours[emotionName],
-      }))
-    );
-  }, [journalEntries, timePeriod, currentWeekStart, currentWeekEnd, currentYear]);
+   const chartData = {
+     labels: timePeriod === "Weekly"
+       ? generateWeekDays(currentWeekStart)
+       : generateMonthLabels(),
+     datasets: topEmotionsList.map((emotion) => ({
+       data: groupedData.map((day) => day[emotion] || 0),
+       color: () => emotionColours[emotion] || "#000", // Default to black if no color found
+     })),
+   };
+console.log("Current Week Start (adjusted):", currentWeekStart);
+console.log("Grouped Data:", groupedData);
+console.log("Chart Labels:", chartData.labels);
+console.log("Chart Datasets:", chartData.datasets);
+
+   // Set states for chart data, top emotions, and emotion counts
+   setTopEmotions(topEmotionsList);
+   setChartData(chartData);
+   setEmotionCounts(
+     Object.keys(getEmotionCounts(filteredEntries)).map((emotionName) => ({
+       name: emotionName,
+       count: getEmotionCounts(filteredEntries)[emotionName],
+       color: emotionColours[emotionName],
+     }))
+   );
+ }, [journalEntries, timePeriod, currentWeekStart, currentWeekEnd, currentYear]);
+
 
 return (
   <ScrollView contentContainerStyle={{ flexGrow: 1 }}>
@@ -349,19 +374,36 @@ return (
       )}
 
       {/* Line Chart */}
-      <View style={styles.chartContainer}>
-        {chartData ? (
-          <LineChart
-            labels={chartData.labels}
-            datasets={chartData.datasets}
-            isWeekly={timePeriod === "Weekly"} // Pass this to fix max Y-axis to 1 for weekly
-          />
-        ) : (
-          <Text style={styles.noDataText}>
-            No data available for this period.
-          </Text>
-        )}
-      </View>
+             <View style={styles.chartContainer}>
+               {chartData ? (
+                 <>
+                   <LineChart
+                     labels={chartData.labels}
+                     datasets={chartData.datasets}
+                     isWeekly={timePeriod === "Weekly"} // Pass this to fix max Y-axis to 1 for weekly
+                   />
+
+                   {/* Legend */}
+                   <View style={styles.legendContainer}>
+                     {topEmotions.map((emotion, index) => (
+                       <View key={index} style={styles.legendItem}>
+                         <View
+                           style={[
+                             styles.legendColorBox,
+                             { backgroundColor: emotionColours[emotion] || "#000" },
+                           ]}
+                         />
+                         <Text style={styles.legendText}>{emotion}</Text>
+                       </View>
+                     ))}
+                   </View>
+                 </>
+               ) : (
+                 <Text style={styles.noDataText}>
+                   No data available for this period.
+                 </Text>
+               )}
+             </View>
 
       {/* Pie Chart */}
       <View style={styles.pieChartContainer}>

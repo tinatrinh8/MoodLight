@@ -7,11 +7,13 @@ import {
   endOfMonth,
   startOfYear,
   endOfYear,
+  startOfDay,
   addDays,
 } from "date-fns";
 
 import nlp from "compromise";
 
+// Function to extract emotion tags from a given text
 export const getEmotionTags = (emotions, text) => {
   if (!text || typeof text !== "string") {
     throw new Error("Text input is invalid or empty.");
@@ -24,44 +26,30 @@ export const getEmotionTags = (emotions, text) => {
     const emotionLabel = emotion.toLowerCase();
     emotionTags[emotionLabel] = [];
 
-    // Find nouns, verbs, and adjectives in the text
-    doc
-      .nouns()
-      .json()
-      .forEach((word) => {
-        if (word.text.includes(emotionLabel.slice(0, 3))) {
-          emotionTags[emotionLabel].push(word.text);
-        }
-      });
-    doc
-      .verbs()
-      .json()
-      .forEach((word) => {
-        if (word.text.includes(emotionLabel.slice(0, 3))) {
-          emotionTags[emotionLabel].push(word.text);
-        }
-      });
-    doc
-      .adjectives()
-      .json()
-      .forEach((word) => {
-        if (word.text.includes(emotionLabel.slice(0, 3))) {
-          emotionTags[emotionLabel].push(word.text);
-        }
-      });
+    // Find nouns, verbs, and adjectives in the text that match the emotion label
+    doc.nouns().json().forEach((word) => {
+      if (word.text.includes(emotionLabel.slice(0, 3))) {
+        emotionTags[emotionLabel].push(word.text);
+      }
+    });
+    doc.verbs().json().forEach((word) => {
+      if (word.text.includes(emotionLabel.slice(0, 3))) {
+        emotionTags[emotionLabel].push(word.text);
+      }
+    });
+    doc.adjectives().json().forEach((word) => {
+      if (word.text.includes(emotionLabel.slice(0, 3))) {
+        emotionTags[emotionLabel].push(word.text);
+      }
+    });
 
-    emotionTags[emotionLabel] = [...new Set(emotionTags[emotionLabel])];
+    emotionTags[emotionLabel] = [...new Set(emotionTags[emotionLabel])]; // Remove duplicates
   });
 
   return emotionTags;
 };
 
-/**
- * Get the top N emotions across all journal entries.
- * @param {Array} entries - Array of journal entries.
- * @param {number} count - Number of top emotions to return.
- * @returns {Array} - Array of top N emotions.
- */
+// Get the top N emotions across all journal entries
 export const getTopEmotions = (entries, count) => {
   const emotionCounts = {};
 
@@ -93,40 +81,21 @@ export const getEmotionCounts = (entries) => {
   return emotionCounts;
 };
 
-/**
- * Get the start date of the week.
- * @param {Date} referenceDate - A reference date.
- * @returns {Date} - Start date of the week.
- */
+// Get the start date of the week
 export const getStartOfWeek = (referenceDate) =>
   startOfWeek(referenceDate, { weekStartsOn: 1 });
 
-/**
- * Get the end date of the week.
- * @param {Date} referenceDate - A reference date.
- * @returns {Date} - End date of the week.
- */
+// Get the end date of the week
 export const getEndOfWeek = (referenceDate) =>
   endOfWeek(referenceDate, { weekStartsOn: 1 });
 
-/**
- * Get the start date of the year.
- * @param {Date} referenceDate - A reference date.
- * @returns {Date} - Start date of the year (January 1st).
- */
+// Get the start date of the year
 export const getStartOfYear = (referenceDate) => startOfYear(referenceDate);
 
-/**
- * Get the end date of the year.
- * @param {Date} referenceDate - A reference date.
- * @returns {Date} - End date of the year (December 31st).
- */
+// Get the end date of the year
 export const getEndOfYear = (referenceDate) => endOfYear(referenceDate);
 
-/**
- * Generate labels for months.
- * @returns {Array<string>} - Array of month labels.
- */
+// Generate labels for months
 export const generateMonthLabels = () => [
   "Jan",
   "Feb",
@@ -142,14 +111,7 @@ export const generateMonthLabels = () => [
   "Dec",
 ];
 
-/**
- * Group data by month for a specific year.
- * @param {Array} entries - Array of journal entries.
- * @param {Date} startOfYear - Start date of the year.
- * @param {Date} endOfYear - End date of the year.
- * @param {Array<string>} emotions - List of emotions to track.
- * @returns {Array<Object>} - Monthly emotion counts.
- */
+// Group data by month for a specific year
 export const groupDataByMonth = (entries, startOfYear, endOfYear, emotions) => {
   if (!entries || !Array.isArray(entries)) {
     console.error("Entries are undefined or not an array:", entries);
@@ -166,9 +128,10 @@ export const groupDataByMonth = (entries, startOfYear, endOfYear, emotions) => {
   );
 
   entries.forEach((entry) => {
-    const entryDate = new Date(entry.journalDate);
-    if (entryDate >= startOfYear && entryDate <= endOfYear) {
-      const monthIndex = entryDate.getMonth(); // 0 = Jan, 11 = Dec
+    const entryDate = entry.journalDate; // journalDate is a string in YYYY-MM-DD format
+    const entryDateObj = new Date(entryDate); // Convert to Date object for checking range
+    if (entryDateObj >= startOfYear && entryDateObj <= endOfYear) {
+      const monthIndex = entryDateObj.getMonth(); // 0 = Jan, 11 = Dec
       if (entry.topEmotions) {
         entry.topEmotions.forEach((emotion) => {
           if (emotions.includes(emotion)) {
@@ -182,12 +145,7 @@ export const groupDataByMonth = (entries, startOfYear, endOfYear, emotions) => {
   return monthlyCounts;
 };
 
-/**
- * Filter entries within a specific date range.
- * @param {Array} entries - Array of journal entries.
- * @param {string} period - Time period to filter (Weekly, Monthly, Yearly).
- * @returns {Array} - Filtered journal entries within the specified time range.
- */
+// Filter entries within a specific date range
 export const filterEntriesByPeriod = (entries, period) => {
   const now = new Date();
 
@@ -204,31 +162,36 @@ export const filterEntriesByPeriod = (entries, period) => {
   }[period];
 
   return entries.filter((entry) => {
-    const entryDate = new Date(entry.journalDate);
-    return isWithinInterval(entryDate, { start, end });
+    const entryDate = entry.journalDate; // journalDate is a string in YYYY-MM-DD format
+    return entryDate >= format(start, "yyyy-MM-dd") && entryDate <= format(end, "yyyy-MM-dd");
   });
 };
 
-/**
- * Generate weekday labels for a specific week.
- * @param {Date} startDate - Start date of the week.
- * @returns {Array<string>} - Array of weekday labels (e.g., ["Mon", "Tue", "Wed", ...]).
- */
+
+// Generate weekday labels for a specific week (Starting from Monday)
 export const generateWeekDays = (startDate) => {
   const days = [];
+  const normalizedStartDate = startOfWeek(startDate, { weekStartsOn: 1 });
   for (let i = 0; i < 7; i++) {
-    const day = addDays(startDate, i);
-    days.push(format(day, "EEE")); // Generates short weekday names (e.g., "Mon")
+    const day = addDays(normalizedStartDate, i);
+    days.push(format(day, "EEE")); // Short weekday names
   }
   return days;
 };
 
+
+
+// Group data by day using journalDate as strings for comparison
 export const groupDataByDay = (entries, startDate, endDate, emotions) => {
   const groupedData = [];
 
-  // Generate dates for the week
+  // Normalize the start date to Monday
+  const mondayStart = startOfWeek(startDate, { weekStartsOn: 1 }); // Explicitly start from Monday
+  console.log("Normalized Start of Week (Monday):", mondayStart);
+
+  // Generate days for the week, starting on Monday
   for (let i = 0; i < 7; i++) {
-    const currentDate = format(addDays(startDate, i), "yyyy-MM-dd");
+    const currentDate = format(addDays(mondayStart, i), "yyyy-MM-dd");
     const dailyData = { date: currentDate };
 
     // Initialize emotion counts
@@ -239,23 +202,20 @@ export const groupDataByDay = (entries, startDate, endDate, emotions) => {
     groupedData.push(dailyData);
   }
 
-  // Map entries to the corresponding days
+  // Map entries to the correct day
   entries.forEach((entry) => {
-    const entryDate = format(new Date(entry.journalDate), "yyyy-MM-dd");
+    const entryDate = entry.journalDate; // journalDate is in "YYYY-MM-DD" format
     const matchingDay = groupedData.find((day) => day.date === entryDate);
 
     if (matchingDay && entry.topEmotions) {
       entry.topEmotions.forEach((emotion) => {
         if (emotions.includes(emotion)) {
-          matchingDay[emotion] += 1; // Increment emotion count
+          matchingDay[emotion] += 1; // Increment the count for that emotion
         }
       });
     }
   });
 
-  // Return only emotion counts in order
-  return groupedData.map((day) => {
-    const { date, ...emotionsData } = day;
-    return emotionsData; // Return counts for each emotion
-  });
+  console.log("Grouped Data Days:", groupedData.map((day) => day.date));
+  return groupedData;
 };
