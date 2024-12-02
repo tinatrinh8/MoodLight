@@ -21,7 +21,7 @@ const InsightsStyles = StyleSheet.create({
   weekText: {
     fontSize: 16,
     fontWeight: "bold",
-    color: "#260101", // Matches your theme
+    color: "#260101",
     textAlign: "center", // Centers the text
   },
   chartContainer: {
@@ -32,25 +32,28 @@ const InsightsStyles = StyleSheet.create({
     paddingBottom: 40,    // Add extra padding at the bottom
   },
   legendContainer: {
-    flexDirection: "column",
-    alignItems: "flex-start", // Align items in the container to the start
-    position: "absolute", // Position the legend absolutely
-    right: 16, // Move the legend to the right with padding
-    top: 300, // Adjust the vertical positioning
+    flexDirection: "row",
+    justifyContent: "center",
+    alignItems: "center",
+    flexWrap: "wrap",
+    marginTop: 10,
+    paddingHorizontal: 10,
   },
   legendItem: {
     flexDirection: "row",
     alignItems: "center",
-    marginBottom: 8,
+    marginHorizontal: 8,
+    marginVertical: 5,
   },
   legendColorBox: {
-    width: 20,
-    height: 20,
-    marginRight: 8,
+    width: 16,
+    height: 16,
+    borderRadius: 4,
+    marginRight: 5,
   },
   legendText: {
-    fontSize: 14,
-    color: "#260101",
+    fontSize: 12,
+    color: "#000",
   },
   filterContainer: {
     flexDirection: "row",
