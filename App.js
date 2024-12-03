@@ -11,6 +11,7 @@ import { EntryDatesProvider } from "./components/EntryDatesContext"; // Import E
 import HomePage from "./screens/HomePage";
 import Analysis from "./screens/Analysis";
 import { auth } from "./components/firebase";
+import { LogBox } from "react-native";
 
 const Stack = createStackNavigator();
 
@@ -36,7 +37,9 @@ export default function App() {
       console.error("Error loading fonts:", error);
     }
   };
-
+LogBox.ignoreLogs([
+  "User is not authenticated", // Add the specific error message
+]);
   useEffect(() => {
     const unsubscribe = auth.onAuthStateChanged((currentUser) => {
       setUser(currentUser);
@@ -65,20 +68,12 @@ export default function App() {
           initialRouteName={user ? "MainTabs" : "Login"}
           screenOptions={{ headerShown: false }}
         >
-          {!user ? (
-            <>
-              <Stack.Screen name="Login" component={LoginScreen} />
-              <Stack.Screen name="SignUp" component={SignUpScreen} />
-            </>
-          ) : (
-            <>
-              {/* MainTabs is now properly treated as a nested navigator */}
-              <Stack.Screen name="MainTabs" component={TabNavigator} />
-              {/* <Stack.Screen name="HomePage" component={HomePage} /> */}
-              <Stack.Screen name="Analysis" component={Analysis} />
-            </>
-          )}
+          <Stack.Screen name="Login" component={LoginScreen} />
+          <Stack.Screen name="SignUp" component={SignUpScreen} />
+          <Stack.Screen name="MainTabs" component={TabNavigator} />
+          <Stack.Screen name="Analysis" component={Analysis} />
         </Stack.Navigator>
+
       </NavigationContainer>
     </EntryDatesProvider>
   );

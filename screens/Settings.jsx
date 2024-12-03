@@ -14,6 +14,8 @@ import { signOut, onAuthStateChanged, updatePassword, reauthenticateWithCredenti
 import { auth } from "../components/firebase"; // Import Firebase auth instance
 import Header from "../components/Header"; // Import the reusable Header component
 import SettingsStyles from "../styles/SettingsStyles"; // Import styles
+import { CommonActions } from "@react-navigation/native";
+
 
 const Settings = () => {
   const navigation = useNavigation();
@@ -22,25 +24,48 @@ const Settings = () => {
   const [oldPassword, setOldPassword] = useState("");
   const [newPassword, setNewPassword] = useState("");
 
-  // Fetch user details from Firebase Authentication
-  useEffect(() => {
-    const unsubscribe = onAuthStateChanged(auth, (currentUser) => {
-      setUser(currentUser);
-    });
 
-    return () => unsubscribe();
-  }, []);
+const [loading, setLoading] = useState(true); // New loading state
 
-  const handleLogout = async () => {
-    try {
-      await signOut(auth);
-      Alert.alert("Logged out", "You have been successfully logged out.");
-      navigation.navigate("Login");
-    } catch (error) {
+// Fetch user details from Firebase Authentication
+useEffect(() => {
+  const unsubscribe = onAuthStateChanged(auth, (currentUser) => {
+    setUser(currentUser); // Set user only if authenticated
+  });
+
+  return () => unsubscribe();
+}, []);
+
+
+// Redirect to Login if user is not authenticated
+useEffect(() => {
+  if (!loading && !user) {
+    navigation.navigate("Login");
+  }
+}, [loading, user]);
+
+const handleLogout = async () => {
+  try {
+    await signOut(auth); // Sign out from Firebase
+    Alert.alert("Logged out", "You have been successfully logged out.");
+    // Reset navigation stack to Login screen
+    navigation.dispatch(
+      CommonActions.reset({
+        index: 0,
+        routes: [{ name: "Login" }],
+      })
+    );
+  } catch (error) {
+    // Suppress the error silently without showing or logging it
+    if (error.message.includes("User is not authenticated")) {
+      console.log("Silent error during logout: User already logged out.");
+    } else {
       console.error("Logout Error:", error.message);
-      Alert.alert("Logout Failed", "An error occurred while logging out.");
+      Alert.alert("Error", "An unexpected error occurred while logging out.");
     }
-  };
+  }
+};
+
 
   const handlePasswordChange = async () => {
     if (!oldPassword || !newPassword) {
