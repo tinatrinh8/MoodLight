@@ -228,6 +228,23 @@ useEffect(() => {
     return parseInt(year, 10) === currentYear; // Filter entries for the current year
   });
 
+    // Log yearly data structure
+    if (chartData?.datasets) {
+      console.log("Yearly Data for PieChart:");
+      chartData.datasets.forEach((dataset, index) => {
+        console.log(`Emotion: ${topEmotions[index]}, Monthly Counts:`, dataset.data);
+      });
+    }
+
+    // Log monthly data structure
+    if (monthlyDetails[selectedMonthIndex]) {
+      console.log("Monthly Data for PieChart:");
+      console.log(`Selected Month: ${generateMonthLabels()[selectedMonthIndex]}`);
+      monthlyDetails[selectedMonthIndex].forEach((entry, index) => {
+        console.log(`Day ${index + 1}: Emotions:`, entry.emotions);
+      });
+    }
+
   // Group entries by month for the monthly view (unchanged)
   const groupedByMonth = groupDataByMonthWithDetails(
     journalEntries,
@@ -237,7 +254,6 @@ useEffect(() => {
   );
   setMonthlyDetails(groupedByMonth);
 
-  console.log("Monthly Details:", groupedByMonth);
 
   // Group entries for the yearly view using the new function
   const topEmotionsList = getTopEmotions(filteredEntries, 5); // Top 5 emotions

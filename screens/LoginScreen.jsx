@@ -70,7 +70,7 @@ const LoginScreen = ({ navigation }) => {
       navigation.navigate("MainTabs"); // Navigate to the main app screen
     } catch (error) {
       console.error("Login failed:", error.message);
-      Alert.alert("Login Error", error.message); // Show error message to the user
+      Alert.alert("Login Error", "Incorrect username or password"); // Show error message to the user
     }
   };
 

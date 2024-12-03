@@ -42,6 +42,7 @@ export default function App() {
   };
   LogBox.ignoreLogs([
     "User is not authenticated", // Add the specific error message
+    "Login failed",
   ]);
   useEffect(() => {
     const unsubscribe = auth.onAuthStateChanged((currentUser) => {
