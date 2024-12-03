@@ -311,34 +311,37 @@ return (
       </View>
 
       {/* Yearly Navigation */}
-      {viewType === "Yearly" && (
-        <View style={styles.filterContainer}>
-          <TouchableOpacity
-            style={styles.filterButton}
-            onPress={handlePreviousYear}
-          >
-            <Text style={styles.filterButtonText}>Previous Year</Text>
-          </TouchableOpacity>
-          <TouchableOpacity
-            style={styles.filterButton}
-            onPress={handleNextYear}
-          >
-            <Text style={styles.filterButtonText}>Next Year</Text>
-          </TouchableOpacity>
-        </View>
-      )}
+        {viewType === "Yearly" && (
+          <View style={styles.filterContainer}>
+            <TouchableOpacity
+              style={styles.filterButton}
+              onPress={handlePreviousYear}
+            >
+              <Text style={styles.filterButtonText}>Previous Year</Text>
+            </TouchableOpacity>
+            {currentYear < new Date().getFullYear() && ( // Hide Next Year button if it's the current year
+              <TouchableOpacity
+                style={styles.filterButton}
+                onPress={handleNextYear}
+              >
+                <Text style={styles.filterButtonText}>Next Year</Text>
+              </TouchableOpacity>
+            )}
+          </View>
+        )}
 
-      {/* Monthly Navigation */}
-      {viewType === "Monthly" && (
-        <View style={styles.filterContainer}>
-          <TouchableOpacity
-            style={styles.filterButton}
-            onPress={() =>
-              setSelectedMonthIndex((prev) => (prev > 0 ? prev - 1 : 11))
-            }
-          >
-            <Text style={styles.filterButtonText}>Previous Month</Text>
-          </TouchableOpacity>
+    {/* Monthly Navigation */}
+    {viewType === "Monthly" && (
+      <View style={styles.filterContainer}>
+        <TouchableOpacity
+          style={styles.filterButton}
+          onPress={() =>
+            setSelectedMonthIndex((prev) => (prev > 0 ? prev - 1 : 11))
+          }
+        >
+          <Text style={styles.filterButtonText}>Previous Month</Text>
+        </TouchableOpacity>
+        {!(currentYear === new Date().getFullYear() && selectedMonthIndex === 11) && ( // Hide Next Month button if it's December of the current year
           <TouchableOpacity
             style={styles.filterButton}
             onPress={() =>
@@ -347,8 +350,9 @@ return (
           >
             <Text style={styles.filterButtonText}>Next Month</Text>
           </TouchableOpacity>
-        </View>
-      )}
+        )}
+      </View>
+    )}
       {/* Display Selected Time Period */}
       <View style={styles.weekDisplay}>
         <Text style={styles.weekText}>
