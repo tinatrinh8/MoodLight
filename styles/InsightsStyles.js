@@ -29,10 +29,13 @@ const InsightsStyles = StyleSheet.create({
   chartContainer: {
     marginBottom: 20,
   },
-  pieChartContainer: {
-    marginBottom: 20,
-    paddingBottom: 40, // Add extra padding at the bottom
-  },
+pieChartContainer: {
+  marginBottom: 20,
+  paddingBottom: 40, // Space below the chart
+  backgroundColor: "transparent", // Ensure it doesn't override the gradient
+  borderRadius: 16, // Round corners
+  overflow: "hidden", // Clip content to rounded edges
+},
   legendContainer: {
     flexDirection: "row",
     justifyContent: "center",
@@ -98,12 +101,7 @@ const InsightsStyles = StyleSheet.create({
     fontSize: 16,
     textAlign: "center",
   },
-  pieChartTitle: {
-    textAlign: "center",
-    fontSize: 16,
-    fontWeight: "bold",
-    color: "#6B0F1A",
-  },
+
 });
 
 export default InsightsStyles;

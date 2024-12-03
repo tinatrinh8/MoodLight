@@ -44,8 +44,12 @@ export const getEmotionTags = (emotions, text) => {
   return emotionTags;
 };
 
-// Get the top N emotions across all journal entries
 export const getTopEmotions = (entries, count) => {
+  if (!entries || entries.length === 0) {
+    console.log("No entries provided to getTopEmotions.");
+    return [];
+  }
+
   const emotionCounts = {};
 
   entries.forEach((entry) => {
@@ -56,11 +60,19 @@ export const getTopEmotions = (entries, count) => {
     }
   });
 
-  return Object.entries(emotionCounts)
+  console.log("Emotion Counts:", emotionCounts); // Debug the aggregated emotion counts
+
+  const topEmotions = Object.entries(emotionCounts)
     .sort((a, b) => b[1] - a[1]) // Sort by count (descending)
     .slice(0, count) // Take top `count` emotions
     .map(([emotion]) => emotion);
+
+  console.log("Top Emotions Computed:", topEmotions); // Debug the final top emotions list
+
+  return topEmotions;
 };
+
+
 
 export const getEmotionCounts = (entries) => {
   const emotionCounts = {};

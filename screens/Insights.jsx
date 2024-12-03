@@ -207,6 +207,9 @@ const InsightsScreen = () => {
   const [chartData, setChartData] = useState(null);
   const [topEmotions, setTopEmotions] = useState([]);
   const [emotionCounts, setEmotionCounts] = useState([]);
+  const [yearlyEmotions, setYearlyEmotions] = useState([]); // Top 10 emotions for Yearly
+  const [monthlyEmotions, setMonthlyEmotions] = useState([]); // Dynamic emotions for Monthly
+
   const [viewType, setViewType] = useState("Yearly"); // Default to "Yearly"
   const [monthlyDetails, setMonthlyDetails] = useState([]); // Array of 12 arrays
   const [selectedMonthIndex, setSelectedMonthIndex] = useState(new Date().getMonth()); // Default to current month
@@ -234,14 +237,15 @@ useEffect(() => {
     journalEntries,
     getStartOfYear(new Date(currentYear, 0, 1)),
     getEndOfYear(new Date(currentYear, 11, 31)),
-    getTopEmotions(journalEntries, 5)
+    getTopEmotions(journalEntries, 10)
   );
   setMonthlyDetails(groupedByMonth);
 
-  // Get top emotions for the current year
-  const topEmotionsList = getTopEmotions(filteredEntries, 5); // Top 5 emotions
-  setTopEmotions(topEmotionsList);
 
+  // Get top emotions for the current year
+  const topEmotionsList = getTopEmotions(filteredEntries, 10); // Top 5 emotions
+  setTopEmotions(topEmotionsList);
+    console.log("Top Emotions List:", topEmotionsList);
   // Group entries for the yearly view
   const groupedData = groupDataByYear(filteredEntries, currentYear, topEmotionsList);
 
@@ -281,10 +285,24 @@ useEffect(() => {
 
   setPieChartData(pieData); // Update PieChart data
 
-  // Debugging Logs
-  console.log("Filtered Entries:", filteredEntries);
-  console.log("Grouped By Month:", groupedByMonth);
-  console.log("PieChart Data:", pieData);
+  let legendEmotions = [];
+
+if (viewType === "Yearly") {
+    // Compute and set yearly emotions
+    const topYearlyEmotions = getTopEmotions(filteredEntries, 10); // Top 10 emotions
+    setYearlyEmotions(topYearlyEmotions);
+    setTopEmotions(topYearlyEmotions); // Update the legend for Yearly
+  } else if (viewType === "Monthly" && monthlyDetails[selectedMonthIndex]?.length > 0) {
+    // Compute and set monthly emotions
+    const monthlyEmotionSet = new Set();
+    monthlyDetails[selectedMonthIndex].forEach((entry) => {
+      entry.emotions.forEach((emotion) => monthlyEmotionSet.add(emotion));
+    });
+    const dynamicMonthlyEmotions = Array.from(monthlyEmotionSet);
+    setMonthlyEmotions(dynamicMonthlyEmotions);
+    setTopEmotions(dynamicMonthlyEmotions); // Update the legend for Monthly
+  }
+
 }, [journalEntries, currentYear, viewType, selectedMonthIndex]);
 
 
@@ -357,7 +375,7 @@ return (
       <View style={styles.weekDisplay}>
         <Text style={styles.weekText}>
           {viewType === "Yearly"
-            ? `Showing Year: ${currentYear}`
+            ? `Showing Top 10 Emotions for Year: ${currentYear}`
             : `Showing Month: ${
                 generateMonthLabels()[selectedMonthIndex]
               } ${currentYear}`}
@@ -372,20 +390,20 @@ return (
               viewType={viewType} // Pass viewType as a prop
               labels={generateMonthLabels()}
               datasets={chartData.datasets} />
-              {/* Yearly Legend */}
-              <View style={styles.legendContainer}>
-                {topEmotions.map((emotion, index) => (
-                  <View key={index} style={styles.legendItem}>
-                    <View
-                      style={[
-                        styles.legendColorBox,
-                        { backgroundColor: emotionColours[emotion] || "#000" },
-                      ]}
-                    />
-                    <Text style={styles.legendText}>{emotion}</Text>
-                  </View>
-                ))}
-              </View>
+              {/*  Legend */}
+            <View style={styles.legendContainer}>
+              {topEmotions.map((emotion, index) => (
+                <View key={index} style={styles.legendItem}>
+                  <View
+                    style={[
+                      styles.legendColorBox,
+                      { backgroundColor: emotionColours[emotion] || "#000" },
+                    ]}
+                  />
+                  <Text style={styles.legendText}>{emotion}</Text>
+                </View>
+              ))}
+            </View>
             </>
           ) : (
             <Text style={styles.noDataText}>No data available for this period.</Text>
@@ -434,7 +452,7 @@ return (
   {pieChartData.length > 0 ? (
     <>
       {/* Dynamic Title */}
-      <Text style={styles.pieChartTitle}>
+      <Text style={styles.weekText}>
         {viewType === "Yearly"
           ? `Emotion Distribution for ${currentYear}`
           : `Emotion Distribution for ${generateMonthLabels()[selectedMonthIndex]} ${currentYear}`}
@@ -461,11 +479,13 @@ return (
           borderRadius: 16,
         }}
       />
+
     </>
   ) : (
     <Text style={styles.noDataText}>No data available for this period.</Text>
   )}
 </View>
+
 
       </View>
     </ScrollView>
