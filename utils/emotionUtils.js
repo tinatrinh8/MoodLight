@@ -151,3 +151,52 @@ export const filterEntriesByPeriod = (entries, period) => {
     return entryDate >= format(start, "yyyy-MM-dd") && entryDate <= format(end, "yyyy-MM-dd");
   });
 };
+
+
+export const groupDataByMonthWithDetails = (entries, startOfYear, endOfYear, emotions) => {
+  if (!entries || !Array.isArray(entries)) {
+    console.error("Entries are undefined or not an array:", entries);
+    return [];
+  }
+
+  if (!emotions || !Array.isArray(emotions)) {
+    console.error("Emotions are undefined or not an array:", emotions);
+    return [];
+  }
+
+  // Create an array of 12 empty arrays for each month
+  const monthlyDetails = Array.from({ length: 12 }, () => []);
+
+  entries.forEach((entry) => {
+    const entryDate = entry.journalDate; // journalDate is a string in YYYY-MM-DD format
+    const [year, month, day] = entryDate.split("-"); // Extract year, month, day as strings
+
+    if (
+      parseInt(year, 10) >= startOfYear.getFullYear() &&
+      parseInt(year, 10) <= endOfYear.getFullYear()
+    ) {
+      const monthIndex = parseInt(month, 10) - 1; // Convert month string ("01", "02", etc.) to index (0-11)
+      if (monthIndex >= 0 && monthIndex <= 11) { // Ensure valid month range
+        if (entry.topEmotions) {
+          const top3Emotions = entry.topEmotions.slice(0, 3); // Take top 3 emotions
+          monthlyDetails[monthIndex].push({ date: entryDate, emotions: top3Emotions });
+        }
+      }
+    }
+  });
+
+  // Log the grouped data for each month
+  const monthNames = [
+    "January", "February", "March", "April", "May", "June",
+    "July", "August", "September", "October", "November", "December"
+  ];
+
+  monthlyDetails.forEach((month, index) => {
+    console.log(`Month: ${monthNames[index]}`);
+    month.forEach((entry) => {
+      console.log(`  Date: ${entry.date}, Top Emotions: ${entry.emotions.join(", ")}`);
+    });
+  });
+
+  return monthlyDetails;
+};

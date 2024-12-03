@@ -18,12 +18,13 @@ import {
   getEndOfYear,
   generateMonthLabels,
   groupDataByMonth,
+  groupDataByMonthWithDetails,
 } from "../utils/emotionUtils";
 import { emotionColours } from "../utils/emotionColours";
 import styles from "../styles/InsightsStyles";
 import analysisStyles from "../styles/AnalysisStyles";
 
-const LineChart = ({ labels, datasets }) => {
+const LineChart = ({ labels, datasets, viewType }) => {
   const chartWidth = Dimensions.get("window").width - 32;
   const chartHeight = 250;
   const padding = 20;
@@ -37,117 +38,166 @@ const LineChart = ({ labels, datasets }) => {
   // Calculate points for the chart
   const points = datasets.map((dataset) => ({
     points: dataset.data.map((value, index) => ({
-      x: padding + (index * (chartWidth - 2 * padding)) / (labels.length - 1),
+      x: labels.length === 1
+        ? chartWidth / 2 // Center the point if only one label
+        : padding + (index * (chartWidth - 2 * padding)) / (labels.length - 1),
       y:
         chartHeight - padding - (value / yAxisMax) * (chartHeight - 2 * padding),
     })),
     color: dataset.color(),
   }));
 
-  // Set Y-axis ticks (1, 2, 3, ...)
+// Set Y-axis ticks (1, 2, 3, ...)
   const yAxisTicks = Array.from({ length: yAxisMax }, (_, i) => i + 1);
+return (
+  <Svg width={chartWidth} height={chartHeight}>
+    {/* Background Gradient */}
+    <Defs>
+      <LinearGradient id="backgroundGradient" x1="0" y1="0" x2="0" y2="1">
+        <Stop offset="0" stopColor="#9E4F61" stopOpacity="1" />
+        <Stop offset="1" stopColor="#260101" stopOpacity="1" />
+      </LinearGradient>
+    </Defs>
+    <Rect
+      x="0"
+      y="0"
+      rx="16" // Rounded corners
+      ry="16"
+      width={chartWidth}
+      height={chartHeight}
+      fill="url(#backgroundGradient)"
+    />
 
-  return (
-    <Svg width={chartWidth} height={chartHeight}>
-      {/* Background Gradient */}
-      <Defs>
-        <LinearGradient id="backgroundGradient" x1="0" y1="0" x2="0" y2="1">
-          <Stop offset="0" stopColor="#9E4F61" stopOpacity="1" />
-          <Stop offset="1" stopColor="#260101" stopOpacity="1" />
-        </LinearGradient>
-      </Defs>
-      <Rect
-        x="0"
-        y="0"
-        rx="16" // Rounded corners
-        ry="16"
-        width={chartWidth}
-        height={chartHeight}
-        fill="url(#backgroundGradient)"
+    {/* Solid Y-axis Line */}
+    <Line
+      x1={padding}
+      y1={padding}
+      x2={padding}
+      y2={chartHeight - padding}
+      stroke="white"
+      strokeWidth="2" // Thicker for emphasis
+    />
+
+    {/* Solid X-axis Line */}
+    <Line
+      x1={padding}
+      y1={chartHeight - padding}
+      x2={chartWidth - padding}
+      y2={chartHeight - padding}
+      stroke="white"
+      strokeWidth="2" // Thicker for emphasis
+    />
+
+    {/* Horizontal dotted grid lines for Y-Axis */}
+    {yAxisTicks.map((value, index) => (
+      <Line
+        key={`horizontal-${index}`}
+        x1={padding}
+        y1={
+          chartHeight -
+          padding -
+          (value / yAxisMax) * (chartHeight - 2 * padding)
+        }
+        x2={chartWidth - padding}
+        y2={
+          chartHeight -
+          padding -
+          (value / yAxisMax) * (chartHeight - 2 * padding)
+        }
+        stroke="white"
+        strokeWidth="0.5"
+        strokeDasharray="4 2" // Dotted line
       />
+    ))}
 
-      {/* Horizontal dotted grid lines for Y-Axis */}
-      {yAxisTicks.map((value, index) => (
-        <Line
-          key={`horizontal-${index}`}
-          x1={padding}
-          y1={chartHeight - padding - (value / yAxisMax) * (chartHeight - 2 * padding)}
-          x2={chartWidth - padding}
-          y2={chartHeight - padding - (value / yAxisMax) * (chartHeight - 2 * padding)}
-          stroke="white"
-          strokeWidth="0.5"
-          strokeDasharray="4 2" // Dotted line
+    {/* Vertical dotted grid lines for X-Axis */}
+    {labels.map((_, index) => (
+      <Line
+        key={`vertical-${index}`}
+        x1={
+          labels.length === 1
+            ? chartWidth / 2
+            : padding +
+              (index * (chartWidth - 2 * padding)) / (labels.length - 1)
+        }
+        y1={chartHeight - padding}
+        x2={
+          labels.length === 1
+            ? chartWidth / 2
+            : padding +
+              (index * (chartWidth - 2 * padding)) / (labels.length - 1)
+        }
+        y2={padding}
+        stroke="white"
+        strokeWidth="0.5"
+        strokeDasharray="4 2" // Dotted line
+      />
+    ))}
+
+    {/* Y-Axis labels */}
+    {yAxisTicks.map((value, index) => (
+      <SvgText
+        key={`y-label-${index}`}
+        x={padding / 2}
+        y={
+          chartHeight -
+          padding -
+          (value / yAxisMax) * (chartHeight - 2 * padding)
+        }
+        fontSize={10}
+        fill="white"
+        textAnchor="middle"
+      >
+        {value}
+      </SvgText>
+    ))}
+
+{/* X-axis labels */}
+{labels.map((label, index) => (
+  <SvgText
+    key={`x-label-${label}`}
+    x={
+      padding +
+      (index * (chartWidth - 2 * padding)) / (labels.length - 1) +
+      (viewType === "Monthly" ? (index === 0 ? 10 : index === labels.length - 1 ? -10 : 0) : 0) // Add padding only for Monthly View
+    }
+    y={chartHeight - padding / 6} // Adjust position slightly above
+    fontSize={12} // Ensure labels are large enough
+    fontWeight="bold" // Make labels bold
+    fill="white"
+    textAnchor="middle"
+  >
+    {label}
+  </SvgText>
+))}
+
+
+    {/* Draw lines */}
+    {points.map((dataset, datasetIndex) => (
+      <Polyline
+        key={`line-${datasetIndex}`}
+        points={dataset.points.map((p) => `${p.x},${p.y}`).join(" ")}
+        fill="none"
+        stroke={dataset.color}
+        strokeWidth={2}
+      />
+    ))}
+
+    {/* Draw circles (data points) */}
+    {points.map((dataset) =>
+      dataset.points.map((point, index) => (
+        <Circle
+          key={`circle-${index}`}
+          cx={point.x}
+          cy={point.y}
+          r={4}
+          fill={dataset.color}
         />
-      ))}
+      ))
+    )}
+  </Svg>
+);
 
-      {/* Vertical dotted grid lines for X-Axis */}
-      {labels.map((_, index) => (
-        <Line
-          key={`vertical-${index}`}
-          x1={padding + (index * (chartWidth - 2 * padding)) / (labels.length - 1)}
-          y1={chartHeight - padding}
-          x2={padding + (index * (chartWidth - 2 * padding)) / (labels.length - 1)}
-          y2={padding}
-          stroke="white"
-          strokeWidth="0.5"
-          strokeDasharray="4 2" // Dotted line
-        />
-      ))}
-
-      {/* Y-Axis labels */}
-      {yAxisTicks.map((value, index) => (
-        <SvgText
-          key={`y-label-${index}`}
-          x={padding / 2}
-          y={chartHeight - padding - (value / yAxisMax) * (chartHeight - 2 * padding)}
-          fontSize={10}
-          fill="white"
-          textAnchor="middle"
-        >
-          {value}
-        </SvgText>
-      ))}
-
-      {/* X-axis labels */}
-      {labels.map((label, index) => (
-        <SvgText
-          key={`x-label-${label}`}
-          x={padding + (index * (chartWidth - 2 * padding)) / (labels.length - 1)}
-          y={chartHeight - padding / 6} // Increased space for labels
-          fontSize={12} // Ensure labels are large enough
-          fontWeight="bold" // Make labels bold
-          fill="white"
-          textAnchor="middle"
-        >
-          {label}
-        </SvgText>
-      ))}
-
-      {/* Draw lines */}
-      {points.map((dataset, datasetIndex) => (
-        <Polyline
-          key={`line-${datasetIndex}`}
-          points={dataset.points.map((p) => `${p.x},${p.y}`).join(" ")}
-          fill="none"
-          stroke={dataset.color}
-          strokeWidth={2}
-        />
-      ))}
-
-      {/* Draw circles (data points) */}
-      {points.map((dataset) =>
-        dataset.points.map((point, index) => (
-          <Circle
-            key={`circle-${index}`}
-            cx={point.x}
-            cy={point.y}
-            r={4}
-            fill={dataset.color}
-          />
-        ))
-      )}
-    </Svg>
-  );
 };
 
 const InsightsScreen = () => {
@@ -156,6 +206,16 @@ const InsightsScreen = () => {
   const [chartData, setChartData] = useState(null);
   const [topEmotions, setTopEmotions] = useState([]);
   const [emotionCounts, setEmotionCounts] = useState([]);
+  const [viewType, setViewType] = useState("Yearly"); // Default to "Yearly"
+  const [monthlyDetails, setMonthlyDetails] = useState([]); // Array of 12 arrays
+  const [selectedMonthIndex, setSelectedMonthIndex] = useState(new Date().getMonth()); // Default to current month
+
+    const handleViewTypeChange = (type) => {
+      if (type === "Monthly") {
+        setSelectedMonthIndex(new Date().getMonth()); // Set to current month when switching to Monthly view
+      }
+      setViewType(type);
+    };
 
   const handleNextYear = () => setCurrentYear((prev) => prev + 1);
   const handlePreviousYear = () => setCurrentYear((prev) => prev - 1);
@@ -169,6 +229,18 @@ const InsightsScreen = () => {
       const entryDate = new Date(entry.journalDate);
       return entryDate >= startOfYear && entryDate <= endOfYear;
     });
+
+  // Group entries by month
+  const groupedByMonth = groupDataByMonthWithDetails(
+    journalEntries,
+    startOfYear,
+    endOfYear,
+    getTopEmotions(journalEntries, 5)
+  );
+
+  setMonthlyDetails(groupedByMonth);
+
+  console.log("Monthly Details:", monthlyDetails);
 
     // Get top emotions and format chart data
     const topEmotionsList = getTopEmotions(filteredEntries, 5); // Top 5 emotions
@@ -200,13 +272,30 @@ const InsightsScreen = () => {
     );
   }, [journalEntries, currentYear]);
 
-  return (
-    <ScrollView contentContainerStyle={{ flexGrow: 1 }}>
-      <View style={styles.container}>
-        <Header />
-        <Text style={styles.insightsTitle}>Insights</Text>
+return (
+  <ScrollView contentContainerStyle={{ flexGrow: 1 }}>
+    <View style={styles.container}>
+      <Header />
+      <Text style={styles.insightsTitle}>Insights</Text>
 
-        {/* Monthly Navigation */}
+      {/* Time Period Filter */}
+      <View style={styles.filterContainer}>
+        <TouchableOpacity
+          style={viewType === "Yearly" ? styles.activeFilter : styles.filterButton}
+          onPress={() => setViewType("Yearly")}
+        >
+          <Text style={styles.filterButtonText}>Yearly</Text>
+        </TouchableOpacity>
+        <TouchableOpacity
+          style={viewType === "Monthly" ? styles.activeFilter : styles.filterButton}
+          onPress={() => setViewType("Monthly")}
+        >
+          <Text style={styles.filterButtonText}>Monthly</Text>
+        </TouchableOpacity>
+      </View>
+
+      {/* Yearly Navigation */}
+      {viewType === "Yearly" && (
         <View style={styles.filterContainer}>
           <TouchableOpacity
             style={styles.filterButton}
@@ -221,17 +310,49 @@ const InsightsScreen = () => {
             <Text style={styles.filterButtonText}>Next Year</Text>
           </TouchableOpacity>
         </View>
-        <View style={styles.weekDisplay}>
-          <Text style={styles.weekText}>{`Showing Year: ${currentYear}`}</Text>
+      )}
+
+      {/* Monthly Navigation */}
+      {viewType === "Monthly" && (
+        <View style={styles.filterContainer}>
+          <TouchableOpacity
+            style={styles.filterButton}
+            onPress={() =>
+              setSelectedMonthIndex((prev) => (prev > 0 ? prev - 1 : 11))
+            }
+          >
+            <Text style={styles.filterButtonText}>Previous Month</Text>
+          </TouchableOpacity>
+          <TouchableOpacity
+            style={styles.filterButton}
+            onPress={() =>
+              setSelectedMonthIndex((prev) => (prev < 11 ? prev + 1 : 0))
+            }
+          >
+            <Text style={styles.filterButtonText}>Next Month</Text>
+          </TouchableOpacity>
         </View>
-
-        {/* Line Chart */}
-        <View style={styles.chartContainer}>
-          {chartData && chartData.datasets.some(dataset => dataset.data.some(value => value > 0)) ? (
+      )}
+      {/* Display Selected Time Period */}
+      <View style={styles.weekDisplay}>
+        <Text style={styles.weekText}>
+          {viewType === "Yearly"
+            ? `Showing Year: ${currentYear}`
+            : `Showing Month: ${
+                generateMonthLabels()[selectedMonthIndex]
+              } ${currentYear}`}
+        </Text>
+      </View>
+      {/* Chart Container */}
+      <View style={styles.chartContainer}>
+        {viewType === "Yearly" ? (
+          chartData && chartData.datasets.some((dataset) => dataset.data.some((value) => value > 0)) ? (
             <>
-              <LineChart labels={chartData.labels} datasets={chartData.datasets} />
-
-              {/* Legend */}
+              <LineChart
+              viewType={viewType} // Pass viewType as a prop
+              labels={generateMonthLabels()}
+              datasets={chartData.datasets} />
+              {/* Yearly Legend */}
               <View style={styles.legendContainer}>
                 {topEmotions.map((emotion, index) => (
                   <View key={index} style={styles.legendItem}>
@@ -247,11 +368,46 @@ const InsightsScreen = () => {
               </View>
             </>
           ) : (
-            <Text style={styles.noDataText}>
-              No data available for this period.
-            </Text>
-          )}
-        </View>
+            <Text style={styles.noDataText}>No data available for this period.</Text>
+          )
+        ) : (
+          monthlyDetails[selectedMonthIndex] &&
+          monthlyDetails[selectedMonthIndex].length > 0 ? (
+            <>
+              <LineChart
+                viewType={viewType} // Pass viewType as a prop
+                labels={monthlyDetails[selectedMonthIndex]
+                  .sort((a, b) => new Date(a.date) - new Date(b.date)) // Sort dates
+                  .map((entry) => {
+                    const [year, month, day] = entry.date.split("-");
+                    return `${generateMonthLabels()[parseInt(month, 10) - 1]} ${day}`; // Format as "Month DD"
+                  })}
+                datasets={topEmotions.map((emotion) => ({
+                  data: monthlyDetails[selectedMonthIndex]
+                    .map((entry) => (entry.emotions.includes(emotion) ? 1 : 0)), // 1 if the emotion exists, otherwise 0
+                  color: () => emotionColours[emotion] || "#000", // Assign color based on emotion
+                }))}
+              />
+              {/* Monthly Legend */}
+              <View style={styles.legendContainer}>
+                {topEmotions.map((emotion, index) => (
+                  <View key={index} style={styles.legendItem}>
+                    <View
+                      style={[
+                        styles.legendColorBox,
+                        { backgroundColor: emotionColours[emotion] || "#000" },
+                      ]}
+                    />
+                    <Text style={styles.legendText}>{emotion}</Text>
+                  </View>
+                ))}
+              </View>
+            </>
+          ) : (
+            <Text style={styles.noDataText}>No entries for this month.</Text>
+          )
+        )}
+      </View>
 
     {/* Pie Chart */}
     <View style={styles.pieChartContainer}>
