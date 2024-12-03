@@ -210,7 +210,7 @@ const InsightsScreen = () => {
   const [viewType, setViewType] = useState("Yearly"); // Default to "Yearly"
   const [monthlyDetails, setMonthlyDetails] = useState([]); // Array of 12 arrays
   const [selectedMonthIndex, setSelectedMonthIndex] = useState(new Date().getMonth()); // Default to current month
-
+    const [pieChartData, setPieChartData] = useState([]); // State for PieChart data
     const handleViewTypeChange = (type) => {
       if (type === "Monthly") {
         setSelectedMonthIndex(new Date().getMonth()); // Set to current month when switching to Monthly view
@@ -220,32 +220,16 @@ const InsightsScreen = () => {
 
   const handleNextYear = () => setCurrentYear((prev) => prev + 1);
   const handlePreviousYear = () => setCurrentYear((prev) => prev - 1);
-
 useEffect(() => {
+  let pieData = [];
+
   // Filter entries by the current year
   const filteredEntries = journalEntries.filter((entry) => {
     const [year] = entry.journalDate.split("-"); // Extract year from journalDate
     return parseInt(year, 10) === currentYear; // Filter entries for the current year
   });
 
-    // Log yearly data structure
-    if (chartData?.datasets) {
-      console.log("Yearly Data for PieChart:");
-      chartData.datasets.forEach((dataset, index) => {
-        console.log(`Emotion: ${topEmotions[index]}, Monthly Counts:`, dataset.data);
-      });
-    }
-
-    // Log monthly data structure
-    if (monthlyDetails[selectedMonthIndex]) {
-      console.log("Monthly Data for PieChart:");
-      console.log(`Selected Month: ${generateMonthLabels()[selectedMonthIndex]}`);
-      monthlyDetails[selectedMonthIndex].forEach((entry, index) => {
-        console.log(`Day ${index + 1}: Emotions:`, entry.emotions);
-      });
-    }
-
-  // Group entries by month for the monthly view (unchanged)
+  // Group entries by month for the monthly view
   const groupedByMonth = groupDataByMonthWithDetails(
     journalEntries,
     getStartOfYear(new Date(currentYear, 0, 1)),
@@ -254,9 +238,11 @@ useEffect(() => {
   );
   setMonthlyDetails(groupedByMonth);
 
-
-  // Group entries for the yearly view using the new function
+  // Get top emotions for the current year
   const topEmotionsList = getTopEmotions(filteredEntries, 5); // Top 5 emotions
+  setTopEmotions(topEmotionsList);
+
+  // Group entries for the yearly view
   const groupedData = groupDataByYear(filteredEntries, currentYear, topEmotionsList);
 
   // Format the chart data for the yearly line chart
@@ -267,20 +253,39 @@ useEffect(() => {
       color: () => emotionColours[emotion] || "#000", // Assign color to emotions
     })),
   };
-
-  // Set the chart data and top emotions for the yearly view
-  setTopEmotions(topEmotionsList);
   setChartData(chartData);
 
-  // Set emotion counts for PieChart
-  setEmotionCounts(
-    Object.keys(getEmotionCounts(filteredEntries)).map((emotionName) => ({
-      name: emotionName,
-      count: getEmotionCounts(filteredEntries)[emotionName],
-      color: emotionColours[emotionName],
-    }))
-  );
-}, [journalEntries, currentYear]);
+  // Prepare PieChart data based on viewType
+  if (viewType === "Yearly" && chartData?.datasets) {
+    // Aggregate yearly data for the PieChart
+    pieData = chartData.datasets.map((dataset, index) => ({
+      name: topEmotionsList[index],
+      count: dataset.data.reduce((sum, value) => sum + value, 0), // Sum up counts for the year
+      color: emotionColours[topEmotionsList[index]] || "#000", // Default to black if color is missing
+    }));
+  } else if (viewType === "Monthly" && groupedByMonth[selectedMonthIndex]?.length > 0) {
+    // Aggregate monthly data for the PieChart
+    const monthlyCounts = {};
+    groupedByMonth[selectedMonthIndex].forEach((entry) => {
+      entry.emotions.forEach((emotion) => {
+        monthlyCounts[emotion] = (monthlyCounts[emotion] || 0) + 1;
+      });
+    });
+
+    pieData = Object.keys(monthlyCounts).map((emotion) => ({
+      name: emotion,
+      count: monthlyCounts[emotion],
+      color: emotionColours[emotion] || "#000", // Default to black if color is missing
+    }));
+  }
+
+  setPieChartData(pieData); // Update PieChart data
+
+  // Debugging Logs
+  console.log("Filtered Entries:", filteredEntries);
+  console.log("Grouped By Month:", groupedByMonth);
+  console.log("PieChart Data:", pieData);
+}, [journalEntries, currentYear, viewType, selectedMonthIndex]);
 
 
 return (
@@ -422,13 +427,18 @@ return (
 
 {/* Pie Chart */}
 <View style={styles.pieChartContainer}>
-  {emotionCounts.length > 0 && (
+  {pieChartData.length > 0 ? (
     <>
-      {/* Title for the pie chart */}
-      <Text style={styles.pieChartTitle}>Overall Emotion Distribution (All Time)</Text>
+      {/* Dynamic Title */}
+      <Text style={styles.pieChartTitle}>
+        {viewType === "Yearly"
+          ? `Emotion Distribution for ${currentYear}`
+          : `Emotion Distribution for ${generateMonthLabels()[selectedMonthIndex]} ${currentYear}`}
+      </Text>
 
+      {/* PieChart Component */}
       <PieChart
-        data={emotionCounts}
+        data={pieChartData}
         accessor={"count"}
         width={Dimensions.get("window").width - 20}
         height={250}
@@ -448,6 +458,8 @@ return (
         }}
       />
     </>
+  ) : (
+    <Text style={styles.noDataText}>No data available for this period.</Text>
   )}
 </View>
 
