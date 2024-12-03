@@ -96,7 +96,13 @@ const InsightsStyles = StyleSheet.create({
     fontSize: 16,
     textAlign: "center",
   },
-
+pieChartTitle: {
+  textAlign: "center",
+  fontSize: 16,
+  fontWeight: "bold",
+  color: "#6B0F1A",
+},
 });
+
 
 export default InsightsStyles;

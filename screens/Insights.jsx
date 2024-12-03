@@ -19,6 +19,7 @@ import {
   generateMonthLabels,
   groupDataByMonth,
   groupDataByMonthWithDetails,
+  groupDataByYear,
 } from "../utils/emotionUtils";
 import { emotionColours } from "../utils/emotionColours";
 import styles from "../styles/InsightsStyles";
@@ -220,57 +221,51 @@ const InsightsScreen = () => {
   const handleNextYear = () => setCurrentYear((prev) => prev + 1);
   const handlePreviousYear = () => setCurrentYear((prev) => prev - 1);
 
-  useEffect(() => {
-    let filteredEntries;
+useEffect(() => {
+  // Filter entries by the current year
+  const filteredEntries = journalEntries.filter((entry) => {
+    const [year] = entry.journalDate.split("-"); // Extract year from journalDate
+    return parseInt(year, 10) === currentYear; // Filter entries for the current year
+  });
 
-    const startOfYear = getStartOfYear(new Date(currentYear, 0, 1));
-    const endOfYear = getEndOfYear(new Date(currentYear, 11, 31));
-    filteredEntries = journalEntries.filter((entry) => {
-      const entryDate = new Date(entry.journalDate);
-      return entryDate >= startOfYear && entryDate <= endOfYear;
-    });
-
-  // Group entries by month
+  // Group entries by month for the monthly view (unchanged)
   const groupedByMonth = groupDataByMonthWithDetails(
     journalEntries,
-    startOfYear,
-    endOfYear,
+    getStartOfYear(new Date(currentYear, 0, 1)),
+    getEndOfYear(new Date(currentYear, 11, 31)),
     getTopEmotions(journalEntries, 5)
   );
-
   setMonthlyDetails(groupedByMonth);
 
-  console.log("Monthly Details:", monthlyDetails);
+  console.log("Monthly Details:", groupedByMonth);
 
-    // Get top emotions and format chart data
-    const topEmotionsList = getTopEmotions(filteredEntries, 5); // Top 5 emotions
-    const groupedData = groupDataByMonth(
-      filteredEntries,
-      startOfYear,
-      endOfYear,
-      topEmotionsList
-    );
+  // Group entries for the yearly view using the new function
+  const topEmotionsList = getTopEmotions(filteredEntries, 5); // Top 5 emotions
+  const groupedData = groupDataByYear(filteredEntries, currentYear, topEmotionsList);
 
-    const chartData = {
-      labels: generateMonthLabels(),
-      datasets: topEmotionsList.map((emotion) => ({
-        data: groupedData.map((month) => month[emotion] || 0),
-        color: () => emotionColours[emotion] || "#000", // Default to black if no color found
-      })),
-    };
+  // Format the chart data for the yearly line chart
+  const chartData = {
+    labels: generateMonthLabels(),
+    datasets: topEmotionsList.map((emotion) => ({
+      data: groupedData.map((month) => month[emotion] || 0),
+      color: () => emotionColours[emotion] || "#000", // Assign color to emotions
+    })),
+  };
 
-    setTopEmotions(topEmotionsList);
-    setChartData(chartData);
+  // Set the chart data and top emotions for the yearly view
+  setTopEmotions(topEmotionsList);
+  setChartData(chartData);
 
-    // Set emotion counts for PieChart
-    setEmotionCounts(
-      Object.keys(getEmotionCounts(filteredEntries)).map((emotionName) => ({
-        name: emotionName,
-        count: getEmotionCounts(filteredEntries)[emotionName],
-        color: emotionColours[emotionName],
-      }))
-    );
-  }, [journalEntries, currentYear]);
+  // Set emotion counts for PieChart
+  setEmotionCounts(
+    Object.keys(getEmotionCounts(filteredEntries)).map((emotionName) => ({
+      name: emotionName,
+      count: getEmotionCounts(filteredEntries)[emotionName],
+      color: emotionColours[emotionName],
+    }))
+  );
+}, [journalEntries, currentYear]);
+
 
 return (
   <ScrollView contentContainerStyle={{ flexGrow: 1 }}>
@@ -409,31 +404,37 @@ return (
         )}
       </View>
 
-    {/* Pie Chart */}
-    <View style={styles.pieChartContainer}>
-      {emotionCounts.length > 0 && (
-        <PieChart
-          data={emotionCounts}
-          accessor={"count"}
-          width={Dimensions.get("window").width - 20}
-          height={250}
-          absolute={false}
-          chartConfig={{
-            color: (opacity = 1) => `white`,
-            labelColor: (opacity = 1) => `white`,
-            style: {
-              borderRadius: 16,
-            },
-          }}
-          backgroundColor="#E6C3CB"
-          paddingLeft="15"
-          style={{
-            marginVertical: 8,
+{/* Pie Chart */}
+<View style={styles.pieChartContainer}>
+  {emotionCounts.length > 0 && (
+    <>
+      {/* Title for the pie chart */}
+      <Text style={styles.pieChartTitle}>Overall Emotion Distribution (All Time)</Text>
+
+      <PieChart
+        data={emotionCounts}
+        accessor={"count"}
+        width={Dimensions.get("window").width - 20}
+        height={250}
+        absolute={false}
+        chartConfig={{
+          color: (opacity = 1) => `white`,
+          labelColor: (opacity = 1) => `white`,
+          style: {
             borderRadius: 16,
-          }}
-        />
-      )}
-    </View>
+          },
+        }}
+        backgroundColor="#E6C3CB"
+        paddingLeft="15"
+        style={{
+          marginVertical: 8,
+          borderRadius: 16,
+        }}
+      />
+    </>
+  )}
+</View>
+
       </View>
     </ScrollView>
   );

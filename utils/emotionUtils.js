@@ -99,7 +99,7 @@ export const generateMonthLabels = () => [
 ];
 
 // Group data by month for a specific year
-export const groupDataByMonth = (entries, startOfYear, endOfYear, emotions) => {
+export const groupDataByMonth = (entries, currentYear, emotions) => {
   if (!entries || !Array.isArray(entries)) {
     console.error("Entries are undefined or not an array:", entries);
     return [];
@@ -110,16 +110,17 @@ export const groupDataByMonth = (entries, startOfYear, endOfYear, emotions) => {
     return [];
   }
 
+  // Initialize counts for 12 months
   const monthlyCounts = Array.from({ length: 12 }, () =>
     emotions.reduce((acc, emotion) => ({ ...acc, [emotion]: 0 }), {})
   );
 
   entries.forEach((entry) => {
-    const entryDate = entry.journalDate; // journalDate is a string in YYYY-MM-DD format
-    const entryDateObj = new Date(entryDate); // Convert to Date object for checking range
-    if (entryDateObj >= startOfYear && entryDateObj <= endOfYear) {
-      const monthIndex = entryDateObj.getMonth(); // 0 = Jan, 11 = Dec
-      if (entry.topEmotions) {
+    const [year, month] = entry.journalDate.split("-"); // Extract year and month as strings
+
+    if (parseInt(year, 10) === currentYear) {
+      const monthIndex = parseInt(month, 10) - 1; // Convert month string ("01") to zero-based index (0 = Jan)
+      if (monthIndex >= 0 && monthIndex <= 11 && entry.topEmotions) {
         entry.topEmotions.forEach((emotion) => {
           if (emotions.includes(emotion)) {
             monthlyCounts[monthIndex][emotion] += 1;
@@ -131,6 +132,7 @@ export const groupDataByMonth = (entries, startOfYear, endOfYear, emotions) => {
 
   return monthlyCounts;
 };
+
 
 // Filter entries within a specific date range
 export const filterEntriesByPeriod = (entries, period) => {
@@ -200,3 +202,39 @@ export const groupDataByMonthWithDetails = (entries, startOfYear, endOfYear, emo
 
   return monthlyDetails;
 };
+
+// Group data by year for yearly view
+export const groupDataByYear = (entries, currentYear, emotions) => {
+  if (!entries || !Array.isArray(entries)) {
+    console.error("Entries are undefined or not an array:", entries);
+    return [];
+  }
+
+  if (!emotions || !Array.isArray(emotions)) {
+    console.error("Emotions are undefined or not an array:", emotions);
+    return [];
+  }
+
+  // Initialize counts for 12 months
+  const monthlyCounts = Array.from({ length: 12 }, () =>
+    emotions.reduce((acc, emotion) => ({ ...acc, [emotion]: 0 }), {})
+  );
+
+  entries.forEach((entry) => {
+    const [year, month] = entry.journalDate.split("-"); // Extract year and month from journalDate
+
+    if (parseInt(year, 10) === currentYear) {
+      const monthIndex = parseInt(month, 10) - 1; // Convert month string ("01") to zero-based index
+      if (monthIndex >= 0 && monthIndex <= 11 && entry.topEmotions) {
+        entry.topEmotions.forEach((emotion) => {
+          if (emotions.includes(emotion)) {
+            monthlyCounts[monthIndex][emotion] += 1;
+          }
+        });
+      }
+    }
+  });
+
+  return monthlyCounts; // Return counts for each month
+};
+
