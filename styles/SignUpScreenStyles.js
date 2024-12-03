@@ -1,9 +1,20 @@
 import { StyleSheet } from "react-native";
 
 const SignUpScreenStyles = StyleSheet.create({
+  backgroundContainer: {
+    flex: 1,
+    justifyContent: "center",
+    alignItems: "center",
+  },
+  backgroundImage: {
+    flex: 1,
+    resizeMode: "cover",
+    width: "100%",
+    height: "100%",
+    justifyContent: "center",
+  },
   screenContainer: {
     flex: 1,
-    backgroundColor: "#282e45", // Solid background color
     alignItems: "center",
     justifyContent: "center",
     paddingHorizontal: 20,
@@ -14,7 +25,7 @@ const SignUpScreenStyles = StyleSheet.create({
   },
   title: {
     fontFamily: "Gentium BoldItalic",
-    fontSize: 36,
+    fontSize: 40,
     color: "rgba(255, 255, 255, 1)",
     fontWeight: "700",
   },
@@ -22,43 +33,51 @@ const SignUpScreenStyles = StyleSheet.create({
     marginTop: 15,
     fontFamily: "Gilda Display",
     fontSize: 12,
-    color: "rgba(243, 192, 24, 1)",
+    color: "rgb(156, 31, 17)",
     fontWeight: "400",
     textAlign: "center",
   },
   formContainer: {
     width: "100%",
-    marginBottom: 25,
-  },
-  inputContainer: {
-    marginBottom: 20,
+    marginBottom: 10,
   },
   input: {
     borderRadius: 20,
     minHeight: 60,
     width: "100%",
     paddingHorizontal: 20,
-    backgroundColor: "#000000",
-    color: "#FFFFFF",
+    backgroundColor: "#FFFFFF",
+    color: "rgb(224, 188, 114)",
+    borderWidth: 1.5,
+    marginBottom: 20,
+    borderColor: "rgb(156, 31, 17)",
+    fontFamily: "rivrdle",
   },
   signUpButton: {
-    backgroundColor: "rgba(60, 90, 127, 1)",
-    borderRadius: 20,
+    width: 140,
+    borderRadius: 40,
+    borderColor: "rgb(245, 205, 125)",
+    borderWidth: 1.5,
     paddingVertical: 10,
     paddingHorizontal: 30,
-    alignItems: "center",
-    marginBottom: 25,
+    alignSelf: "center",
+    backgroundColor: "transparent",
   },
   signUpButtonText: {
     fontFamily: "Gentium Basic",
     fontSize: 18,
     color: "#fff",
     fontWeight: "700",
+    color: "rgb(245, 205, 125)",
+    textAlign: "center",
   },
   footerContainer: {
-    flexDirection: "row",
-    alignItems: "center",
-    marginTop: 17,
+    position: "absolute", // Position the footer at the bottom
+    bottom: 50, // Add space between the footer and the bottom of the screen
+    width: "100%", // Ensure the footer spans the width
+    flexDirection: "row", // Align the account text and sign-up link
+    justifyContent: "center", // Center items horizontally
+    alignItems: "center", // Center items vertically
   },
   footerText: {
     fontFamily: "Gentium Basic",
@@ -68,9 +87,10 @@ const SignUpScreenStyles = StyleSheet.create({
     marginRight: 10,
   },
   loginLink: {
+    transform: "skewX(-20deg)",
     fontFamily: "Gentium Basic",
     fontSize: 13,
-    color: "rgba(243, 192, 24, 1)",
+    color: "rgb(156, 31, 17)",
     fontWeight: "700",
   },
 });

@@ -14,13 +14,16 @@ const SettingsStyles = StyleSheet.create({
     paddingHorizontal: 20,
     paddingBottom: 20,
     alignItems: "center", // Center content horizontally
+    flexGrow: 1, // Allows the ScrollView to expand
+    paddingBottom: 50, // Add padding to account for navigation bar
   },
   settingsTitle: {
-    fontSize: 24,
+    fontSize: 30,
     fontWeight: "bold",
     color: "#DC869A", // Match accent color
     textAlign: "center",
     marginVertical: 15,
+    fontFamily: "LexendDeca",
   },
   profileContainer: {
     alignItems: "center",
@@ -40,17 +43,20 @@ const SettingsStyles = StyleSheet.create({
     fontSize: 36,
     color: "#000000", // Black color for the avatar initial
     fontWeight: "bold",
+    fontFamily: "LexendDeca",
   },
   fullName: {
     color: "#000000",
     fontSize: 16,
     marginTop: 10,
     fontWeight: "600",
+    fontFamily: "LexendDeca",
   },
   email: {
     color: "rgba(0, 0, 0, 0.5)", // Grey text for email
     fontSize: 14,
     marginTop: 5,
+    marginBottom: 10,
   },
   settingOption: {
     flexDirection: "row",
@@ -73,32 +79,37 @@ const SettingsStyles = StyleSheet.create({
     fontSize: 16,
     color: "#000", // Black label
     fontWeight: "500",
+    fontFamily: "LexendDeca",
   },
   settingValue: {
     fontSize: 14,
     color: "rgba(0, 0, 0, 0.5)", // Grey text for values
+    fontFamily: "LexendDeca",
   },
   arrow: {
     color: "rgba(0, 0, 0, 0.5)", // Grey arrow
     fontSize: 22,
-  },
-  plantImage: {
-    width: 180,
-    height: 180,
+    fontWeight: "700",
   },
   logoutButton: {
-    marginTop: 10,
+    marginTop: 15,
+    marginBottom: 50,
     width: 223,
     borderRadius: 20,
     backgroundColor: "#FFFFFF", // White button
     borderWidth: 2,
     borderColor: "#000000", // Black border
     paddingVertical: 10,
-    alignItems: "center",
+    alignItems: "center", // Centers text horizontally
+    justifyContent: "center", // Centers text verticall
+    height: 60,
+    weight: 40,
   },
   logoutButtonText: {
     fontSize: 16,
     color: "#000", // Black text for logout
+    textAlign: "center",
+    fontFamily: "LexendDeca",
   },
   modalContainer: {
     flex: 1,
@@ -112,11 +123,14 @@ const SettingsStyles = StyleSheet.create({
     borderRadius: 10,
     padding: 20,
     alignItems: "center",
+    borderWidth: 2,
+    borderColor: "#000000", // Black border
   },
   modalTitle: {
     fontSize: 18,
     fontWeight: "bold",
     marginBottom: 15,
+    fontFamily: "LexendDeca",
   },
   input: {
     width: "100%",
@@ -125,6 +139,8 @@ const SettingsStyles = StyleSheet.create({
     borderColor: "#ccc",
     borderRadius: 5,
     marginBottom: 15,
+    color: "#000000",
+    fontFamily: "LexendDeca",
   },
   saveButton: {
     backgroundColor: "#DC869A",
@@ -133,10 +149,14 @@ const SettingsStyles = StyleSheet.create({
     alignItems: "center",
     marginBottom: 10,
     width: "100%",
+    borderWidth: 2,
+    borderColor: "#000000", // Black border
   },
   saveButtonText: {
     color: "white",
     fontWeight: "bold",
+    fontFamily: "LexendDeca",
+    transform: "skewX(-20deg)",
   },
   cancelButton: {
     backgroundColor: "#260101",
@@ -144,10 +164,14 @@ const SettingsStyles = StyleSheet.create({
     borderRadius: 5,
     alignItems: "center",
     width: "100%",
+    borderWidth: 2,
+    borderColor: "#000000", // Black border
   },
   cancelButtonText: {
     color: "white",
     fontWeight: "bold",
+    fontFamily: "LexendDeca",
+    transform: "skewX(-20deg)",
   },
 });
 

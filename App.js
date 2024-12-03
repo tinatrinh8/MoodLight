@@ -31,15 +31,18 @@ export default function App() {
         "Gentium BoldItalic": require("./assets/fonts/GentiumPlus-BoldItalic.ttf"),
         "Belgan Aesthetic": require("./assets/fonts/Belgan Aesthetic.ttf"),
         "Gilda Display": require("./assets/fonts/GildaDisplay-Regular.ttf"),
+        rivrdle: require("./assets/fonts/rivrdle.ttf"),
+        rivrdle_itlc: require("./assets/fonts/rivrdle_itlc.ttf"),
+        Freshwost: require("./assets/fonts/Freshwost.otf"),
       });
       setFontsLoaded(true);
     } catch (error) {
       console.error("Error loading fonts:", error);
     }
   };
-LogBox.ignoreLogs([
-  "User is not authenticated", // Add the specific error message
-]);
+  LogBox.ignoreLogs([
+    "User is not authenticated", // Add the specific error message
+  ]);
   useEffect(() => {
     const unsubscribe = auth.onAuthStateChanged((currentUser) => {
       setUser(currentUser);
@@ -73,7 +76,6 @@ LogBox.ignoreLogs([
           <Stack.Screen name="MainTabs" component={TabNavigator} />
           <Stack.Screen name="Analysis" component={Analysis} />
         </Stack.Navigator>
-
       </NavigationContainer>
     </EntryDatesProvider>
   );

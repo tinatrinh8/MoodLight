@@ -7,18 +7,6 @@ const styles = StyleSheet.create({
     backgroundColor: "#F5F0E8",
     padding: 20,
   },
-
-  flowerGif: {
-    position: "absolute",
-    top: 0, // Start at the top
-    width: "100%", // Cover the screen's width
-    right: 20,
-    height: 120, // Adjust based on your GIF size
-    resizeMode: "contain", // Ensure proper scaling
-    transform: [{ scaleY: -1 }], // Flip the image vertically to make it upside down
-    zIndex: -1, // Send it behind other elements
-  },
-
   greetingContainer: {
     flexDirection: "row",
     justifyContent: "space-between",
@@ -65,7 +53,7 @@ const styles = StyleSheet.create({
   emptyText: {
     fontSize: 16,
     marginBottom: 50,
-    marginTop:30,
+    marginTop: 30,
     fontFamily: "LexendDeca",
   },
 

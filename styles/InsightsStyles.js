@@ -12,6 +12,8 @@ const InsightsStyles = StyleSheet.create({
     fontWeight: "700",
     textAlign: "center",
     marginVertical: 10,
+    fontFamily: "LexendDeca",
+    marginBottom: 15,
   },
   weekDisplay: {
     marginVertical: 10,
@@ -29,7 +31,7 @@ const InsightsStyles = StyleSheet.create({
   },
   pieChartContainer: {
     marginBottom: 20,
-    paddingBottom: 40,    // Add extra padding at the bottom
+    paddingBottom: 40, // Add extra padding at the bottom
   },
   legendContainer: {
     flexDirection: "row",
@@ -67,13 +69,13 @@ const InsightsStyles = StyleSheet.create({
     padding: 10,
     marginHorizontal: 5,
   },
-    activeFilter: {
-      flex: 1,
-      backgroundColor: "#954356",
-      borderRadius: 10,
-      padding: 10,
-      marginHorizontal: 5,
-    },
+  activeFilter: {
+    flex: 1,
+    backgroundColor: "#954356",
+    borderRadius: 10,
+    padding: 10,
+    marginHorizontal: 5,
+  },
   activeFilterButton: {
     backgroundColor: "#9E4F61",
   },
@@ -96,13 +98,12 @@ const InsightsStyles = StyleSheet.create({
     fontSize: 16,
     textAlign: "center",
   },
-pieChartTitle: {
-  textAlign: "center",
-  fontSize: 16,
-  fontWeight: "bold",
-  color: "#6B0F1A",
-},
+  pieChartTitle: {
+    textAlign: "center",
+    fontSize: 16,
+    fontWeight: "bold",
+    color: "#6B0F1A",
+  },
 });
-
 
 export default InsightsStyles;

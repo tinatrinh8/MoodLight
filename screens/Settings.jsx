@@ -10,12 +10,18 @@ import {
   Image,
 } from "react-native";
 import { useNavigation } from "@react-navigation/native";
-import { signOut, onAuthStateChanged, updatePassword, reauthenticateWithCredential, EmailAuthProvider } from "firebase/auth";
+import {
+  signOut,
+  onAuthStateChanged,
+  updatePassword,
+  reauthenticateWithCredential,
+  EmailAuthProvider,
+} from "firebase/auth";
 import { auth } from "../components/firebase"; // Import Firebase auth instance
 import Header from "../components/Header"; // Import the reusable Header component
 import SettingsStyles from "../styles/SettingsStyles"; // Import styles
 import { CommonActions } from "@react-navigation/native";
-
+import FastImage from "react-native-fast-image";
 
 const Settings = () => {
   const navigation = useNavigation();
@@ -24,48 +30,45 @@ const Settings = () => {
   const [oldPassword, setOldPassword] = useState("");
   const [newPassword, setNewPassword] = useState("");
 
+  const [loading, setLoading] = useState(true); // New loading state
 
-const [loading, setLoading] = useState(true); // New loading state
+  // Fetch user details from Firebase Authentication
+  useEffect(() => {
+    const unsubscribe = onAuthStateChanged(auth, (currentUser) => {
+      setUser(currentUser); // Set user only if authenticated
+    });
 
-// Fetch user details from Firebase Authentication
-useEffect(() => {
-  const unsubscribe = onAuthStateChanged(auth, (currentUser) => {
-    setUser(currentUser); // Set user only if authenticated
-  });
+    return () => unsubscribe();
+  }, []);
 
-  return () => unsubscribe();
-}, []);
-
-
-// Redirect to Login if user is not authenticated
-useEffect(() => {
-  if (!loading && !user) {
-    navigation.navigate("Login");
-  }
-}, [loading, user]);
-
-const handleLogout = async () => {
-  try {
-    await signOut(auth); // Sign out from Firebase
-    Alert.alert("Logged out", "You have been successfully logged out.");
-    // Reset navigation stack to Login screen
-    navigation.dispatch(
-      CommonActions.reset({
-        index: 0,
-        routes: [{ name: "Login" }],
-      })
-    );
-  } catch (error) {
-    // Suppress the error silently without showing or logging it
-    if (error.message.includes("User is not authenticated")) {
-      console.log("Silent error during logout: User already logged out.");
-    } else {
-      console.error("Logout Error:", error.message);
-      Alert.alert("Error", "An unexpected error occurred while logging out.");
+  // Redirect to Login if user is not authenticated
+  useEffect(() => {
+    if (!loading && !user) {
+      navigation.navigate("Login");
     }
-  }
-};
+  }, [loading, user]);
 
+  const handleLogout = async () => {
+    try {
+      await signOut(auth); // Sign out from Firebase
+      Alert.alert("Logged out", "You have been successfully logged out.");
+      // Reset navigation stack to Login screen
+      navigation.dispatch(
+        CommonActions.reset({
+          index: 0,
+          routes: [{ name: "Login" }],
+        })
+      );
+    } catch (error) {
+      // Suppress the error silently without showing or logging it
+      if (error.message.includes("User is not authenticated")) {
+        console.log("Silent error during logout: User already logged out.");
+      } else {
+        console.error("Logout Error:", error.message);
+        Alert.alert("Error", "An unexpected error occurred while logging out.");
+      }
+    }
+  };
 
   const handlePasswordChange = async () => {
     if (!oldPassword || !newPassword) {
@@ -86,7 +89,10 @@ const handleLogout = async () => {
       setNewPassword("");
     } catch (error) {
       console.error("Password Change Error:", error.message);
-      Alert.alert("Error", "Failed to update password. Check your credentials.");
+      Alert.alert(
+        "Error",
+        "Failed to update password. Check your credentials."
+      );
     }
   };
 
@@ -104,7 +110,9 @@ const handleLogout = async () => {
         <View style={SettingsStyles.profileContainer}>
           <View style={SettingsStyles.avatarContainer}>
             <Text style={SettingsStyles.avatarText}>
-              {user?.displayName ? user.displayName.charAt(0).toUpperCase() : "N"}
+              {user?.displayName
+                ? user.displayName.charAt(0).toUpperCase()
+                : "N"}
             </Text>
           </View>
           <Text style={SettingsStyles.fullName}>
@@ -117,11 +125,15 @@ const handleLogout = async () => {
 
         <View style={SettingsStyles.settingOption}>
           <Text style={SettingsStyles.settingLabel}>Name</Text>
-          <Text style={SettingsStyles.settingValue}>{user?.displayName || "Full Name"}</Text>
+          <Text style={SettingsStyles.settingValue}>
+            {user?.displayName || "Full Name"}
+          </Text>
         </View>
         <View style={SettingsStyles.settingOption}>
           <Text style={SettingsStyles.settingLabel}>Email</Text>
-          <Text style={SettingsStyles.settingValue}>{user?.email || "useremail@gmail.com"}</Text>
+          <Text style={SettingsStyles.settingValue}>
+            {user?.email || "useremail@gmail.com"}
+          </Text>
         </View>
         <TouchableOpacity
           style={SettingsStyles.settingOption}
@@ -131,10 +143,17 @@ const handleLogout = async () => {
           <Text style={SettingsStyles.arrow}>&gt;</Text>
         </TouchableOpacity>
 
-        <Image source={require("../assets/plant.png")} style={SettingsStyles.plantImage} />
+        <Image
+          source={require("../assets/cute.gif")} // Replace with GIF
+          style={SettingsStyles.cute}
+          resizeMode={FastImage.resizeMode.contain}
+        />
 
-        <TouchableOpacity style={SettingsStyles.logoutButton} onPress={handleLogout}>
-          <Text style={SettingsStyles.logoutButtonText}>Log out</Text>
+        <TouchableOpacity
+          style={SettingsStyles.logoutButton}
+          onPress={handleLogout}
+        >
+          <Text style={SettingsStyles.logoutButtonText}>Log Out</Text>
         </TouchableOpacity>
       </ScrollView>
 
@@ -153,11 +172,13 @@ const handleLogout = async () => {
               placeholder="Old Password"
               secureTextEntry
               value={oldPassword}
+              placeholderTextColor="grey"
               onChangeText={setOldPassword}
             />
             <TextInput
               style={SettingsStyles.input}
               placeholder="New Password"
+              placeholderTextColor="grey"
               secureTextEntry
               value={newPassword}
               onChangeText={setNewPassword}
