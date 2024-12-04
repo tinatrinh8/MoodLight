@@ -472,7 +472,7 @@ return (
             borderRadius: 16,
           },
         }}
-        backgroundColor="#E6C3CB"
+        backgroundColor="#E6C3CB" // ADD COLOUR HERE SHANNON
         paddingLeft="15"
         style={{
           marginVertical: 8,
