@@ -6,204 +6,330 @@ import {
   Dimensions,
   ScrollView,
 } from "react-native";
-import { LineChart, PieChart } from "react-native-chart-kit";
+import Svg, { Polyline, Circle, Text as SvgText, Line, Rect, Defs, LinearGradient, Stop } from "react-native-svg";
+
+import { PieChart } from "react-native-chart-kit";
 import Header from "../components/Header";
 import { useEntryDates } from "../components/EntryDatesContext";
 import {
   getTopEmotions,
   getEmotionCounts,
-  getStartOfWeek,
-  getEndOfWeek,
-  generateWeekDays,
-  groupDataByDay,
   getStartOfYear,
   getEndOfYear,
   generateMonthLabels,
   groupDataByMonth,
+  groupDataByMonthWithDetails,
+  groupDataByYear,
 } from "../utils/emotionUtils";
 import { emotionColours } from "../utils/emotionColours";
 import styles from "../styles/InsightsStyles";
 import analysisStyles from "../styles/AnalysisStyles";
-import { addDays } from "date-fns";
+
+const LineChart = ({ labels, datasets, viewType }) => {
+  const chartWidth = Dimensions.get("window").width - 32;
+  const chartHeight = 250;
+  const padding = 20;
+
+  // Find max value in datasets for scaling
+  const maxValue = Math.max(...datasets.flatMap((dataset) => dataset.data));
+
+  // Ensure the max value for Y-axis doesn't show decimals
+  const yAxisMax = Math.ceil(maxValue);
+
+  // Calculate points for the chart
+  const points = datasets.map((dataset) => ({
+    points: dataset.data.map((value, index) => ({
+      x: labels.length === 1
+        ? chartWidth / 2 // Center the point if only one label
+        : padding + (index * (chartWidth - 2 * padding)) / (labels.length - 1),
+      y:
+        chartHeight - padding - (value / yAxisMax) * (chartHeight - 2 * padding),
+    })),
+    color: dataset.color(),
+  }));
+
+// Set Y-axis ticks (1, 2, 3, ...)
+  const yAxisTicks = Array.from({ length: yAxisMax }, (_, i) => i + 1);
+return (
+  <Svg width={chartWidth} height={chartHeight}>
+    {/* Background Gradient */}
+    <Defs>
+      <LinearGradient id="backgroundGradient" x1="0" y1="0" x2="0" y2="1">
+        <Stop offset="0" stopColor="#9E4F61" stopOpacity="1" />
+        <Stop offset="1" stopColor="#260101" stopOpacity="1" />
+      </LinearGradient>
+    </Defs>
+    <Rect
+      x="0"
+      y="0"
+      rx="16" // Rounded corners
+      ry="16"
+      width={chartWidth}
+      height={chartHeight}
+      fill="url(#backgroundGradient)"
+    />
+
+    {/* Solid Y-axis Line */}
+    <Line
+      x1={padding}
+      y1={padding}
+      x2={padding}
+      y2={chartHeight - padding}
+      stroke="white"
+      strokeWidth="2" // Thicker for emphasis
+    />
+
+    {/* Solid X-axis Line */}
+    <Line
+      x1={padding}
+      y1={chartHeight - padding}
+      x2={chartWidth - padding}
+      y2={chartHeight - padding}
+      stroke="white"
+      strokeWidth="2" // Thicker for emphasis
+    />
+
+    {/* Horizontal dotted grid lines for Y-Axis */}
+    {yAxisTicks.map((value, index) => (
+      <Line
+        key={`horizontal-${index}`}
+        x1={padding}
+        y1={
+          chartHeight -
+          padding -
+          (value / yAxisMax) * (chartHeight - 2 * padding)
+        }
+        x2={chartWidth - padding}
+        y2={
+          chartHeight -
+          padding -
+          (value / yAxisMax) * (chartHeight - 2 * padding)
+        }
+        stroke="white"
+        strokeWidth="0.5"
+        strokeDasharray="4 2" // Dotted line
+      />
+    ))}
+
+    {/* Vertical dotted grid lines for X-Axis */}
+    {labels.map((_, index) => (
+      <Line
+        key={`vertical-${index}`}
+        x1={
+          labels.length === 1
+            ? chartWidth / 2
+            : padding +
+              (index * (chartWidth - 2 * padding)) / (labels.length - 1)
+        }
+        y1={chartHeight - padding}
+        x2={
+          labels.length === 1
+            ? chartWidth / 2
+            : padding +
+              (index * (chartWidth - 2 * padding)) / (labels.length - 1)
+        }
+        y2={padding}
+        stroke="white"
+        strokeWidth="0.5"
+        strokeDasharray="4 2" // Dotted line
+      />
+    ))}
+
+    {/* Y-Axis labels */}
+    {yAxisTicks.map((value, index) => (
+      <SvgText
+        key={`y-label-${index}`}
+        x={padding / 2}
+        y={
+          chartHeight -
+          padding -
+          (value / yAxisMax) * (chartHeight - 2 * padding)
+        }
+        fontSize={10}
+        fill="white"
+        textAnchor="middle"
+      >
+        {value}
+      </SvgText>
+    ))}
+
+{/* X-axis labels */}
+{labels.map((label, index) => (
+  <SvgText
+    key={`x-label-${label}`}
+    x={
+      padding +
+      (index * (chartWidth - 2 * padding)) / (labels.length - 1) +
+      (viewType === "Monthly" ? (index === 0 ? 10 : index === labels.length - 1 ? -10 : 0) : 0) // Add padding only for Monthly View
+    }
+    y={chartHeight - padding / 6} // Adjust position slightly above
+    fontSize={12} // Ensure labels are large enough
+    fontWeight="bold" // Make labels bold
+    fill="white"
+    textAnchor="middle"
+  >
+    {label}
+  </SvgText>
+))}
+
+
+    {/* Draw lines */}
+    {points.map((dataset, datasetIndex) => (
+      <Polyline
+        key={`line-${datasetIndex}`}
+        points={dataset.points.map((p) => `${p.x},${p.y}`).join(" ")}
+        fill="none"
+        stroke={dataset.color}
+        strokeWidth={2}
+      />
+    ))}
+
+    {/* Draw circles (data points) */}
+    {points.map((dataset) =>
+      dataset.points.map((point, index) => (
+        <Circle
+          key={`circle-${index}`}
+          cx={point.x}
+          cy={point.y}
+          r={4}
+          fill={dataset.color}
+        />
+      ))
+    )}
+  </Svg>
+);
+
+};
 
 const InsightsScreen = () => {
   const { journalEntries = [] } = useEntryDates() || {};
-  const [timePeriod, setTimePeriod] = useState("Weekly");
-  const [chartData, setChartData] = useState(null);
-  const [currentWeekStart, setCurrentWeekStart] = useState(
-    getStartOfWeek(new Date())
-  );
-  const [currentWeekEnd, setCurrentWeekEnd] = useState(
-    getEndOfWeek(new Date())
-  );
   const [currentYear, setCurrentYear] = useState(new Date().getFullYear());
-  const [emotionCounts, setEmotionCounts] = useState([]);
+  const [chartData, setChartData] = useState(null);
   const [topEmotions, setTopEmotions] = useState([]);
+  const [emotionCounts, setEmotionCounts] = useState([]);
+  const [yearlyEmotions, setYearlyEmotions] = useState([]); // Top 10 emotions for Yearly
+  const [monthlyEmotions, setMonthlyEmotions] = useState([]); // Dynamic emotions for Monthly
 
-  const today = new Date();
-
-  const handleNextWeek = () => {
-    setCurrentWeekStart((prev) => addDays(prev, 7));
-    setCurrentWeekEnd((prev) => addDays(prev, 7));
-  };
-
-  const handlePreviousWeek = () => {
-    setCurrentWeekStart((prev) => addDays(prev, -7));
-    setCurrentWeekEnd((prev) => addDays(prev, -7));
-  };
+  const [viewType, setViewType] = useState("Yearly"); // Default to "Yearly"
+  const [monthlyDetails, setMonthlyDetails] = useState([]); // Array of 12 arrays
+  const [selectedMonthIndex, setSelectedMonthIndex] = useState(new Date().getMonth()); // Default to current month
+    const [pieChartData, setPieChartData] = useState([]); // State for PieChart data
+    const handleViewTypeChange = (type) => {
+      if (type === "Monthly") {
+        setSelectedMonthIndex(new Date().getMonth()); // Set to current month when switching to Monthly view
+      }
+      setViewType(type);
+    };
 
   const handleNextYear = () => setCurrentYear((prev) => prev + 1);
   const handlePreviousYear = () => setCurrentYear((prev) => prev - 1);
+useEffect(() => {
+  let pieData = [];
 
-  const isCurrentWeek = currentWeekStart <= today && currentWeekEnd >= today;
+  // Filter entries by the current year
+  const filteredEntries = journalEntries.filter((entry) => {
+    const [year] = entry.journalDate.split("-"); // Extract year from journalDate
+    return parseInt(year, 10) === currentYear; // Filter entries for the current year
+  });
 
-  const formatChartDataForWeek = (entries, emotions) => {
-    const weeklyData = groupDataByDay(
-      entries,
-      currentWeekStart,
-      currentWeekEnd,
-      emotions
-    );
-    const labels = generateWeekDays(currentWeekStart);
-    const datasets = emotions.map((emotion) => ({
-      data: weeklyData.map((day) => day[emotion] || 0),
-      color: () => emotionColours[emotion] || "#808080",
-      strokeWidth: 2,
-    }));
-
-    // **Force maxCount for weekly view to be 1**
-    const maxCount =
-      timePeriod === "Weekly"
-        ? 1
-        : Math.max(...datasets.flatMap((dataset) => dataset.data), 1);
-
-    console.log(
-      "Weekly Data Points:",
-      datasets.flatMap((dataset) => dataset.data)
-    ); // Debugging
-    console.log("Hardcoded Max Count for Weekly:", maxCount); // Debugging
-
-    return { labels, datasets, maxCount };
-  };
-
-  const formatChartDataForYear = (entries, emotions) => {
-    const startOfYear = getStartOfYear(new Date(currentYear, 0, 1));
-    const endOfYear = getEndOfYear(new Date(currentYear, 11, 31));
-    const monthlyData = groupDataByMonth(
-      entries,
-      startOfYear,
-      endOfYear,
-      emotions
-    );
-    const labels = generateMonthLabels();
-    const datasets = emotions.map((emotion) => ({
-      data: monthlyData.map((month) => month[emotion] || 0),
-      color: () => emotionColours[emotion] || "#808080",
-      strokeWidth: 2,
-    }));
-
-    // Dynamically adjust Y-axis for monthly data
-    const maxCount = Math.max(
-      1,
-      ...datasets.flatMap((dataset) => dataset.data)
-    );
-
-    return { labels, datasets, maxCount };
-  };
-
-  useEffect(() => {
-    let filteredEntries, newChartData, initialCounts, topEmotionsList;
-
-    if (timePeriod === "Weekly") {
-      filteredEntries = journalEntries.filter((entry) => {
-        const entryDate = new Date(entry.journalDate);
-        return entryDate >= currentWeekStart && entryDate <= currentWeekEnd;
-      });
-
-      topEmotionsList = getTopEmotions(filteredEntries, 5);
-      initialCounts = getEmotionCounts(filteredEntries);
-      newChartData =
-        topEmotionsList.length > 0
-          ? formatChartDataForWeek(filteredEntries, topEmotionsList)
-          : null;
-    } else if (timePeriod === "Monthly") {
-      const startOfYear = getStartOfYear(new Date(currentYear, 0, 1));
-      const endOfYear = getEndOfYear(new Date(currentYear, 11, 31));
-      filteredEntries = journalEntries.filter((entry) => {
-        const entryDate = new Date(entry.journalDate);
-        return entryDate >= startOfYear && entryDate <= endOfYear;
-      });
-      initialCounts = getEmotionCounts(filteredEntries);
-      topEmotionsList = getTopEmotions(filteredEntries, 5);
-      newChartData =
-        topEmotionsList.length > 0
-          ? formatChartDataForYear(filteredEntries, topEmotionsList)
-          : null;
-    }
-
-    setEmotionCounts(
-      Object.keys(initialCounts).map((emotionName) => {
-        return {
-          name: emotionName,
-          count: initialCounts[emotionName],
-          color: emotionColours[emotionName],
-        };
-      }) || []
-    );
-    setTopEmotions(topEmotionsList || []);
-    setChartData(newChartData);
-  }, [
+  // Group entries by month for the monthly view
+  const groupedByMonth = groupDataByMonthWithDetails(
     journalEntries,
-    timePeriod,
-    currentWeekStart,
-    currentWeekEnd,
-    currentYear,
-  ]);
+    getStartOfYear(new Date(currentYear, 0, 1)),
+    getEndOfYear(new Date(currentYear, 11, 31)),
+    getTopEmotions(journalEntries, 10)
+  );
+  setMonthlyDetails(groupedByMonth);
 
-  return (
-    <ScrollView contentContainerStyle={{ flexGrow: 1 }}>
-      <View style={styles.container}>
-        <Header />
-        <Text style={styles.insightsTitle}>Insights</Text>
 
-        {/* Time Period Filter */}
-        <View style={styles.filterContainer}>
-          {["Weekly", "Monthly"].map((period) => (
-            <TouchableOpacity
-              key={period}
-              style={[
-                styles.filterButton,
-                timePeriod === period && styles.activeFilterButton,
-              ]}
-              onPress={() => setTimePeriod(period)}
-            >
-              <Text style={styles.filterButtonText}>{period}</Text>
-            </TouchableOpacity>
-          ))}
-        </View>
+  // Get top emotions for the current year
+  const topEmotionsList = getTopEmotions(filteredEntries, 10); // Top 5 emotions
+  setTopEmotions(topEmotionsList);
+    console.log("Top Emotions List:", topEmotionsList);
+  // Group entries for the yearly view
+  const groupedData = groupDataByYear(filteredEntries, currentYear, topEmotionsList);
 
-        {/* Weekly Navigation */}
-        {timePeriod === "Weekly" && (
-          <View style={styles.filterContainer}>
-            <TouchableOpacity
-              style={styles.filterButton}
-              onPress={handlePreviousWeek}
-            >
-              <Text style={styles.filterButtonText}>&larr; Previous Week</Text>
-            </TouchableOpacity>
-            {!isCurrentWeek && (
-              <TouchableOpacity
-                style={styles.filterButton}
-                onPress={handleNextWeek}
-              >
-                <Text style={styles.filterButtonText}>Next Week &rarr;</Text>
-              </TouchableOpacity>
-            )}
-          </View>
-        )}
+  // Format the chart data for the yearly line chart
+  const chartData = {
+    labels: generateMonthLabels(),
+    datasets: topEmotionsList.map((emotion) => ({
+      data: groupedData.map((month) => month[emotion] || 0),
+      color: () => emotionColours[emotion] || "#000", // Assign color to emotions
+    })),
+  };
+  setChartData(chartData);
 
-        {/* Monthly Navigation */}
-        {timePeriod === "Monthly" && (
+  // Prepare PieChart data based on viewType
+  if (viewType === "Yearly" && chartData?.datasets) {
+    // Aggregate yearly data for the PieChart
+    pieData = chartData.datasets.map((dataset, index) => ({
+      name: topEmotionsList[index],
+      count: dataset.data.reduce((sum, value) => sum + value, 0), // Sum up counts for the year
+      color: emotionColours[topEmotionsList[index]] || "#000", // Default to black if color is missing
+    }));
+  } else if (viewType === "Monthly" && groupedByMonth[selectedMonthIndex]?.length > 0) {
+    // Aggregate monthly data for the PieChart
+    const monthlyCounts = {};
+    groupedByMonth[selectedMonthIndex].forEach((entry) => {
+      entry.emotions.forEach((emotion) => {
+        monthlyCounts[emotion] = (monthlyCounts[emotion] || 0) + 1;
+      });
+    });
+
+    pieData = Object.keys(monthlyCounts).map((emotion) => ({
+      name: emotion,
+      count: monthlyCounts[emotion],
+      color: emotionColours[emotion] || "#000", // Default to black if color is missing
+    }));
+  }
+
+  setPieChartData(pieData); // Update PieChart data
+
+  let legendEmotions = [];
+
+if (viewType === "Yearly") {
+    // Compute and set yearly emotions
+    const topYearlyEmotions = getTopEmotions(filteredEntries, 10); // Top 10 emotions
+    setYearlyEmotions(topYearlyEmotions);
+    setTopEmotions(topYearlyEmotions); // Update the legend for Yearly
+  } else if (viewType === "Monthly" && monthlyDetails[selectedMonthIndex]?.length > 0) {
+    // Compute and set monthly emotions
+    const monthlyEmotionSet = new Set();
+    monthlyDetails[selectedMonthIndex].forEach((entry) => {
+      entry.emotions.forEach((emotion) => monthlyEmotionSet.add(emotion));
+    });
+    const dynamicMonthlyEmotions = Array.from(monthlyEmotionSet);
+    setMonthlyEmotions(dynamicMonthlyEmotions);
+    setTopEmotions(dynamicMonthlyEmotions); // Update the legend for Monthly
+  }
+
+}, [journalEntries, currentYear, viewType, selectedMonthIndex]);
+
+
+return (
+  <ScrollView contentContainerStyle={{ flexGrow: 1 }}>
+    <View style={styles.container}>
+      <Header />
+      <Text style={styles.insightsTitle}>Insights</Text>
+
+      {/* Time Period Filter */}
+      <View style={styles.filterContainer}>
+        <TouchableOpacity
+          style={viewType === "Yearly" ? styles.activeFilter : styles.filterButton}
+          onPress={() => setViewType("Yearly")}
+        >
+          <Text style={styles.filterButtonText}>Yearly</Text>
+        </TouchableOpacity>
+        <TouchableOpacity
+          style={viewType === "Monthly" ? styles.activeFilter : styles.filterButton}
+          onPress={() => setViewType("Monthly")}
+        >
+          <Text style={styles.filterButtonText}>Monthly</Text>
+        </TouchableOpacity>
+      </View>
+
+      {/* Yearly Navigation */}
+        {viewType === "Yearly" && (
           <View style={styles.filterContainer}>
             <TouchableOpacity
               style={styles.filterButton}
@@ -211,7 +337,7 @@ const InsightsScreen = () => {
             >
               <Text style={styles.filterButtonText}>Previous Year</Text>
             </TouchableOpacity>
-            {currentYear < today.getFullYear() && (
+            {currentYear < new Date().getFullYear() && ( // Hide Next Year button if it's the current year
               <TouchableOpacity
                 style={styles.filterButton}
                 onPress={handleNextYear}
@@ -222,100 +348,145 @@ const InsightsScreen = () => {
           </View>
         )}
 
-        {/* Filter Label */}
-        <View style={styles.filterContainer}>
-          {timePeriod === "Monthly" && (
-            <Text style={styles.periodText}>Showing year of {currentYear}</Text>
-          )}
-          {timePeriod === "Weekly" && (
-            <Text style={styles.periodText}>
-              Showing week of {currentWeekStart.toDateString()} to{" "}
-              {currentWeekEnd.toDateString()}
-            </Text>
-          )}
-        </View>
-
-        {/* Line Chart */}
-        <View style={styles.chartContainer}>
-          {chartData ? (
-            <LineChart
-              data={{
-                labels: chartData.labels || [],
-                datasets: chartData.datasets || [],
-              }}
-              width={Dimensions.get("window").width - 32}
-              height={220}
-              chartConfig={{
-                backgroundColor: "#260101",
-                backgroundGradientFrom: "#9E4F61",
-                backgroundGradientTo: "#260101",
-                decimalPlaces: 0,
-                color: (opacity = 1) => `rgba(255, 255, 255, ${opacity})`,
-                labelColor: (opacity = 1) => `rgba(255, 255, 255, ${opacity})`,
-                style: { borderRadius: 16 },
-                propsForDots: {
-                  r: "6",
-                  strokeWidth: "2",
-                  stroke: "#9E4F61",
-                  fill: "#FFFFFF",
-                },
-              }}
-              bezier
-              fromZero
-              segments={timePeriod === "Weekly" ? 1 : chartData.maxCount} // Weekly fixed to 1, others dynamic
-              style={styles.chart}
-            />
-          ) : (
-            <Text style={styles.noDataText}>
-              No data available for this period.
-            </Text>
-          )}
-        </View>
-
-        {/* Legend */}
-        <View style={analysisStyles.legendContainer}>
-          {topEmotions.map((emotion) => (
-            <View key={emotion} style={analysisStyles.legendItem}>
-              <View
-                style={[
-                  analysisStyles.colorBox,
-                  { backgroundColor: emotionColours[emotion] || "#808080" },
-                ]}
-              />
-              <Text style={analysisStyles.legendText}>{emotion}</Text>
+    {/* Monthly Navigation */}
+    {viewType === "Monthly" && (
+      <View style={styles.filterContainer}>
+        <TouchableOpacity
+          style={styles.filterButton}
+          onPress={() =>
+            setSelectedMonthIndex((prev) => (prev > 0 ? prev - 1 : 11))
+          }
+        >
+          <Text style={styles.filterButtonText}>Previous Month</Text>
+        </TouchableOpacity>
+        {!(currentYear === new Date().getFullYear() && selectedMonthIndex === 11) && ( // Hide Next Month button if it's December of the current year
+          <TouchableOpacity
+            style={styles.filterButton}
+            onPress={() =>
+              setSelectedMonthIndex((prev) => (prev < 11 ? prev + 1 : 0))
+            }
+          >
+            <Text style={styles.filterButtonText}>Next Month</Text>
+          </TouchableOpacity>
+        )}
+      </View>
+    )}
+      {/* Display Selected Time Period */}
+      <View style={styles.weekDisplay}>
+        <Text style={styles.weekText}>
+          {viewType === "Yearly"
+            ? `Showing Top 10 Emotions for Year: ${currentYear}`
+            : `Showing Month: ${
+                generateMonthLabels()[selectedMonthIndex]
+              } ${currentYear}`}
+        </Text>
+      </View>
+      {/* Chart Container */}
+      <View style={styles.chartContainer}>
+        {viewType === "Yearly" ? (
+          chartData && chartData.datasets.some((dataset) => dataset.data.some((value) => value > 0)) ? (
+            <>
+              <LineChart
+              viewType={viewType} // Pass viewType as a prop
+              labels={generateMonthLabels()}
+              datasets={chartData.datasets} />
+              {/*  Legend */}
+            <View style={styles.legendContainer}>
+              {topEmotions.map((emotion, index) => (
+                <View key={index} style={styles.legendItem}>
+                  <View
+                    style={[
+                      styles.legendColorBox,
+                      { backgroundColor: emotionColours[emotion] || "#000" },
+                    ]}
+                  />
+                  <Text style={styles.legendText}>{emotion}</Text>
+                </View>
+              ))}
             </View>
-          ))}
-        </View>
-
-        {/* Pie Chart */}
-        <View style={styles.chartContainer}>
-          {emotionCounts.length > 0 ? (
-            <PieChart
-              data={emotionCounts}
-              accessor={"count"}
-              width={Dimensions.get("window").width - 20} // from react-native
-              height={250}
-              absolute={false}
-              chartConfig={{
-                color: (opacity = 1) => `white`,
-                labelColor: (opacity = 1) => `white`,
-                style: {
-                  borderRadius: 16,
-                },
-              }}
-              backgroundColor="#E6C3CB"
-              paddingLeft="15"
-              style={{
-                marginVertical: 8,
-                borderRadius: 16,
-              }}
-            />
+            </>
           ) : (
-            <Text style={styles.noDataText}>
-              No data available for this period.
-            </Text>
-          )}
-        </View>
+            <Text style={styles.noDataText}>No data available for this period.</Text>
+          )
+        ) : (
+          monthlyDetails[selectedMonthIndex] &&
+          monthlyDetails[selectedMonthIndex].length > 0 ? (
+            <>
+              <LineChart
+                viewType={viewType} // Pass viewType as a prop
+                labels={monthlyDetails[selectedMonthIndex]
+                  .sort((a, b) => new Date(a.date) - new Date(b.date)) // Sort dates
+                  .map((entry) => {
+                    const [year, month, day] = entry.date.split("-");
+                    return `${generateMonthLabels()[parseInt(month, 10) - 1]} ${day}`; // Format as "Month DD"
+                  })}
+                datasets={topEmotions.map((emotion) => ({
+                  data: monthlyDetails[selectedMonthIndex]
+                    .map((entry) => (entry.emotions.includes(emotion) ? 1 : 0)), // 1 if the emotion exists, otherwise 0
+                  color: () => emotionColours[emotion] || "#000", // Assign color based on emotion
+                }))}
+              />
+              {/* Monthly Legend */}
+              <View style={styles.legendContainer}>
+                {topEmotions.map((emotion, index) => (
+                  <View key={index} style={styles.legendItem}>
+                    <View
+                      style={[
+                        styles.legendColorBox,
+                        { backgroundColor: emotionColours[emotion] || "#000" },
+                      ]}
+                    />
+                    <Text style={styles.legendText}>{emotion}</Text>
+                  </View>
+                ))}
+              </View>
+            </>
+          ) : (
+            <Text style={styles.noDataText}>No entries for this month.</Text>
+          )
+        )}
+      </View>
+
+{/* Pie Chart */}
+<View style={styles.pieChartContainer}>
+  {pieChartData.length > 0 ? (
+    <>
+      {/* Dynamic Title */}
+      <Text style={styles.weekText}>
+        {viewType === "Yearly"
+          ? `Emotion Distribution for ${currentYear}`
+          : `Emotion Distribution for ${generateMonthLabels()[selectedMonthIndex]} ${currentYear}`}
+      </Text>
+
+      {/* PieChart Component */}
+      <PieChart
+        data={pieChartData}
+        accessor={"count"}
+        width={Dimensions.get("window").width - 20}
+        height={250}
+        absolute={false}
+        chartConfig={{
+          color: (opacity = 1) => `white`,
+          labelColor: (opacity = 1) => `white`,
+          style: {
+            borderRadius: 16,
+          },
+        }}
+        backgroundColor="#E6C3CB"
+        paddingLeft="15"
+        style={{
+          marginVertical: 8,
+          borderRadius: 16,
+        }}
+      />
+
+    </>
+  ) : (
+    <Text style={styles.noDataText}>No data available for this period.</Text>
+  )}
+</View>
+
+
       </View>
     </ScrollView>
   );

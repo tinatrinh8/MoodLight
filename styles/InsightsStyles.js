@@ -12,36 +12,53 @@ const InsightsStyles = StyleSheet.create({
     fontWeight: "700",
     textAlign: "center",
     marginVertical: 10,
+    fontFamily: "LexendDeca",
+    marginBottom: 15,
+  },
+  weekDisplay: {
+    marginVertical: 10,
+    alignItems: "center", // Centers the text horizontally
+    justifyContent: "center", // Centers the content vertically
+  },
+  weekText: {
+    fontSize: 16,
+    fontWeight: "bold",
+    color: "#260101",
+    textAlign: "center", // Centers the text
   },
   chartContainer: {
     marginBottom: 20,
   },
-  pieChartContainer: {
-    width: Dimensions.get("window").width * 0.7, // Adjusted pie chart width
-    alignSelf: "center", // Center the pie chart horizontally
-    paddingHorizontal: 16,
-    marginVertical: 20,
-  },
+pieChartContainer: {
+  marginBottom: 20,
+  paddingBottom: 40, // Space below the chart
+  backgroundColor: "transparent", // Ensure it doesn't override the gradient
+  borderRadius: 16, // Round corners
+  overflow: "hidden", // Clip content to rounded edges
+},
   legendContainer: {
-    flexDirection: "column",
-    alignItems: "flex-start", // Align items in the container to the start
-    position: "absolute", // Position the legend absolutely
-    right: 16, // Move the legend to the right with padding
-    top: 300, // Adjust the vertical positioning
+    flexDirection: "row",
+    justifyContent: "center",
+    alignItems: "center",
+    flexWrap: "wrap",
+    marginTop: 10,
+    paddingHorizontal: 10,
   },
   legendItem: {
     flexDirection: "row",
     alignItems: "center",
-    marginBottom: 8,
+    marginHorizontal: 8,
+    marginVertical: 5,
   },
   legendColorBox: {
-    width: 20,
-    height: 20,
-    marginRight: 8,
+    width: 16,
+    height: 16,
+    borderRadius: 4,
+    marginRight: 5,
   },
   legendText: {
-    fontSize: 14,
-    color: "#260101",
+    fontSize: 12,
+    color: "#000",
   },
   filterContainer: {
     flexDirection: "row",
@@ -51,6 +68,13 @@ const InsightsStyles = StyleSheet.create({
   filterButton: {
     flex: 1,
     backgroundColor: "#DC869A",
+    borderRadius: 10,
+    padding: 10,
+    marginHorizontal: 5,
+  },
+  activeFilter: {
+    flex: 1,
+    backgroundColor: "#954356",
     borderRadius: 10,
     padding: 10,
     marginHorizontal: 5,
@@ -77,6 +101,7 @@ const InsightsStyles = StyleSheet.create({
     fontSize: 16,
     textAlign: "center",
   },
+
 });
 
 export default InsightsStyles;

@@ -437,17 +437,6 @@ const HomePage = () => {
 
   return (
     <View style={styles.container}>
-      {/* Animated GIF Background */}
-      <Animated.Image
-        source={require("../assets/flowers.gif")} // Use your GIF file
-        style={[
-          styles.flowerGif,
-          {
-            transform: [{ translateY }], // Move GIF vertically
-            opacity, // Fade effect
-          },
-        ]}
-      />
       <Header />
       {/* View Journal Entry Modal */}
       {viewJournalModalVisible && viewJournalEntry && (
@@ -714,7 +703,7 @@ const CreateJournalEntry = ({
                   onChangeText={setNewEntryTitle}
                 />
                 <TextInput
-                  style={styles.textInputBox}
+                  style={styles.textInputBoxWriteFreely}
                   placeholder="Write your thoughts here..."
                   multiline={true}
                   value={newEntryText}

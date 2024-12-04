@@ -1,4 +1,4 @@
-import React from "react";
+import React, { useRef, useEffect } from "react";
 import { View, Text, StyleSheet, ScrollView } from "react-native";
 import Header from "../components/Header";
 import CalendarRow from "../components/CalendarRow";
@@ -7,6 +7,7 @@ import { useNavigation } from "@react-navigation/native";
 import { emotionColours } from "../utils/emotionColours";
 
 const CalendarScreen = () => {
+  const scrollViewRef = useRef(null); // Reference to the ScrollView
   const { entryDates, journalEntries } = useEntryDates(); // Access global state
   const navigation = useNavigation(); // For navigating to the homepage
 
@@ -26,6 +27,15 @@ const CalendarScreen = () => {
   ];
 
   const daysOfWeek = ["SUN", "MON", "TUE", "WED", "THU", "FRI", "SAT"];
+
+  // Scroll to current month when the page is opened
+  useEffect(() => {
+    setTimeout(() => {
+      if (scrollViewRef.current) {
+        scrollViewRef.current.scrollToEnd({ animated: true });
+      }
+    }, 100); // Adding a small timeout ensures the ScrollView is fully rendered
+  }, []);
 
   // Define getEmotionColor function
   const getEmotionColor = (emotion) => {
@@ -110,7 +120,7 @@ const CalendarScreen = () => {
     <View style={styles.container}>
       <Header />
       <Text style={styles.title}>Journal Entries</Text>
-      <ScrollView>
+      <ScrollView ref={scrollViewRef}>
         {months.map((month) => {
           const grid = generateGrid(month); // Pass the whole month object
           const rows = chunkArray(grid, 7);
@@ -149,6 +159,7 @@ const styles = StyleSheet.create({
     flex: 1,
     backgroundColor: "#000",
     padding: 10,
+    paddingBottom: 50, // Add padding to the bottom
   },
   title: {
     fontSize: 24,
