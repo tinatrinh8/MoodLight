@@ -227,53 +227,52 @@ function SummaryFeedback({ entry, topEmotions }) {
   }, [entry, topEmotions]);
 
   return (
-<View>
-  {/* Summary Section */}
-  <Text style={styles.sectionTitleCentered}>Summary</Text>
-  <View style={styles.summaryContainer}>
-    {loadingSummary ? (
-      <Text style={styles.summaryContent}>{loadingText}</Text>
-    ) : (
-      <View style={{ height: 200 }}>
-        <ScrollView
-            contentContainerStyle={{
-              flexGrow: 1,
-              paddingBottom: 20, // Add padding to the bottom to prevent content cutoff
-            }}
-          style={styles.summaryScrollContainer}
-          scrollEventThrottle={16}
-          showsVerticalScrollIndicator={true}
-          nestedScrollEnabled={true} // Enable nested scrolling
-        >
-          <Text style={styles.summaryContent}>{summary}</Text>
-        </ScrollView>
+    <View>
+      {/* Summary Section */}
+      <Text style={styles.sectionTitleCentered}>Summary</Text>
+      <View style={styles.summaryContainer}>
+        {loadingSummary ? (
+          <Text style={styles.summaryContent}>{loadingText}</Text>
+        ) : (
+          <View style={{ height: 200 }}>
+            <ScrollView
+              contentContainerStyle={{
+                flexGrow: 1,
+                paddingBottom: 20, // Add padding to the bottom to prevent content cutoff
+              }}
+              style={styles.summaryScrollContainer}
+              scrollEventThrottle={16}
+              showsVerticalScrollIndicator={true}
+              nestedScrollEnabled={true} // Enable nested scrolling
+            >
+              <Text style={styles.summaryContent}>{summary}</Text>
+            </ScrollView>
+          </View>
+        )}
       </View>
-    )}
-  </View>
 
-  {/* Feedback Section */}
-  <Text style={styles.sectionTitleCentered}>Feedback</Text>
-  <View style={styles.feedbackContainer}>
-    {loadingFeedback ? (
-      <Text style={styles.feedbackContent}>{loadingFeedbackText}</Text>
-    ) : (
-      <View style={{ height: 200 }}>
-        <ScrollView
-            contentContainerStyle={{
-              flexGrow: 1,
-              paddingBottom: 20, // Add padding to the bottom to prevent content cutoff
-            }}
-          style={styles.feedbackScrollContainer}
-          scrollEventThrottle={16}
-          showsVerticalScrollIndicator={true}
-          nestedScrollEnabled={true} // Enable nested scrolling
-        >
-          <Text style={styles.feedbackContent}>{feedback}</Text>
-        </ScrollView>
+      {/* Feedback Section */}
+      <Text style={styles.sectionTitleCentered}>Feedback</Text>
+      <View style={styles.feedbackContainer}>
+        {loadingFeedback ? (
+          <Text style={styles.feedbackContent}>{loadingFeedbackText}</Text>
+        ) : (
+          <View style={{ height: 200 }}>
+            <ScrollView
+              contentContainerStyle={{
+                flexGrow: 1,
+                paddingBottom: 20, // Add padding to the bottom to prevent content cutoff
+              }}
+              style={styles.feedbackScrollContainer}
+              scrollEventThrottle={16}
+              showsVerticalScrollIndicator={true}
+              nestedScrollEnabled={true} // Enable nested scrolling
+            >
+              <Text style={styles.feedbackContent}>{feedback}</Text>
+            </ScrollView>
+          </View>
+        )}
       </View>
-    )}
-  </View>
-
 
       <Tags emotions={topEmotions} entryText={entry.entryText || ""} />
 
@@ -410,7 +409,11 @@ export default function Analysis() {
   }, [entry, entryId, entryText]);
 
   return (
-    <ScrollView style={styles.scrollContainer}>
+    <ScrollView
+      style={styles.scrollContainer}
+      contentContainerStyle={{ flexGrow: 1 }}
+      showsVerticalScrollIndicator={false}
+    >
       <View style={styles.container}>
         <Header />
         <TouchableOpacity onPress={closeModal} style={styles.exitButton}>
@@ -440,7 +443,6 @@ export default function Analysis() {
 }
 
 function Tags({ emotions, entryText }) {
-
   if (!emotions || !Array.isArray(emotions) || emotions.length === 0) {
     return (
       <View style={styles.tagsContainer}>
