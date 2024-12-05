@@ -25,11 +25,10 @@ const AnalysisStyles = StyleSheet.create({
   },
   container: {
     flex: 1,
-    backgroundColor: "#FFFFF", // Pink background for the entire screen
+    backgroundColor: "#F5F0E8", // Pink background for the entire screen
   },
   scrollContainer: {
     flex: 1,
-    backgroundColor: "#DC869A", // Same background for scrollable content
   },
   scrollContent: {
     paddingBottom: 20, // Add bottom padding for scrolling experience
@@ -37,13 +36,13 @@ const AnalysisStyles = StyleSheet.create({
 
   scrollWrapper: {
     maxHeight: 200, // Restrict outer container height
-    overflow: 'hidden', // Ensure scrollable content remains within bounds
+    overflow: "hidden", // Ensure scrollable content remains within bounds
   },
   scrollIndicator: {
-    position: 'absolute',
+    position: "absolute",
     right: 5,
     width: 3,
-    backgroundColor: '#000',
+    backgroundColor: "#000",
     borderRadius: 3,
   },
   // Header
@@ -58,6 +57,7 @@ const AnalysisStyles = StyleSheet.create({
     flexDirection: "row",
     justifyContent: "space-between",
     alignItems: "center",
+    textAlign: "center", // Center the title
   },
   moodLightText: {
     fontSize: 22,
@@ -85,7 +85,6 @@ const AnalysisStyles = StyleSheet.create({
     flex: 1, // Take up the full screen
     justifyContent: "center", // Center the content vertically
     alignItems: "center", // Center the content horizontally
-    backgroundColor: "#DC869A", // Match the app's background theme
     padding: 20, // Add some padding for spacing
   },
   emotionsLoadingText: {
@@ -112,42 +111,52 @@ const AnalysisStyles = StyleSheet.create({
     color: "#000000",
     fontFamily: "LexendDeca",
   },
-  sofa: {
-    width: 70, // Increase width for a bigger sofa
-    height: 70, // Increase height for a bigger sofa
-    resizeMode: "contain",
-    marginLeft: 10, // Add space between text and sofa
+  gifContainer: {
+    marginTop: 20,
+    marginBottom: 20,
+    alignItems: "center", // Center horizontally
+  },
+  books: {
+    width: 330, // Set width of the GIF
+    height: 130, // Set height of the GIF
+    borderRadius: 60,
+    borderWidth: 2,
   },
 
   journalEntryContainer: {
-    marginTop: 20,
     padding: 10,
-    backgroundColor: "#E6C3CB", // Set the background color to the pink shade
+    backgroundColor: "#000", // Set the background color to black
     borderRadius: 15, // Keep the rounded corners
     borderWidth: 2, // Add a border
-    borderColor: "#000000", // Set the border color to black
+    borderColor: "#000", // Set the border color to black
     shadowColor: "#000", // Optional: Keep shadow for a lifted effect
     shadowOffset: { width: 0, height: 2 },
     shadowOpacity: 0.2,
     shadowRadius: 3,
     elevation: 5,
+    borderRadius: 30,
   },
 
   journalEntryContent: {
     padding: 10,
   },
+
   journalEntryDate: {
-    fontSize: 18,
+    fontSize: 14,
     fontWeight: "bold",
-    color: "#000000",
+    color: "white",
     fontFamily: "LexendDeca",
+    textAlign: "center",
+    transform: [{ skewX: "-10deg" }],
   },
   journalEntryTitle: {
-    fontSize: 14,
-    color: "#000000",
+    fontSize: 18,
+    color: "#FFD700",
+    fontFamily: "LexendDeca",
+    textAlign: "center",
   },
   title: {
-    fontSize: 20, // Keep or adjust the font size
+    fontSize: 26, // Keep or adjust the font size
     fontWeight: "bold", // Make the text bold
     color: "#000000", // Black text
     textAlign: "center", // Center the text horizontally
@@ -217,19 +226,23 @@ const AnalysisStyles = StyleSheet.create({
   },
   // Centered Title for Summary and Suggestions
   sectionTitleCentered: {
-    fontSize: 18,
+    fontSize: 20,
     fontWeight: "bold",
     color: "#000", // Black text
-    textAlign: "center", // Center the title
+    textAlign: "left", // Align the title to the left
     marginBottom: 10, // Add spacing between title and box
     marginTop: 30,
+    fontFamily: "LexendDeca",
+    marginLeft: 20, // Add margin to ensure it's not too close to the edge
+    left: 10,
+    transform: [{ skewX: "-10deg" }],
   },
 
   // Summary Container
   summaryContainer: {
     marginVertical: 10,
     padding: 15,
-    backgroundColor: "#F5F0E8", // Light beige background
+    backgroundColor: "#E6C3CB", // Light beige background
     borderRadius: 15, // Rounded corners
     borderWidth: 2, // Black border
     borderColor: "#000000", // Border color
@@ -243,19 +256,19 @@ const AnalysisStyles = StyleSheet.create({
   },
   summaryContent: {
     fontSize: 16,
-    color: "#4B4B4B", // Dark gray text
+    color: "#FFFFFFF", // Dark gray text
     textAlign: "left", // Align text to the left
   },
 
-summaryScrollContainer: {
-  flex: 1, // Let the ScrollView take up all available space within the fixed height
-  padding: 10, // Padding for better readability
-},
+  summaryScrollContainer: {
+    flex: 1, // Let the ScrollView take up all available space within the fixed height
+    padding: 10, // Padding for better readability
+  },
 
   feedbackContainer: {
     marginVertical: 10,
     padding: 15,
-    backgroundColor: "#F5F0E8", // Light beige background
+    backgroundColor: "#E6C3CB", // Light beige background
     borderRadius: 15, // Rounded corners
     borderWidth: 2, // Black border
     borderColor: "#000000", // Border color
@@ -269,7 +282,7 @@ summaryScrollContainer: {
   },
   feedbackContent: {
     fontSize: 16,
-    color: "#4B4B4B", // Dark gray text
+    color: "#FFFFF", // Dark gray text
     textAlign: "left", // Align text to the left
   },
   feedbackBox: {
@@ -308,12 +321,18 @@ summaryScrollContainer: {
     right: 20, // Push it to the right
     padding: 15, // Increase padding for a larger touch area
     zIndex: 10, // Ensure it is above other elements
+    color: "black", // Ensure the text is black
   },
   exitButtonText: {
-    fontSize: 36, // Make the font size larger
-    color: "#FFF", // Keep it white for visibility
+    fontSize: 36,
+    color: "black",
     fontWeight: "bold",
+    textShadowColor: "rgba(255, 255, 255, 0.5)", // Light shadow for contrast
+    textShadowOffset: { width: 1, height: 1 },
+    textShadowRadius: 1,
+    backgroundColor: "transparent", // Ensure no background overrides it
   },
+
   tagsContainer: {
     marginTop: 20, // Add spacing above the tag container
     paddingHorizontal: 15, // Add horizontal padding for the container

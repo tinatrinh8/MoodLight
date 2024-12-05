@@ -3,7 +3,7 @@ import { StyleSheet, Dimensions } from "react-native";
 const InsightsStyles = StyleSheet.create({
   container: {
     flex: 1,
-    backgroundColor: "#E6C3CB", // Light pink background
+    backgroundColor: "#F5F0E8", // Light pink background
     padding: 16,
   },
   insightsTitle: {
@@ -14,6 +14,7 @@ const InsightsStyles = StyleSheet.create({
     marginVertical: 10,
     fontFamily: "LexendDeca",
     marginBottom: 15,
+    fontFamily: "LexendDeca",
   },
   weekDisplay: {
     marginVertical: 10,
@@ -25,17 +26,18 @@ const InsightsStyles = StyleSheet.create({
     fontWeight: "bold",
     color: "#260101",
     textAlign: "center", // Centers the text
+    fontFamily: "LexendDeca",
   },
   chartContainer: {
     marginBottom: 20,
   },
-pieChartContainer: {
-  marginBottom: 20,
-  paddingBottom: 40, // Space below the chart
-  backgroundColor: "transparent", // Ensure it doesn't override the gradient
-  borderRadius: 16, // Round corners
-  overflow: "hidden", // Clip content to rounded edges
-},
+  pieChartContainer: {
+    marginBottom: 50,
+    paddingBottom: 40, // Space below the chart
+    backgroundColor: "transparent", // Ensure it doesn't override the gradient
+    borderRadius: 16, // Round corners
+    overflow: "hidden", // Clip content to rounded edges
+  },
   legendContainer: {
     flexDirection: "row",
     justifyContent: "center",
@@ -43,6 +45,10 @@ pieChartContainer: {
     flexWrap: "wrap",
     marginTop: 10,
     paddingHorizontal: 10,
+    borderWidth: 1,
+    borderColor: "black",
+    backgroundColor: "#FFFF",
+    borderRadius: 30,
   },
   legendItem: {
     flexDirection: "row",
@@ -55,10 +61,14 @@ pieChartContainer: {
     height: 16,
     borderRadius: 4,
     marginRight: 5,
+    fontFamily: "LexendDeca",
+    borderWidth: 1,
+    borderColor: "black",
   },
   legendText: {
     fontSize: 12,
     color: "#000",
+    fontFamily: "LexendDeca",
   },
   filterContainer: {
     flexDirection: "row",
@@ -71,6 +81,7 @@ pieChartContainer: {
     borderRadius: 10,
     padding: 10,
     marginHorizontal: 5,
+    borderWidth: 2,
   },
   activeFilter: {
     flex: 1,
@@ -78,30 +89,33 @@ pieChartContainer: {
     borderRadius: 10,
     padding: 10,
     marginHorizontal: 5,
+    borderWidth: 2,
   },
   activeFilterButton: {
     backgroundColor: "#9E4F61",
+    borderWidth: 2,
   },
   filterButtonText: {
     textAlign: "center",
     color: "#FFF",
     fontWeight: "bold",
+    fontFamily: "LexendDeca",
   },
   periodText: {
     textAlign: "center",
     color: "#000",
     fontWeight: "bold",
+    fontFamily: "LexendDeca",
   },
   chart: {
     marginVertical: 8,
     borderRadius: 16,
   },
   noDataText: {
-    color: "#FFF",
+    color: "#black",
     fontSize: 16,
     textAlign: "center",
   },
-
 });
 
 export default InsightsStyles;

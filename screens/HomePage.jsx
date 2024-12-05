@@ -22,6 +22,7 @@ import {
   Alert,
   ActivityIndicator,
   InteractionManager,
+  ImageBackground,
 } from "react-native";
 import { onAuthStateChanged } from "firebase/auth";
 import { auth } from "../components/firebase";
@@ -689,17 +690,31 @@ const CreateJournalEntry = ({
                 <Text style={styles.modalTitle}>
                   How would you like to journal today?
                 </Text>
+
                 <TouchableOpacity
-                  style={styles.journalOption}
+                  style={styles.journalOptionContainer}
                   onPress={() => switchModal("writeFreely")}
                 >
-                  <Text style={styles.optionTitle}>Write Freely</Text>
+                  <ImageBackground
+                    source={require("../assets/day.jpg")} // Path to your image
+                    style={styles.journalOptionImageBackground}
+                    imageStyle={styles.imageStyle}
+                  >
+                    <Text style={styles.optionTitle}>Write Freely</Text>
+                  </ImageBackground>
                 </TouchableOpacity>
+
                 <TouchableOpacity
-                  style={styles.journalOption}
+                  style={styles.journalOptionContainer}
                   onPress={openPromptsModal}
                 >
-                  <Text style={styles.optionTitle}>Use Prompts</Text>
+                  <ImageBackground
+                    source={require("../assets/night.jpg")} // Path to your image
+                    style={styles.journalOptionImageBackground}
+                    imageStyle={styles.imageStyle}
+                  >
+                    <Text style={styles.optionTitle}>Use Prompts</Text>
+                  </ImageBackground>
                 </TouchableOpacity>
               </>
             )}
@@ -709,7 +724,7 @@ const CreateJournalEntry = ({
               <>
                 <Text style={styles.modalTitle}>Dear diary...</Text>
                 <Text style={styles.dateText}>{displayedDate}</Text>
-
+                <Text style={styles.textBoxTitle}>Journal Title</Text>
                 <TextInput
                   style={styles.titleInputBox}
                   placeholder="Name your journal entry"

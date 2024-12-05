@@ -416,15 +416,21 @@ export default function Analysis() {
     >
       <View style={styles.container}>
         <Header />
-        <TouchableOpacity onPress={closeModal} style={styles.exitButton}>
+        <TouchableOpacity style={styles.exitButton} onPress={closeModal}>
           <Text style={styles.exitButtonText}>×</Text>
         </TouchableOpacity>
         <View style={styles.analysisHeader}>
           <Text style={styles.resultsText}>Analysis Results</Text>
-          <Image source={require("../assets/sofa.png")} style={styles.sofa} />
+          <View style={styles.gifContainer}>
+            <Image
+              source={require("../assets/books.gif")} // Replace with your actual GIF path
+              style={styles.books}
+              accessibilityLabel="Books GIF"
+            />
+          </View>
           <View style={styles.journalEntryContainer}>
-            <Text style={styles.journalEntryDate}>Date: {journalDate}</Text>
             <Text style={styles.journalEntryTitle}>{entryTitle}</Text>
+            <Text style={styles.journalEntryDate}>Date: {journalDate}</Text>
           </View>
         </View>
         {loadingEmotions ? (

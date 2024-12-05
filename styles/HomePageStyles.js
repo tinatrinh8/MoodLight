@@ -308,10 +308,11 @@ const styles = StyleSheet.create({
     color: "#FFF",
     fontWeight: "bold",
     fontFamily: "LexendDeca",
+    textAlign: "center",
   },
 
   dateText: {
-    color: "#FFFFFF",
+    color: "#FFD700",
     fontSize: 12,
     marginTop: 5,
     marginBottom: 10,
@@ -431,6 +432,8 @@ const styles = StyleSheet.create({
     alignSelf: "flex-start",
     marginBottom: 20,
     marginTop: 20,
+    fontFamily: "LexendDeca",
+    transform: "skewX(-20deg)",
   },
 
   modalDateWrapper: {
@@ -464,6 +467,8 @@ const styles = StyleSheet.create({
     paddingVertical: 0, // Minimize padding
     marginVertical: "auto", // Center content vertically within the wrapper
     backgroundColor: "transparent",
+    fontFamily: "LexendDeca",
+    transform: "skewX(-20deg)",
   },
 
   modalJournalName: {
@@ -480,6 +485,7 @@ const styles = StyleSheet.create({
     alignSelf: "flex-start",
     transform: [{ skewX: "-10deg" }],
     marginBottom: 25,
+    fontFamily: "LexendDeca",
   },
 
   journalName: {
@@ -511,11 +517,13 @@ const styles = StyleSheet.create({
     shadowColor: "#00000",
     shadowOpacity: 0.5, // Fully opaque shadow
     shadowRadius: 4,
+    marginTop: 20,
   },
   continueButtonText: {
     color: "#FFF",
     fontWeight: "bold",
     fontSize: 18,
+    fontFamily: "LexendDeca",
   },
 
   saveChangesButton: {
@@ -546,6 +554,7 @@ const styles = StyleSheet.create({
     marginBottom: 10,
     marginTop: 20,
     textAlign: "left",
+    fontFamily: "LexendDeca",
   },
   modalSelectTitleDescription: {
     fontSize: 14,
@@ -554,53 +563,79 @@ const styles = StyleSheet.create({
     marginBottom: 40,
     textAlign: "left",
     transform: [{ skewX: "-10deg" }],
+    fontFamily: "LexendDeca",
   },
-  journalOption: {
+
+  journalOptionContainer: {
+    flex: 1,
     width: "100%",
-    borderRadius: 30, // Increased border radius for a more rounded button
-    borderColor: "#000",
+    height: 200, // Adjust height for the button
+    marginBottom: 30,
+    borderRadius: 30, // For rounded corners
+    overflow: "hidden", // Ensures the image doesn't overflow the container
     borderWidth: 4,
-    backgroundColor: "#E8B72F", // Gold background for option
-    paddingVertical: 60, // Increased vertical padding for larger button height
-    paddingHorizontal: 25, // Increased horizontal padding for larger button width
-    marginBottom: 70, // Added extra margin for spacing between buttons
-    flexDirection: "row",
-    alignItems: "center",
-    justifyContent: "space-between",
+    borderColor: "#F5F0E8",
+    overflow: "hidden", // Ensures the image doesn't overflow the container
   },
+
+  journalOptionImageBackground: {
+    flex: 1, // Make the background fill the entire container
+    justifyContent: "center", // Center content vertically
+    alignItems: "center", // Center content horizontally
+  },
+
+  imageStyle: {
+    borderRadius: 20, // Match container's border radius
+  },
+
   optionTitle: {
     color: "#000",
-    fontSize: 24,
+    fontSize: 30,
     fontWeight: "500",
+    fontFamily: "LexendDeca",
   },
   optionDescription: {
     color: "#000",
     fontSize: 14,
     fontWeight: "300",
     marginTop: 5,
+    fontFamily: "LexendDeca",
   },
 
   // Modal Title and Subtitle
   modalTitle: {
-    fontSize: 22,
+    fontSize: 24,
     fontWeight: "bold",
+    borderWeight: 2,
     color: "#FFFFFF", // White text for title
     marginTop: 20,
-    marginBottom: 20,
+    marginBottom: 30,
     alignSelf: "flex-start",
+    fontFamily: "LexendDeca",
   },
   modalSubtitle: {
     fontSize: 16,
-    color: "#787392", // Light gray subtitle
+    color: "#00000", // Light gray subtitle
     marginTop: 5,
     marginBottom: 20,
     alignSelf: "flex-start",
+    fontFamily: "LexendDeca",
   },
+
+  imageBackground: {
+    flex: 1, // Ensure the image covers the entire button area
+    justifyContent: "center", // Center the text vertically
+    alignItems: "center", // Center the text horizontally
+    paddingVertical: 15, // Add vertical padding for the content
+    paddingHorizontal: 25, // Add horizontal padding for the content
+  },
+
   journalSubtitle: {
     fontSize: 18,
     color: "#E8B72F",
     marginTop: 10,
     marginBottom: 10,
+    fontFamily: "LexendDeca",
   },
 
   textBoxTitle: {
@@ -612,23 +647,25 @@ const styles = StyleSheet.create({
     flexWrap: "wrap", // Ensures long text wraps
     width: "100%", // Takes full width of container
     lineHeight: 24, // Adjust for readability
+    fontFamily: "LexendDeca",
+    marginBottom: 20,
   },
 
   titleInputBox: {
-    height: 40, // Smaller height for title input
-    borderWidth: 1,
-    borderColor: "#FFFFFF",
-    borderRadius: 5,
+    height: 50, // Smaller height for title input
+    borderWidth: 2,
+    borderRadius: 30,
     paddingHorizontal: 10,
     backgroundColor: "#FFFFFF",
     color: "#000", // Black text color
     marginBottom: 20,
+    fontSize: 18,
   },
 
   inputLabel: {
     fontSize: 16,
     fontWeight: "bold",
-    color: "#FFFFFF",
+    color: "black",
     marginBottom: 5,
   },
 
@@ -652,6 +689,7 @@ const styles = StyleSheet.create({
     color: "#333",
     marginBottom: 10,
     fontFamily: "LexendDeca",
+    marginBottom: 10,
   },
   suggestedPromptText: {
     fontSize: 16,
@@ -669,6 +707,7 @@ const styles = StyleSheet.create({
     shadowOffset: { width: 0, height: 1 },
     shadowRadius: 3,
     elevation: 2,
+    marginBottom: 10,
   },
 
   // Text Input Box
@@ -689,7 +728,7 @@ const styles = StyleSheet.create({
 
   textInputBoxWriteFreely: {
     width: "100%",
-    minHeight: 500, // Minimum height for the box
+    minHeight: 400, // Minimum height for the box
     maxHeight: 200, // Optional: Maximum height for scrolling
     backgroundColor: "#FFFFFF", // White background
     borderRadius: 10,
@@ -699,11 +738,12 @@ const styles = StyleSheet.create({
     fontSize: 16,
     color: "#000000",
     textAlignVertical: "top", // Align text to the top-left
+    marginBottom: 20,
   },
 
   textBoxPlaceholder: {
     fontSize: 16,
-    color: "#000000", // Black text
+    color: "black", // Black text
     textAlign: "center",
   },
 
@@ -733,6 +773,7 @@ const styles = StyleSheet.create({
     textAlign: "left", // Align the text to the left
     marginBottom: 10, // Add some spacing below the text
     fontFamily: "LexendDeca", // Use a readable and consistent font
+    transform: "skewX(-20deg)",
   },
 
   // Add this style for the button container
@@ -740,46 +781,42 @@ const styles = StyleSheet.create({
     flexDirection: "row", // Arrange buttons in a row
     justifyContent: "space-between", // Add spacing between buttons
     alignItems: "center", // Align buttons vertically
-    marginTop: 20, // Adjust top margin for the whole container
+    marginTop: 30, // Adjust top margin for the whole container
     width: "100%",
     paddingHorizontal: 20, // Add horizontal padding
+    marginBottom: 40,
   },
 
   editButton: {
-    backgroundColor: "#C82C87",
+    backgroundColor: "black",
     borderRadius: 50,
     paddingVertical: 15,
     paddingHorizontal: 10,
     width: "30%", // Reduce width to fit horizontally
     alignItems: "center",
-    shadowColor: "#00000",
-    shadowOpacity: 0.5,
-    shadowRadius: 4,
+    borderWidth: 3,
   },
   deleteButton: {
-    backgroundColor: "#FDADCE",
+    backgroundColor: "black",
     borderRadius: 50,
     paddingVertical: 15,
     paddingHorizontal: 10,
     width: "30%", // Same width as the edit button
     alignItems: "center",
-    shadowColor: "#00000",
-    shadowOpacity: 0.5,
-    shadowRadius: 4,
+    borderWidth: 3,
   },
   analysisButton: {
-    backgroundColor: "#E0639A",
+    backgroundColor: "black",
+    borderWidth: 3,
     borderRadius: 50,
     paddingVertical: 15,
     paddingHorizontal: 10,
     width: "30%", // Same as edit and delete
     alignItems: "center",
-    shadowColor: "#00000",
-    shadowOpacity: 0.5,
-    shadowRadius: 4,
   },
   scrollContentView: {
     flex: 1,
+    marginTop: 30,
     marginBottom: 80, // Leave space for the fixed buttons
   },
   fixedButtonsContainer: {
@@ -791,6 +828,8 @@ const styles = StyleSheet.create({
     justifyContent: "space-evenly",
     alignItems: "center",
     paddingHorizontal: 20,
+    marginBottom: 20,
+    marginTop: 30,
   },
 
   promptResponseContainer: {
