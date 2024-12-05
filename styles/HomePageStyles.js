@@ -110,6 +110,8 @@ const styles = StyleSheet.create({
     maxHeight: 250, // Limit the height of the dropdown
     overflow: "hidden", // Prevent overflow of items
     paddingVertical: 10, // Add padding inside the dropdown
+    flex: 1, // Allow the container to grow and fill available space
+    padding: 10, // Optional: Add some padding
   },
 
   // Styles for each dropdown item
@@ -157,17 +159,11 @@ const styles = StyleSheet.create({
     marginBottom: 30,
   },
   titleText: {
-    fontSize: 24,
+    fontSize: 35,
     fontWeight: "bold",
-    color: "#1D3557",
+    color: "#DB71AA",
     textAlign: "center",
-    fontFamily: "LexendDeca",
-  },
-  subtitle: {
-    fontSize: 18,
-    fontWeight: "300",
-    color: "#1D3557",
-    marginBottom: 10,
+    fontFamily: "Gentium Bold",
   },
   shelf: {
     width: 300,
@@ -187,74 +183,98 @@ const styles = StyleSheet.create({
   dosAndDontsContainer: {
     flexDirection: "row",
     justifyContent: "space-between",
-    marginVertical: 10,
-    width: "100%", // Adjust the width to match the page
-    alignSelf: "center", // Ensure it stays centered
-    marginBottom: 80,
+    marginVertical: 20,
+    width: "100%", // Full width
+    alignSelf: "center", // Center the container
+    paddingHorizontal: 10, // Add horizontal padding
   },
 
   dosColumn: {
     flex: 1,
-    marginRight: 10,
-    height: 200, // Set explicit height for consistent size
-    alignItems: "center", // Center align items
+    marginRight: 5,
+    alignItems: "flex-start", // Align content to the left
   },
 
   dontsColumn: {
     flex: 1,
-    marginLeft: 10,
-    height: 200, // Match height of dosColumn
-    alignItems: "center", // Center align items
+    marginLeft: 5,
+    alignItems: "flex-start", // Align content to the left
   },
 
   dosHeader: {
-    fontFamily: "LexendDeca", // Modern aesthetic font for headers
+    fontFamily: "LexendDeca",
     fontSize: 20,
-    color: "#1FACF1", // for positive
-    marginBottom: 10,
-    textAlign: "center",
+    color: "#1FACF1",
+    marginBottom: 15,
     fontWeight: "bold",
+    textAlign: "center",
+    left: 20,
   },
 
   dontsHeader: {
-    fontFamily: "LexendDeca", // Same font for consistency
+    fontFamily: "LexendDeca",
     fontSize: 20,
-    color: "#D25E21", // for negative
-    marginBottom: 10,
-    textAlign: "center",
+    color: "#D25E21",
+    marginBottom: 15,
     fontWeight: "bold",
+    textAlign: "center",
+    right: -10,
+  },
+
+  dosItem: {
+    flexDirection: "row", // Row layout for image and text
+    alignItems: "center", // Vertically center image and text
+    backgroundColor: "#9AD6F4", // Light blue background for Do's
+    borderRadius: 30,
+    padding: 15,
+    marginBottom: 15,
+    borderWidth: 2,
+    borderColor: "#000", // Black border
+    width: "100%", // Full width
+  },
+
+  dontsItem: {
+    flexDirection: "row", // Row layout for image and text
+    alignItems: "center", // Vertically center image and text
+    backgroundColor: "#EAA987", // Light orange background for Don'ts
+    borderRadius: 30,
+    padding: 15,
+    marginBottom: 15,
+    borderWidth: 2,
+    borderColor: "#000", // Black border
+    width: "100%", // Full width
+  },
+
+  dosImage: {
+    width: 30,
+    height: 30,
+    marginRight: 10, // Space between the image and text
+    resizeMode: "contain", // Properly scale the image
+  },
+
+  dontsImage: {
+    width: 30,
+    height: 30,
+    marginRight: 10, // Space between the image and text
+    resizeMode: "contain", // Properly scale the image
   },
 
   dosText: {
-    fontFamily: "LexendDeca", // Clean sans-serif for modern, readable text
+    fontFamily: "LexendDeca",
     fontSize: 16,
-    color: "#1FACF1", // Darker for items
-    marginVertical: 5,
-    padding: 15,
-    backgroundColor: "#9AD6F4", // Light background
-    borderRadius: 30,
-    textAlign: "center",
-    borderWidth: 2, // Add border width
-    borderColor: "#000", // Set border color to black
-    width: "90%", // Set consistent width for bubbles
+    color: "#1FACF1",
+    flexShrink: 1, // Prevent text overflow
   },
 
   dontsText: {
-    fontFamily: "LexendDeca", // Same clean font for text
+    fontFamily: "LexendDeca",
     fontSize: 16,
-    color: "#D25E21", // Darker for items
-    marginVertical: 5,
-    padding: 15,
-    backgroundColor: "#EAA987", // Light background
-    borderRadius: 30,
-    textAlign: "center",
-    borderWidth: 2, // Add border width
-    borderColor: "#000", // Set border color to black
-    width: "90%", // Set consistent width for bubbles
+    color: "#D25E21",
+    flexShrink: 1, // Prevent text overflow
   },
 
   pastEntries: {
-    marginTop: 40,
+    marginTop: 30,
   },
   pastEntriesTitle: {
     fontSize: 20,
@@ -275,7 +295,7 @@ const styles = StyleSheet.create({
   entryButton: {
     backgroundColor: "#A4A4E0",
     borderRadius: 10, // Rounded corners
-    padding: 15,
+    padding: 20,
     marginBottom: 10,
     width: "48%", // Adjust width for two buttons per row
     alignItems: "center", // Center align text
@@ -294,6 +314,9 @@ const styles = StyleSheet.create({
     color: "#FFFFFF",
     fontSize: 12,
     marginTop: 5,
+    marginBottom: 10,
+    fontFamily: "LexendDeca",
+    transform: "skewX(-20deg)",
   },
 
   cat: {
@@ -353,7 +376,7 @@ const styles = StyleSheet.create({
     textAlign: "Left",
     backgroundColor: "#F8C100",
     borderRadius: 10,
-    paddingVertical: 15,
+    paddingVertical: 20,
     paddingHorizontal: 50,
     marginRight: 5, // Space between the button and crane
     borderColor: "000000",
@@ -361,7 +384,7 @@ const styles = StyleSheet.create({
   },
 
   addButtonText: {
-    fontSize: 18,
+    fontSize: 28,
     fontWeight: "bold",
     color: "#FFF",
     textAlign: "center",

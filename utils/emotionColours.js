@@ -3,8 +3,8 @@ export const emotionColours = {
   amusement: "#FFA07A", // Light Salmon
   anger: "#FF6F61", // Coral Red
   annoyance: "#FF8C69", // Light Red Orange
-  approval: "#8FBC8F", // Sage Green
-  autonomy: "#7EC8E3", // Sky Blue
+  approval: "#7EC8E3", // Sage Green
+  autonomy: "#8FBC8F", // Sky Blue
   boredom: "#D3D3D3", // Light Gray
   caring: "#DDA0DD", // Plum
   confusion: "#DDAADD", // Light Purple
@@ -32,10 +32,10 @@ export const emotionColours = {
   optimism: "#FFFF99", // Pale Yellow
   pride: "#F49AC2", // Baby Pink
   realization: "#FFC0CB", // Pink
-  recreation: "#ADD8E6", // Light Blue
+  recreation: "#7FFF00", // Light Blue
   relief: "#FFDEAD", // Navajo White
   sadness: "#87CEEB", // Sky Blue
-  safety: "#7FFF00", // Chartreuse Green
+  safety: "#ADD8E6", // Chartreuse Green
   sense_of_belonging: "#FFCC99", // Peach
   surprise: "#FFD700", // Gold
   sustenance: "#FFA07A", // Salmon

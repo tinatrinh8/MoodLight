@@ -351,6 +351,18 @@ const HomePage = () => {
     setCreateEntryModalVisible(false);
   };
 
+  const doImages = [
+    require("../assets/taxi.png"),
+    require("../assets/flipflops.png"),
+    require("../assets/musicnotes.png"),
+  ];
+
+  const dontImages = [
+    require("../assets/piano.png"),
+    require("../assets/airpods.png"),
+    require("../assets/bathrobe.png"),
+  ];
+
   const contentData = [
     {
       id: "greeting",
@@ -388,9 +400,10 @@ const HomePage = () => {
             <View style={styles.dosColumn}>
               <Text style={styles.dosHeader}>Today's Do's</Text>
               {dailySuggestions.dos.map((item, index) => (
-                <Text key={index} style={styles.dosText}>
-                  {item}
-                </Text>
+                <View key={index} style={styles.dosItem}>
+                  <Image source={doImages[index]} style={styles.dosImage} />
+                  <Text style={styles.dosText}>{item}</Text>
+                </View>
               ))}
             </View>
 
@@ -398,9 +411,10 @@ const HomePage = () => {
             <View style={styles.dontsColumn}>
               <Text style={styles.dontsHeader}>Today's Don'ts</Text>
               {dailySuggestions.donts.map((item, index) => (
-                <Text key={index} style={styles.dontsText}>
-                  {item}
-                </Text>
+                <View key={index} style={styles.dontsItem}>
+                  <Image source={dontImages[index]} style={styles.dontsImage} />
+                  <Text style={styles.dontsText}>{item}</Text>
+                </View>
               ))}
             </View>
           </View>
@@ -781,8 +795,7 @@ const CreateJournalEntry = ({
 const Title = ({ quote }) => (
   <View style={styles.titleContainer}>
     <Text style={styles.titleText}>Let’s Start Journaling</Text>
-    <Text style={styles.subtitle}>Shall we?</Text>
-    <Image source={require("../assets/shelf.png")} style={styles.shelf} />
+    <Image source={require("../assets/journal.gif")} style={styles.shelf} />
     <Text style={styles.quote}>“{quote}”</Text>
   </View>
 );

@@ -8,6 +8,7 @@ import {
   TouchableOpacity,
   ActivityIndicator,
   Image,
+  ScrollView,
 } from "react-native";
 import styles from "../styles/HomePageStyles";
 import { getJournalEntries } from "../functions/JournalFunctions";
@@ -16,7 +17,7 @@ export const SearchArea = ({ handleOpenJournal }) => {
   const [searchTerm, setSearchTerm] = useState(null);
 
   return (
-    <SafeAreaView style={styles.searchContainer}>
+    <SafeAreaView style={[styles.searchContainer, { flex: 1 }]}>
       <SearchBar onSearch={setSearchTerm} />
       <SearchResults
         searchTerm={searchTerm}
@@ -50,24 +51,31 @@ const SearchResults = ({ searchTerm, handleOpenJournal }) => {
   }, [searchTerm]);
 
   return (
-    <View style={styles.resultsContainer}>
+    <View style={[styles.resultsContainer, { flex: 1 }]}>
       {isLoading ? (
         <ActivityIndicator size="large" color="#666" />
       ) : searchTerm && allEntries.length === 0 ? (
         <Text style={styles.noResultsText}>No Search Results.</Text>
       ) : (
-        <FlatList
-          data={allEntries}
-          keyExtractor={(item) => item.id}
-          renderItem={({ item }) => (
-            <TouchableOpacity
-              style={styles.resultItem}
-              onPress={() => handleOpenJournal(item)}
-            >
-              <Text style={styles.resultText}>{item.entryTitle}</Text>
-            </TouchableOpacity>
-          )}
-        />
+        <ScrollView contentContainerStyle={{ flexGrow: 1 }}>
+          <FlatList
+            data={allEntries}
+            keyExtractor={(item) => item.id}
+            renderItem={({ item }) => (
+              <TouchableOpacity
+                style={styles.resultItem}
+                onPress={() => handleOpenJournal(item)}
+              >
+                <Text style={styles.resultText}>{item.entryTitle}</Text>
+              </TouchableOpacity>
+            )}
+            showsVerticalScrollIndicator={true} // Show scroll indicator
+            contentContainerStyle={{
+              paddingBottom: 20, // Prevent clipping at the bottom
+            }}
+            style={{ flexGrow: 1 }}
+          />
+        </ScrollView>
       )}
     </View>
   );

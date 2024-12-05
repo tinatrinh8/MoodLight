@@ -22,14 +22,13 @@ const TabNavigator = () => (
       tabBarStyle: {
         backgroundColor: "#DC869A",
         borderRadius: 40,
-        height: 65, // Keep the height as 70
+        height: 60, // Keep the height as 70
         position: "absolute",
-        left: 10, // Narrowed left margin
-        right: 10, // Narrowed right margin
-        bottom: 20, // Increased value to move the bar higher
+        marginHorizontal: 15,
+        bottom: 30, // Increased value to move the bar higher
         elevation: 5,
         borderColor: "black", // Add black border color
-        borderWidth: 4, // Ensure consistent border
+        borderWidth: 2,
       },
       tabBarItemStyle: {
         justifyContent: "center", // Center items vertically
