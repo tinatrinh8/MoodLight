@@ -23,7 +23,7 @@ MoodLight helps you **understand yourself better** while making journaling a joy
 ### **1. Journal Entry Features**
 - **Create New Entries**:
    - Input fields: **Title**, **Text Box**, and **Date (required)**.
-   - Options: `Save`, `Save as Draft`, or `Cancel` (with confirmation pop-up).
+   - Options: `Save`, `Edit`, or `Delete`.
 - **Smart Mood Prompts**:
    - “How are you feeling today?” with mood selection and intensity scoring.
    - NLP-powered prompts generated based on selected moods using **GPT-3.5**.
@@ -59,7 +59,7 @@ MoodLight helps you **understand yourself better** while making journaling a joy
 
 ## 🍥 **Tech Stack**
 - **Frontend**: React Native
-- **Backend**: Node.js, Javascript
+- **Backend**: Node.js, Javascript, Firebase
 - **HTTP Requests**: Axios
 - **NLP**: GPT-3.5 (prompts), GPT-4 (feedback and summaries), BERT (Hugging Face)
 - **Design Tools**: Figma
@@ -86,7 +86,7 @@ Ensure you have the following installed:
    ```
 3. Run the app:
    ```bash
-   expo start
+   npx start expo
    ```
 4. Scan the QR code with **Expo Go** on your device or run on a simulator.
 
