@@ -1,6 +1,6 @@
-# 🕯️🧘🏻‍♀️🫧🍶 **MoodLight** — CSI4900 Honours Project 🍶🫧🧘🏻‍♀️🕯️
+# 🕯️🧘🏻‍♀️🫧🍶 **MoodLight** 🍶🫧🧘🏻‍♀️🕯️
 ---
-## MoodLight: NLP Powered Mood Tracking and Journaling Mobile Application
+## NLP Powered Mood Tracking and Journaling Mobile Application
 
 Welcome to **MoodLight**! This app transforms mood journaling into a **fun**, **interactive**, and **insightful** experience. 🌸 Whether you're looking to reflect on your day, understand your emotional patterns, or gain personalized feedback, MoodLight is here to empower your emotional journey.
 
