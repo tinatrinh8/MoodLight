@@ -12,18 +12,33 @@ const CalendarScreen = () => {
   const navigation = useNavigation(); // For navigating to the homepage
 
   const months = [
-    { name: "January", days: 31, startDay: 6, year: 2024, index: 0 },
-    { name: "February", days: 29, startDay: 2, year: 2024, index: 1 }, // February 2024 (Leap Year)
-    { name: "March", days: 31, startDay: 5, year: 2024, index: 2 },
-    { name: "April", days: 30, startDay: 0, year: 2024, index: 3 },
-    { name: "May", days: 31, startDay: 3, year: 2024, index: 4 },
-    { name: "June", days: 30, startDay: 6, year: 2024, index: 5 },
-    { name: "July", days: 31, startDay: 1, year: 2024, index: 6 },
-    { name: "August", days: 31, startDay: 4, year: 2024, index: 7 },
-    { name: "September", days: 30, startDay: 0, year: 2024, index: 8 },
-    { name: "October", days: 31, startDay: 2, year: 2024, index: 9 },
-    { name: "November", days: 30, startDay: 5, year: 2024, index: 10 },
-    { name: "December", days: 31, startDay: 0, year: 2024, index: 11 },
+    // 2024 was a leap year (February has 29 days)
+    { name: "January", days: 31, startDay: 1, year: 2024, index: 0 }, // Jan 1 is a Monday (1)
+    { name: "February", days: 29, startDay: 4, year: 2024, index: 1 }, // Feb 1 is a Thursday (4)
+    { name: "March", days: 31, startDay: 5, year: 2024, index: 2 }, // Mar 1 is a Friday (5)
+    { name: "April", days: 30, startDay: 1, year: 2024, index: 3 }, // Apr 1 is a Monday (1)
+    { name: "May", days: 31, startDay: 3, year: 2024, index: 4 }, // May 1 is a Wednesday (3)
+    { name: "June", days: 30, startDay: 6, year: 2024, index: 5 }, // Jun 1 is a Saturday (6)
+    { name: "July", days: 31, startDay: 1, year: 2024, index: 6 }, // Jul 1 is a Monday (1)
+    { name: "August", days: 31, startDay: 4, year: 2024, index: 7 }, // Aug 1 is a Thursday (4)
+    { name: "September", days: 30, startDay: 0, year: 2024, index: 8 }, // Sep 1 is a Sunday (0)
+    { name: "October", days: 31, startDay: 2, year: 2024, index: 9 }, // Oct 1 is a Tuesday (2)
+    { name: "November", days: 30, startDay: 5, year: 2024, index: 10 }, // Nov 1 is a Friday (5)
+    { name: "December", days: 31, startDay: 0, year: 2024, index: 11 }, // Dec 1 is a Sunday (0)
+
+    // 2025
+    { name: "January", days: 31, startDay: 3, year: 2025, index: 12 }, // Jan 1 is a Wednesday (3)
+    { name: "February", days: 28, startDay: 6, year: 2025, index: 13 }, // Feb 1 is a Saturday (6)
+    { name: "March", days: 31, startDay: 6, year: 2025, index: 14 }, // Mar 1 is a Saturday (6)
+    { name: "April", days: 30, startDay: 2, year: 2025, index: 15 }, // Apr 1 is a Tuesday (2)
+    { name: "May", days: 31, startDay: 4, year: 2025, index: 16 }, // May 1 is a Thursday (4)
+    { name: "June", days: 30, startDay: 0, year: 2025, index: 17 }, // Jun 1 is a Sunday (0)
+    { name: "July", days: 31, startDay: 2, year: 2025, index: 18 }, // Jul 1 is a Tuesday (2)
+    { name: "August", days: 31, startDay: 5, year: 2025, index: 19 }, // Aug 1 is a Friday (5)
+    { name: "September", days: 30, startDay: 1, year: 2025, index: 20 }, // Sep 1 is a Monday (1)
+    { name: "October", days: 31, startDay: 3, year: 2025, index: 21 }, // Oct 1 is a Wednesday (3)
+    { name: "November", days: 30, startDay: 6, year: 2025, index: 22 }, // Nov 1 is a Saturday (6)
+    { name: "December", days: 31, startDay: 1, year: 2025, index: 23 }, // Dec 1 is a Monday (1)
   ];
 
   const daysOfWeek = ["SUN", "MON", "TUE", "WED", "THU", "FRI", "SAT"];
@@ -32,9 +47,10 @@ const CalendarScreen = () => {
   useEffect(() => {
     setTimeout(() => {
       if (scrollViewRef.current) {
+        // Scroll to the end (most recent year/month)
         scrollViewRef.current.scrollToEnd({ animated: true });
       }
-    }, 100); // Adding a small timeout ensures the ScrollView is fully rendered
+    }, 100);
   }, []);
 
   // Define getEmotionColor function
@@ -59,7 +75,7 @@ const CalendarScreen = () => {
         const [year, monthIndex, day] = entry.journalDate
           .split("-")
           .map(Number);
-        return year === month.year && monthIndex - 1 === month.index; // Match year and month
+        return year === month.year && monthIndex - 1 === month.index;
       })
       .map((entry) => {
         const day = parseInt(entry.journalDate.split("-")[2], 10);
@@ -122,11 +138,11 @@ const CalendarScreen = () => {
       <Text style={styles.title}>Journal Entries</Text>
       <ScrollView ref={scrollViewRef}>
         {months.map((month) => {
-          const grid = generateGrid(month); // Pass the whole month object
+          const grid = generateGrid(month);
           const rows = chunkArray(grid, 7);
 
           return (
-            <View key={month.name} style={styles.monthContainer}>
+            <View key={month.name + month.year} style={styles.monthContainer}>
               <Text style={styles.monthTitle}>
                 {month.name}, {month.year}
               </Text>
@@ -143,7 +159,7 @@ const CalendarScreen = () => {
                   days={week}
                   month={month}
                   entryDates={entryDates}
-                  onDayPress={handleDayPress} // Pass the click handler
+                  onDayPress={handleDayPress}
                 />
               ))}
             </View>
@@ -159,7 +175,7 @@ const styles = StyleSheet.create({
     flex: 1,
     backgroundColor: "#000",
     padding: 10,
-    paddingBottom: 50, // Add padding to the bottom
+    paddingBottom: 50,
   },
   title: {
     fontSize: 24,

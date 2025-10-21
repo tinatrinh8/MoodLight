@@ -1,6 +1,11 @@
 import axios from "axios";
 import { HUGGING_FACE_API_KEY } from "@env";
 
+// Primary: The model preferred by the user/original implementation
+const MODEL_PRIMARY = "borisn70/bert-43-multilabel-emotion-detection";
+// Fallback: A known, reliable public model for emotion detection
+const MODEL_FALLBACK = "j-hartmann/emotion-english-distilroberta-base";
+
 // Helper Function for Retrying Requests
 const retryRequest = async (fn, retries = 3, delay = 5000) => {
   for (let i = 0; i < retries; i++) {
@@ -15,6 +20,29 @@ const retryRequest = async (fn, retries = 3, delay = 5000) => {
   }
 };
 
+const runInference = async (text, modelId) => {
+  const endpoint = `https://api-inference.huggingface.co/models/${modelId}`;
+
+  const response = await axios.post(
+    endpoint,
+    { inputs: text },
+    {
+      headers: {
+        Authorization: `Bearer ${HUGGING_FACE_API_KEY}`,
+        "x-wait-for-model": "true",
+      },
+    }
+  );
+  // Handle different response structures
+  if (Array.isArray(response.data) && Array.isArray(response.data[0])) {
+    return response.data[0];
+  } else if (Array.isArray(response.data)) {
+    return response.data;
+  }
+  // If response is a single object (e.g., an error or unexpected format)
+  throw new Error(`Unexpected model response structure from ${modelId}.`);
+};
+
 export const getEmotion = async (text) => {
   if (!text || typeof text !== "string") {
     console.error("Invalid input for emotion analysis:", text);
@@ -24,30 +52,28 @@ export const getEmotion = async (text) => {
   }
 
   try {
-    console.log("Sending text to Hugging Face API:", text);
-    const response = await axios.post(
-      "https://api-inference.huggingface.co/models/borisn70/bert-43-multilabel-emotion-detection",
-      { inputs: text },
-      {
-        headers: {
-          Authorization: `Bearer ${HUGGING_FACE_API_KEY}`,
-          "x-wait-for-model": "true",
-        },
-      }
-    );
+    // 1. Try the Primary Model (User's preferred choice)
+    console.log(`Sending text to Hugging Face API (Primary: ${MODEL_PRIMARY})`);
+    try {
+      return await runInference(text, MODEL_PRIMARY);
+    } catch (primaryError) {
+      // 2. If Primary Model fails, log and try the Fallback
+      console.warn(
+        `Primary model (${MODEL_PRIMARY}) failed. Error: ${primaryError.message}. Attempting Fallback...`
+      );
 
-    if (!response.data || !Array.isArray(response.data)) {
-      throw new Error("Unexpected API response format. Expected an array.");
+      // 3. Try the Fallback Model
+      console.log(
+        `Sending text to Hugging Face API (Fallback: ${MODEL_FALLBACK})`
+      );
+      return await runInference(text, MODEL_FALLBACK);
     }
-
-    console.log("Emotion API Response:", response.data);
-    return response.data[0];
   } catch (error) {
     if (error.response) {
       console.error("API Error:", error.response.data);
       throw new Error(
         `API Error: ${error.response.status} - ${
-          error.response.data.error || error.response.data
+          error.response.data.error || JSON.stringify(error.response.data)
         }`
       );
     } else if (error.request) {
@@ -55,7 +81,7 @@ export const getEmotion = async (text) => {
       throw new Error("No response received from API.");
     } else {
       console.error("Error fetching emotion data:", error.message);
-      throw new Error("Unexpected error occurred.");
+      throw new Error(`Unexpected error occurred: ${error.message}`);
     }
   }
 };
