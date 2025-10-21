@@ -655,7 +655,9 @@ const CreateJournalEntry = ({
   return (
     <View style={styles.createEntryContainer}>
       <Image source={require("../assets/cat.png")} style={styles.cat} />
-      <Text style={styles.createEntryText}>Create a New Journal Entry</Text>
+      <Text style={[styles.createEntryText, { marginLeft: 30 }]}>
+        Create a New Journal Entry
+      </Text>
       <View style={styles.buttonAndCraneContainer}>
         <TouchableOpacity
           style={styles.addButton}
